@@ -144,3 +144,33 @@ To begin unit testing with Jest in your project, follow these steps:
      ```bash
      npm run test
      ```
+## Work Allocation
+Xa:
+- Protected Routes
+- Registration
+- Login
+- Admin Dashboards
+
+Roger:
+- Admin Actions
+- Admin View Orders
+- Admin View Products
+- General (1st One)
+
+Edwin:
+- Order
+- Profile
+- Admin View Users
+- Search
+
+Aum:
+- Contact
+- Policy
+- General (2nd One)
+- Home
+
+Wang Zihan:
+- Product
+- Cart
+- Category
+- Payment
