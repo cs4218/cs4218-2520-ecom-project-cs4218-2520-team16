@@ -1,3 +1,4 @@
+import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import axios from 'axios';
@@ -57,8 +58,8 @@ describe('Profile Component', () => {
 			expect(getByPlaceholderText('Enter Your Name').value).toBe('John Doe');
 		});
 
-		expect(getByPlaceholderText('Enter Your Email ').value).toBe('john@example.com');
-		expect(getByPlaceholderText('Enter Your Email ')).toBeDisabled();
+		expect(getByPlaceholderText('Enter Your Email').value).toBe('john@example.com');
+		expect(getByPlaceholderText('Enter Your Email')).toBeDisabled();
 		expect(getByPlaceholderText('Enter Your Phone').value).toBe('1234567890');
 		expect(getByPlaceholderText('Enter Your Address').value).toBe('123 Street');
 	});
