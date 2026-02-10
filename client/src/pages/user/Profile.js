@@ -16,7 +16,10 @@ const Profile = () => {
 
   //get user data
   useEffect(() => {
-    const { email, name, phone, address } = auth?.user;
+    // Updated this to handle cases where auth or auth.user might be undefined
+    const user = auth?.user;
+    if (!user) return;
+    const { email, name, phone, address } = user;
     setName(name);
     setPhone(phone);
     setEmail(email);
@@ -34,8 +37,9 @@ const Profile = () => {
         phone,
         address,
       });
-      if (data?.errro) {
-        toast.error(data?.error);
+      const errorMessage = data?.error || data?.errro;
+      if (errorMessage) {
+        toast.error(errorMessage);
       } else {
         setAuth({ ...auth, user: data?.updatedUser });
         let ls = localStorage.getItem("auth");
@@ -78,7 +82,7 @@ const Profile = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     className="form-control"
                     id="exampleInputEmail1"
-                    placeholder="Enter Your Email "
+                    placeholder="Enter Your Email"
                     disabled
                   />
                 </div>

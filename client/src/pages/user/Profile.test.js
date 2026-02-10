@@ -165,6 +165,24 @@ describe('Profile Component', () => {
 		expect(toast.success).not.toHaveBeenCalled();
 	});
 
+	it('shows API error message when response has error string', async () => {
+		axios.put.mockResolvedValueOnce({
+			data: {
+				error: 'Email already taken'
+			}
+		});
+
+		const { getByText } = render(<Profile />);
+
+		fireEvent.click(getByText('UPDATE'));
+
+		await waitFor(() => expect(axios.put).toHaveBeenCalled());
+		expect(toast.error).toHaveBeenCalledWith('Email already taken');
+		expect(mockSetAuth).not.toHaveBeenCalled();
+		expect(window.localStorage.setItem).not.toHaveBeenCalled();
+		expect(toast.success).not.toHaveBeenCalled();
+	});
+
 	it('shows an error message when update fails', async () => {
 		axios.put.mockRejectedValueOnce(new Error('Update failed'));
 
