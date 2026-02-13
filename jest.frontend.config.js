@@ -22,13 +22,22 @@ export default {
   // only run these tests
   testMatch: ["<rootDir>/client/src/pages/Auth/*.test.js"],
 
-  // jest code coverage
+  // jest code 
+  // Xiao Ao, A0273305L
   collectCoverage: true,
   collectCoverageFrom: ["client/src/pages/Auth/**"],
   coverageThreshold: {
-    global: {
-      lines: 100,
+    "client/src/pages/Auth/Login.js": {
+      statements: 100,
+      branches: 100,
       functions: 100,
+      lines: 100,
+    },
+    "client/src/pages/Auth/Register.js": {
+      statements: 100,
+      branches: 100,
+      functions: 100,
+      lines: 100,
     },
   },
   setupFilesAfterEnv: ["<rootDir>/client/src/setupTests.js"],
