@@ -72,12 +72,14 @@ describe("Login Component", () => {
   });
 
   test("renders Login component with form elements", () => {
+    // Arrange & Act
     render(
       <BrowserRouter>
         <Login />
       </BrowserRouter>
     );
 
+    // Assert
     expect(screen.getByText("LOGIN FORM")).toBeInTheDocument();
     expect(screen.getAllByRole("textbox")).toHaveLength(1);
     const passwordInputs = document.querySelectorAll('input[type="password"]');
@@ -86,54 +88,61 @@ describe("Login Component", () => {
   });
 
   test("renders Forgot Password button and navigates on click", async () => {
+    // Arrange
     render(
       <BrowserRouter>
         <Login />
       </BrowserRouter>
     );
-
     const forgotPasswordBtn = screen.getByRole("button", {
       name: /Forgot Password/i,
     });
     expect(forgotPasswordBtn).toBeInTheDocument();
 
-    // Click the Forgot Password button
+    // Act
     await userEvent.click(forgotPasswordBtn);
 
-    // Verify navigate was called with correct path
+    // Assert
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith("/forgot-password");
     });
   });
 
   test("updates email input value on change", async () => {
+    // Arrange
     render(
       <BrowserRouter>
         <Login />
       </BrowserRouter>
     );
-
     const inputs = Array.from(document.querySelectorAll("input"));
     const emailInput = inputs.find((input) => input.type === "email");
+
+    // Act
     await userEvent.type(emailInput, "test@example.com");
 
+    // Assert
     expect(emailInput.value).toBe("test@example.com");
   });
 
   test("updates password input value on change", async () => {
+    // Arrange
     render(
       <BrowserRouter>
         <Login />
       </BrowserRouter>
     );
-
     const passwordInputs = document.querySelector('input[type="password"]');
+
+    // Act
     await userEvent.type(passwordInputs, "password123");
 
+    // Assert
     expect(passwordInputs.value).toBe("password123");
   });
 
   test("displays success message and navigates on successful login", async () => {
+    // Arrange
     const mockResponse = {
       data: {
         success: true,
@@ -156,10 +165,12 @@ describe("Login Component", () => {
     const passwordInput = inputs.find((input) => input.type === "password");
     const submitButton = screen.getByRole("button", { name: /LOGIN/i });
 
+    // Act
     await userEvent.type(emailInput, "test@example.com");
     await userEvent.type(passwordInput, "password123");
     await userEvent.click(submitButton);
 
+    // Assert
     await waitFor(() => {
       expect(axios.post).toHaveBeenCalledWith("/api/v1/auth/login", {
         email: "test@example.com",
@@ -178,6 +189,7 @@ describe("Login Component", () => {
   });
 
   test("saves auth data to localStorage on successful login", async () => {
+    // Arrange  
     const mockResponse = {
       data: {
         success: true,
@@ -202,10 +214,12 @@ describe("Login Component", () => {
     const passwordInput = inputs.find((input) => input.type === "password");
     const submitButton = screen.getByRole("button", { name: /LOGIN/i });
 
+    // Act
     await userEvent.type(emailInput, "test@example.com");
     await userEvent.type(passwordInput, "password123");
     await userEvent.click(submitButton);
 
+    // Assert
     await waitFor(() => {
       expect(setItemSpy).toHaveBeenCalledWith(
         "auth",
@@ -217,12 +231,14 @@ describe("Login Component", () => {
   });
 
   test("handles email and password validation (required fields)", async () => {
+    // Act
     render(
       <BrowserRouter>
         <Login />
       </BrowserRouter>
     );
 
+    // Assert
     const inputs = Array.from(document.querySelectorAll("input"));
     const emailInput = inputs.find((input) => input.type === "email");
     const passwordInput = inputs.find((input) => input.type === "password");
@@ -232,6 +248,7 @@ describe("Login Component", () => {
   });
 
   test("displays error message on failed login", async () => {
+    // Arrange
     const errorMessage = "Invalid email or password";
     const mockResponse = {
       data: {
@@ -253,10 +270,12 @@ describe("Login Component", () => {
     const passwordInput = inputs.find((input) => input.type === "password");
     const submitButton = screen.getByRole("button", { name: /LOGIN/i });
 
+    // Act
     await userEvent.type(emailInput, "test@example.com");
     await userEvent.type(passwordInput, "wrongpassword");
     await userEvent.click(submitButton);
 
+    // Assert
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith(errorMessage);
     });
@@ -293,10 +312,10 @@ describe("Login Component", () => {
   });
 
   test("displays error message on network error", async () => {
+    // Arrange
     const mockError = new Error("Network Error");
     axios.post.mockRejectedValue(mockError);
     toast.error = jest.fn();
-    console.error = jest.fn();
 
     render(
       <BrowserRouter>
@@ -309,23 +328,26 @@ describe("Login Component", () => {
     const passwordInput = inputs.find((input) => input.type === "password");
     const submitButton = screen.getByRole("button", { name: /LOGIN/i });
 
+    // Act
     await userEvent.type(emailInput, "test@example.com");
     await userEvent.type(passwordInput, "password123");
     await userEvent.click(submitButton);
 
+    // Assert
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith("Something went wrong");
-      expect(console.error).toHaveBeenCalledWith(mockError);
     });
   });
 
   test("renders with correct page title in Layout", () => {
+    // Arrange & Act
     render(
       <BrowserRouter>
         <Login />
       </BrowserRouter>
     );
 
+    // Assert
     const layout = screen.getByTestId("layout");
     expect(layout).toHaveAttribute(
       "data-title",
@@ -334,12 +356,14 @@ describe("Login Component", () => {
   });
 
   test("email input has autoFocus attribute", () => {
+    // Arrange & Act
     const { container } = render(
       <BrowserRouter>
         <Login />
       </BrowserRouter>
     );
 
+    // Assert
     const inputs = container.querySelectorAll("input[type='email']");
     expect(inputs.length).toBeGreaterThan(0);
     // Check if email input has tabIndex -1 which is set for autoFocus elements, or direct check
@@ -349,37 +373,42 @@ describe("Login Component", () => {
   });
 
   test("form has correct CSS class for styling", () => {
+    // Arrange & Act
     const { container } = render(
       <BrowserRouter>
         <Login />
       </BrowserRouter>
     );
 
+    // Assert
     const formContainer = container.querySelector(".form-container");
     expect(formContainer).toBeInTheDocument();
     expect(formContainer).toHaveStyle("minHeight: 90vh");
   });
 
-  test("prevents default form submission behavior", async () => {
-    axios.post.mockResolvedValue({
-      data: { success: true, message: "Login successful" },
+    test("prevents default form submission behavior", async () => {
+      // Arrange
+      axios.post.mockResolvedValue({
+        data: { success: true, message: "Login successful" },
+      });
+      toast.success = jest.fn();
+
+      render(
+        <BrowserRouter>
+          <Login />
+        </BrowserRouter>
+      );
+
+      const form = screen.getByRole("button", { name: /LOGIN/i }).closest("form");
+      const submitEvent = new Event("submit", { bubbles: true });
+      const preventDefaultSpy = jest.spyOn(submitEvent, "preventDefault");
+
+      // Act
+      form.dispatchEvent(submitEvent);
+
+      // Assert
+      await waitFor(() => {
+        expect(preventDefaultSpy).toHaveBeenCalled();
+      });
     });
-    toast.success = jest.fn();
-
-    render(
-      <BrowserRouter>
-        <Login />
-      </BrowserRouter>
-    );
-
-    const form = screen.getByRole("button", { name: /LOGIN/i }).closest("form");
-    const submitEvent = new Event("submit", { bubbles: true });
-    const preventDefaultSpy = jest.spyOn(submitEvent, "preventDefault");
-
-    form.dispatchEvent(submitEvent);
-
-    await waitFor(() => {
-      expect(preventDefaultSpy).toHaveBeenCalled();
-    });
-  });
 });

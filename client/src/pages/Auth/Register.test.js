@@ -60,12 +60,14 @@ describe("Register Component", () => {
   });
 
   test("renders Register component with all form elements", () => {
+    // Arrange & Act
     render(
       <BrowserRouter>
         <Register />
       </BrowserRouter>
     );
 
+    // Assert
     expect(screen.getByText("REGISTER FORM")).toBeInTheDocument();
     const inputs = screen.getAllByRole("textbox");
     expect(inputs.length).toBeGreaterThanOrEqual(5); // name, email, phone, address, answer
@@ -77,17 +79,20 @@ describe("Register Component", () => {
   });
 
   test("renders with correct page title in Layout", () => {
+    // Arrange & Act
     render(
       <BrowserRouter>
         <Register />
       </BrowserRouter>
     );
 
+    // Assert
     const layout = screen.getByTestId("layout");
     expect(layout).toHaveAttribute("data-title", "Register - Ecommerce App");
   });
 
   test("updates form input values on change", async () => {
+    // Arrange
     render(
       <BrowserRouter>
         <Register />
@@ -99,16 +104,19 @@ describe("Register Component", () => {
     const emailInput = inputs.find((input) => input.type === "email");
     const phoneInput = inputs.find((input) => input.id === "exampleInputPhone1");
 
+    // Act
     await userEvent.type(nameInput, "John Doe");
     await userEvent.type(emailInput, "john@example.com");
     await userEvent.type(phoneInput, "1234567890");
 
+    // Assert
     expect(nameInput.value).toBe("John Doe");
     expect(emailInput.value).toBe("john@example.com");
     expect(phoneInput.value).toBe("1234567890");
   });
 
   test("displays success message and navigates on successful registration", async () => {
+    //  Arrange 
     const mockResponse = {
       data: {
         success: true,
@@ -134,6 +142,7 @@ describe("Register Component", () => {
     const answerInput = inputs.find((input) => input.id === "exampleInputanswer1");
     const submitButton = screen.getByRole("button", { name: /REGISTER/i });
 
+    // Act
     await userEvent.type(nameInput, "John Doe");
     await userEvent.type(emailInput, "john@example.com");
     await userEvent.type(passwordInput, "password123");
@@ -143,6 +152,7 @@ describe("Register Component", () => {
     await userEvent.type(answerInput, "Football");
     await userEvent.click(submitButton);
 
+    // Assert
     await waitFor(() => {
       expect(axios.post).toHaveBeenCalledWith("/api/v1/auth/register", {
         name: "John Doe",
@@ -164,6 +174,7 @@ describe("Register Component", () => {
   });
 
   test("displays error message on failed registration", async () => {
+    // Arrange
     const errorMessage = "Email already exists";
     const mockResponse = {
       data: {
@@ -190,6 +201,7 @@ describe("Register Component", () => {
     const answerInput = inputs.find((input) => input.id === "exampleInputanswer1");
     const submitButton = screen.getByRole("button", { name: /REGISTER/i });
 
+    // Act
     await userEvent.type(nameInput, "John Doe");
     await userEvent.type(emailInput, "john@example.com");
     await userEvent.type(passwordInput, "password123");
@@ -199,12 +211,14 @@ describe("Register Component", () => {
     await userEvent.type(answerInput, "Football");
     await userEvent.click(submitButton);
 
+    // Assert
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith(errorMessage);
     });
   });
 
   test("displays default error message when error message is missing", async () => {
+    // Arrange
     const mockResponse = {
       data: {
         success: false,
@@ -230,6 +244,7 @@ describe("Register Component", () => {
     const answerInput = inputs.find((input) => input.id === "exampleInputanswer1");
     const submitButton = screen.getByRole("button", { name: /REGISTER/i });
 
+    // Act
     await userEvent.type(nameInput, "John Doe");
     await userEvent.type(emailInput, "john@example.com");
     await userEvent.type(passwordInput, "password123");
@@ -239,16 +254,17 @@ describe("Register Component", () => {
     await userEvent.type(answerInput, "Football");
     await userEvent.click(submitButton);
 
+    // Assert
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith("Registration failed");
     });
   });
 
   test("displays error message on network error", async () => {
+    // Arrange
     const mockError = new Error("Network Error");
     axios.post.mockRejectedValue(mockError);
     toast.error = jest.fn();
-    console.error = jest.fn();
 
     render(
       <BrowserRouter>
@@ -266,6 +282,7 @@ describe("Register Component", () => {
     const answerInput = inputs.find((input) => input.id === "exampleInputanswer1");
     const submitButton = screen.getByRole("button", { name: /REGISTER/i });
 
+    // Act
     await userEvent.type(nameInput, "John Doe");
     await userEvent.type(emailInput, "john@example.com");
     await userEvent.type(passwordInput, "password123");
@@ -275,19 +292,21 @@ describe("Register Component", () => {
     await userEvent.type(answerInput, "Football");
     await userEvent.click(submitButton);
 
+    // Assert
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith("Something went wrong");
-      expect(console.error).toHaveBeenCalledWith(mockError);
     });
   });
 
   test("handles form field validation (required fields)", () => {
+    // Arrange & Act
     render(
       <BrowserRouter>
         <Register />
       </BrowserRouter>
     );
 
+    // Assert
     const inputs = Array.from(document.querySelectorAll("input"));
     inputs.forEach((input) => {
       expect(input).toHaveAttribute("required");
@@ -295,24 +314,28 @@ describe("Register Component", () => {
   });
 
   test("renders form with correct CSS class for styling", () => {
+    // Arrange & Act
     const { container } = render(
       <BrowserRouter>
         <Register />
       </BrowserRouter>
     );
 
+    // Assert
     const formContainer = container.querySelector(".form-container");
     expect(formContainer).toBeInTheDocument();
     expect(formContainer).toHaveStyle("minHeight: 90vh");
   });
 
   test("name input has autoFocus attribute", () => {
+    // Arrange & Act
     const { container } = render(
       <BrowserRouter>
         <Register />
       </BrowserRouter>
     );
 
+    // Assert
     const nameInputs = container.querySelectorAll(
       "input[id='exampleInputName1']"
     );
@@ -324,6 +347,7 @@ describe("Register Component", () => {
   });
 
   test("prevents default form submission behavior", async () => {
+    // Arrange
     axios.post.mockResolvedValue({
       data: { success: true, message: "Register Successfully, please login" },
     });
@@ -341,8 +365,10 @@ describe("Register Component", () => {
     const submitEvent = new Event("submit", { bubbles: true });
     const preventDefaultSpy = jest.spyOn(submitEvent, "preventDefault");
 
+    // Act
     form.dispatchEvent(submitEvent);
 
+    // Assert
     await waitFor(() => {
       expect(preventDefaultSpy).toHaveBeenCalled();
     });

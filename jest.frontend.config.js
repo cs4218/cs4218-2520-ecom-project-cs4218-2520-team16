@@ -20,24 +20,25 @@ export default {
   transformIgnorePatterns: ["/node_modules/(?!(styleMock\\.js)$)"],
 
   // only run these tests
-  testMatch: ["<rootDir>/client/src/pages/Auth/*.test.js"],
+  testMatch: ["<rootDir>/client/src/**/**/*.test.js"],
 
   // jest code 
-  // Xiao Ao, A0273305L
   collectCoverage: true,
-  collectCoverageFrom: ["client/src/pages/Auth/**"],
+
+  // Xiao Ao, A0273305L, test coverage for recently edited files
+  collectCoverageFrom: [
+    "client/src/context/auth.js",
+    "client/src/pages/Auth/Register.js",
+    "client/src/pages/Auth/Login.js",
+    "client/src/components/AdminMenu.js",
+    "client/src/pages/admin/AdminDashboard.js"
+  ],
   coverageThreshold: {
-    "client/src/pages/Auth/Login.js": {
-      statements: 100,
-      branches: 100,
-      functions: 100,
-      lines: 100,
-    },
-    "client/src/pages/Auth/Register.js": {
-      statements: 100,
-      branches: 100,
-      functions: 100,
-      lines: 100,
+    global: {
+    statements: 100,
+    branches: 100,
+    functions: 100,
+    lines: 100,
     },
   },
   setupFilesAfterEnv: ["<rootDir>/client/src/setupTests.js"],
