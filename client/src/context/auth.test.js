@@ -2,18 +2,17 @@
 // Code guided Github Copilot
 
 
-/* eslint-disable import/first */
 /* eslint-disable testing-library/no-unnecessary-act */
 /* eslint-disable testing-library/no-wait-for-multiple-assertions */
-
 /**
  * @jest-environment jsdom
  */
 import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import { act } from "react-dom/test-utils";
+import axios from "axios";
+import { AuthProvider, useAuth } from "./auth";
 
-// Mock axios BEFORE importing auth.js
 jest.mock("axios", () => ({
   defaults: {
     headers: {
@@ -22,20 +21,11 @@ jest.mock("axios", () => ({
   },
 }));
 
-import axios from "axios";
-import { AuthProvider, useAuth } from "./auth";
-
 beforeEach(() => {
-  // If your Jest setup uses fake timers globally, this is critical.
   jest.useRealTimers();
-
   localStorage.clear();
   axios.defaults.headers.common = {};
   jest.clearAllMocks();
-});
-
-test("SMOKE: this test must run (if it doesn't, Jest isn't discovering this file)", () => {
-  expect(true).toBe(true);
 });
 
 const Viewer = () => {
@@ -49,6 +39,7 @@ const Viewer = () => {
 };
 
 test("hydrates from localStorage (covers auth.js lines 16-19)", async () => {
+  // Arrange
   const raw = JSON.stringify({
     user: { name: "Xiao Ao" },
     token: "valid-token-789",
@@ -59,15 +50,15 @@ test("hydrates from localStorage (covers auth.js lines 16-19)", async () => {
   const getItemSpy = jest.spyOn(Storage.prototype, "getItem");
   const jsonParseSpy = jest.spyOn(JSON, "parse");
 
+  // Act
   render(
     <AuthProvider>
       <Viewer />
     </AuthProvider>
   );
-
-  // Flush effects/microtasks (helps in stricter environments)
   await act(async () => {});
 
+  // Assert
   // 1) Verify the effect path actually executed:
   await waitFor(() => {
     expect(getItemSpy).toHaveBeenCalledWith("auth");
@@ -90,8 +81,10 @@ test("hydrates from localStorage (covers auth.js lines 16-19)", async () => {
 });
 
 test("skips hydration when localStorage has no auth (covers if(data) false branch)", async () => {
+  // Arrange
   const getItemSpy = jest.spyOn(Storage.prototype, "getItem");
 
+  // Act
   render(
     <AuthProvider>
       <Viewer />
@@ -100,6 +93,7 @@ test("skips hydration when localStorage has no auth (covers if(data) false branc
 
   await act(async () => {});
 
+  // Assert
   await waitFor(() => {
     expect(getItemSpy).toHaveBeenCalledWith("auth");
     expect(screen.getByTestId("name")).toHaveTextContent("no-user");
@@ -111,11 +105,14 @@ test("skips hydration when localStorage has no auth (covers if(data) false branc
 });
 
 test("useAuth returns undefined outside provider", () => {
+  // Arrange
   const Outside = () => {
     const ctx = useAuth();
     return <div data-testid="ctx">{ctx ? "has" : "none"}</div>;
   };
-
+  // Act
   render(<Outside />);
+
+  // Assert
   expect(screen.getByTestId("ctx")).toHaveTextContent("none");
 });

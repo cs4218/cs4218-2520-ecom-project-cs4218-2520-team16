@@ -19,7 +19,7 @@ describe("AdminDashboard Component Tests", () => {
   });
 
   it("should render admin information from the auth context", () => {
-    // Mocking auth state with user details
+    // Arrange
     useAuth.mockReturnValue([{
       user: {
         name: "Xiao Ao",
@@ -28,42 +28,47 @@ describe("AdminDashboard Component Tests", () => {
       }
     }]);
 
+    // Act
     render(
       <MemoryRouter>
         <AdminDashboard />
       </MemoryRouter>
     );
 
-    // Verify the display of data from the card
+    // Assert
     expect(screen.getByText("Admin Name : Xiao Ao")).toBeInTheDocument();
     expect(screen.getByText("Admin Email : xiao@nus.edu.sg")).toBeInTheDocument();
     expect(screen.getByText("Admin Contact : 91234567")).toBeInTheDocument();
   });
 
   it("should render the Layout and AdminMenu components", () => {
+    // Arrange
     useAuth.mockReturnValue([{ user: null }]);
 
+    // Act
     render(
       <MemoryRouter>
         <AdminDashboard />
       </MemoryRouter>
     );
 
-    // Verify sub-components are present in the layout
+    // Assert
     expect(screen.getByTestId("layout")).toBeInTheDocument();
     expect(screen.getByTestId("admin-menu")).toBeInTheDocument();
   });
 
   it("should handle cases where auth or user is undefined (Optional Chaining test)", () => {
-    // Testing the auth?.user?.name logic
+    // Arrange
     useAuth.mockReturnValue([{}]); 
 
+    // Act
     render(
       <MemoryRouter>
         <AdminDashboard />
       </MemoryRouter>
     );
 
+    // Assert
     expect(screen.getByText("Admin Name :")).toBeInTheDocument();
     expect(screen.getByText("Admin Email :")).toBeInTheDocument();
     expect(screen.getByText("Admin Contact :")).toBeInTheDocument();

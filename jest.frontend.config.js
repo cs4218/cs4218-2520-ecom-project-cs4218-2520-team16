@@ -1,6 +1,3 @@
-// Xiao Ao, A0273305L
-// Code guided by Github Copilot
-
 export default {
   // name displayed during tests
   displayName: "frontend",
@@ -8,8 +5,6 @@ export default {
   // simulates browser environment in jest
   // e.g., using document.querySelector in your tests
   testEnvironment: "jest-environment-jsdom",
-
-  testMatch: ["<rootDir>/client/src/**/*.test.js"],
 
   // jest does not recognise jsx files by default, so we use babel to transform any jsx files
   transform: {
@@ -24,14 +19,19 @@ export default {
   // ignore all node_modules except styleMock (needed for css imports)
   transformIgnorePatterns: ["/node_modules/(?!(styleMock\\.js)$)"],
 
+  // only run these tests
   testMatch: ["<rootDir>/client/src/**/**/*.test.js"],
 
   // jest code 
   collectCoverage: true,
+
+  // Xiao Ao, A0273305L, test coverage for recently edited files
   collectCoverageFrom: [
-    "client/src/context/*.js",
-    "client/src/components/*.js",
-    "client/src/pages/**/*.js",
+    "client/src/context/auth.js",
+    "client/src/pages/Auth/Register.js",
+    "client/src/pages/Auth/Login.js",
+    "client/src/components/AdminMenu.js",
+    "client/src/pages/admin/AdminDashboard.js"
   ],
   coverageThreshold: {
     global: {
