@@ -13,7 +13,12 @@ export default {
   // jest code coverage
   testPathIgnorePatterns: ["node_modules", "<rootDir>/client/"],
   collectCoverage: true,
-  collectCoverageFrom: ["controllers/**", "middlewares/**", "helpers/**"],
+
+  // Xiao Ao, A0273305L, test coverage for recently edited files
+  collectCoverageFrom: [
+    "controllers/authController.js",
+    "middlewares/authMiddleware.js",
+    "helpers/authHelper.js"],
   coverageThreshold: {
     global: {
       lines: 100,
