@@ -19,8 +19,8 @@ export default {
   // ignore all node_modules except styleMock (needed for css imports)
   transformIgnorePatterns: ["/node_modules/(?!(styleMock\\.js)$)"],
 
-  // only run these tests
-  testMatch: ["<rootDir>/client/src/pages/Auth/*.test.js"],
+  // run all page tests (including admin)
+  testMatch: ["<rootDir>/client/src/pages/**/*.test.js"],
 
   // jest code 
   // Xiao Ao, A0273305L
