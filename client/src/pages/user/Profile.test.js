@@ -51,14 +51,17 @@ describe('Profile Component', () => {
 	});
 
 	it('renders profile form with prefilled user data', async () => {
+		// Arrange
 		const { getByText, getByPlaceholderText } = render(<Profile />);
 
+		// Act
 		expect(getByText('USER PROFILE')).toBeInTheDocument();
 
 		await waitFor(() => {
 			expect(getByPlaceholderText('Enter Your Name').value).toBe('John Doe');
 		});
 
+		// Assert
 		expect(getByPlaceholderText('Enter Your Email').value).toBe('john@example.com');
 		expect(getByPlaceholderText('Enter Your Email')).toBeDisabled();
 		expect(getByPlaceholderText('Enter Your Phone').value).toBe('1234567890');
@@ -66,6 +69,7 @@ describe('Profile Component', () => {
 	});
 
 	it('updates the profile successfully', async () => {
+		// Arrange
 		axios.put.mockResolvedValueOnce({
 			data: {
 				updatedUser: {
@@ -79,6 +83,7 @@ describe('Profile Component', () => {
 
 		const { getByPlaceholderText, getByText } = render(<Profile />);
 
+		// Act
 		fireEvent.change(getByPlaceholderText('Enter Your Name'), {
 			target: { value: 'Jane Doe' }
 		});
@@ -94,6 +99,7 @@ describe('Profile Component', () => {
 
 		fireEvent.click(getByText('UPDATE'));
 
+		// Assert
 		await waitFor(() => expect(axios.put).toHaveBeenCalled());
 		expect(mockSetAuth).toHaveBeenCalledWith({
 			...mockAuthState,
@@ -109,6 +115,7 @@ describe('Profile Component', () => {
 	});
 
 	it('sends updated payload to the API', async () => {
+		// Arrange
 		axios.put.mockResolvedValueOnce({
 			data: {
 				updatedUser: {
@@ -122,6 +129,7 @@ describe('Profile Component', () => {
 
 		const { getByPlaceholderText, getByText } = render(<Profile />);
 
+		// Act
 		fireEvent.change(getByPlaceholderText('Enter Your Name'), {
 			target: { value: 'Jane Doe' }
 		});
@@ -137,6 +145,7 @@ describe('Profile Component', () => {
 
 		fireEvent.click(getByText('UPDATE'));
 
+		// Assert
 		await waitFor(() => expect(axios.put).toHaveBeenCalled());
 		expect(axios.put).toHaveBeenCalledWith('/api/v1/auth/profile', {
 			name: 'Jane Doe',
@@ -148,6 +157,7 @@ describe('Profile Component', () => {
 	});
 
 	it('shows API error message when response has errro flag', async () => {
+		// Arrange
 		axios.put.mockResolvedValueOnce({
 			data: {
 				errro: true,
@@ -157,8 +167,10 @@ describe('Profile Component', () => {
 
 		const { getByText } = render(<Profile />);
 
+		// Act
 		fireEvent.click(getByText('UPDATE'));
 
+		// Assert
 		await waitFor(() => expect(axios.put).toHaveBeenCalled());
 		expect(toast.error).toHaveBeenCalledWith('Update rejected');
 		expect(mockSetAuth).not.toHaveBeenCalled();
@@ -167,6 +179,7 @@ describe('Profile Component', () => {
 	});
 
 	it('shows API error message when response has error string', async () => {
+		// Arrange
 		axios.put.mockResolvedValueOnce({
 			data: {
 				error: 'Email already taken'
@@ -175,8 +188,10 @@ describe('Profile Component', () => {
 
 		const { getByText } = render(<Profile />);
 
+		// Act
 		fireEvent.click(getByText('UPDATE'));
 
+		// Assert
 		await waitFor(() => expect(axios.put).toHaveBeenCalled());
 		expect(toast.error).toHaveBeenCalledWith('Email already taken');
 		expect(mockSetAuth).not.toHaveBeenCalled();
@@ -185,12 +200,15 @@ describe('Profile Component', () => {
 	});
 
 	it('shows an error message when update fails', async () => {
+		// Arrange
 		axios.put.mockRejectedValueOnce(new Error('Update failed'));
 
 		const { getByText } = render(<Profile />);
 
+		// Act
 		fireEvent.click(getByText('UPDATE'));
 
+		// Assert
 		await waitFor(() => expect(axios.put).toHaveBeenCalled());
 		expect(toast.error).toHaveBeenCalledWith('Something went wrong');
 	});
