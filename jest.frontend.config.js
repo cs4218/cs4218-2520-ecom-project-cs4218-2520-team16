@@ -25,16 +25,23 @@ export default {
     "<rootDir>/client/src/pages/user/*.test.js"
   ],
 
-  // jest code coverage
+  // jest code 
   collectCoverage: true,
+
+  // Xiao Ao, A0273305L, test coverage for recently edited files
   collectCoverageFrom: [
-    "client/src/pages/Auth/**",
-    "client/src/pages/user/**"
+    "client/src/context/auth.js",
+    "client/src/pages/Auth/Register.js",
+    "client/src/pages/Auth/Login.js",
+    "client/src/components/AdminMenu.js",
+    "client/src/pages/admin/AdminDashboard.js"
   ],
   coverageThreshold: {
     global: {
-      lines: 100,
-      functions: 100,
+    statements: 100,
+    branches: 100,
+    functions: 100,
+    lines: 100,
     },
   },
   setupFilesAfterEnv: ["<rootDir>/client/src/setupTests.js"],
