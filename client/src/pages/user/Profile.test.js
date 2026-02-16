@@ -5,6 +5,7 @@ import '@testing-library/jest-dom/extend-expect';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import Profile from './Profile';
+import { useAuth } from '../../context/auth';
 
 jest.mock('axios');
 jest.mock('react-hot-toast');
@@ -66,6 +67,38 @@ describe('Profile Component', () => {
 		expect(getByPlaceholderText('Enter Your Email')).toBeDisabled();
 		expect(getByPlaceholderText('Enter Your Phone').value).toBe('1234567890');
 		expect(getByPlaceholderText('Enter Your Address').value).toBe('123 Street');
+	});
+
+	it('leaves inputs empty when auth user is missing', async () => {
+		// Arrange
+		useAuth.mockReturnValueOnce([{ user: null }, mockSetAuth]);
+		const { getByPlaceholderText } = render(<Profile />);
+
+		// Act
+		await waitFor(() => {
+			expect(getByPlaceholderText('Enter Your Name').value).toBe('');
+		});
+
+		// Assert
+		expect(getByPlaceholderText('Enter Your Email').value).toBe('');
+		expect(getByPlaceholderText('Enter Your Phone').value).toBe('');
+		expect(getByPlaceholderText('Enter Your Address').value).toBe('');
+	});
+
+	it('updates email input when change event fires', async () => {
+		// Arrange
+		const { getByPlaceholderText } = render(<Profile />);
+		const emailInput = getByPlaceholderText('Enter Your Email');
+
+		// Act
+		await waitFor(() => {
+			expect(emailInput.value).toBe('john@example.com');
+		});
+		emailInput.removeAttribute('disabled');
+		fireEvent.change(emailInput, { target: { value: 'new@example.com' } });
+
+		// Assert
+		expect(emailInput.value).toBe('new@example.com');
 	});
 
 	it('updates the profile successfully', async () => {
