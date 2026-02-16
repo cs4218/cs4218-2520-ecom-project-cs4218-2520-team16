@@ -44,47 +44,82 @@ describe("Auth Controller Comprehensive Backend Tests", () => {
     jest.clearAllMocks();
   });
 
-  // 1. Registration Tests
+  
   describe("registerController", () => {
     test("should fail if name is missing", async () => {
+      // Arrange
       req.body.name = "";
+
+      // Act
       await registerController(req, res);
+
+      // Assert
       expect(res.send).toHaveBeenCalledWith({ error: "Name is Required" });
     });
 
     test("should fail if email is missing", async () => {
+      // Arrange
       req.body.email = "";
+      
+      // Act
       await registerController(req, res);
+      
+      // Assert
       expect(res.send).toHaveBeenCalledWith({ message: "Email is Required" });
     });
 
     test("should fail if password is missing", async () => {
+      // Arrange
       req.body.password = "";
+
+      // Act
       await registerController(req, res);
+
+      // Assert
       expect(res.send).toHaveBeenCalledWith({ message: "Password is Required" });
     });
 
     test("should fail if phone is missing", async () => {
+      // Arrange
       req.body.phone = "";
+
+      // Act
       await registerController(req, res);
+
+      // Assert
       expect(res.send).toHaveBeenCalledWith({ message: "Phone no is Required" });
     });
 
     test("should fail if address is missing", async () => {
+      // Arrange
       req.body.address = "";
+      
+      // Act
       await registerController(req, res);
+
+      // Assert
       expect(res.send).toHaveBeenCalledWith({ message: "Address is Required" });
     });
 
     test("should fail if answer is missing", async () => {
+      // Arrange
       req.body.answer = "";
+
+      // Act
       await registerController(req, res);
+
+      // Assert
       expect(res.send).toHaveBeenCalledWith({ message: "Answer is Required" });
     });
 
     test("should fail if user already exists", async () => {
+      // Arrange
       userModel.findOne.mockResolvedValue({ email: "xiao@nus.edu.sg" });
+
+      // Act
       await registerController(req, res);
+
+      // Assert
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.send).toHaveBeenCalledWith({
         success: false,
@@ -93,6 +128,7 @@ describe("Auth Controller Comprehensive Backend Tests", () => {
     });
 
     test("should successfully register a new user", async () => {
+      // Arrange
       userModel.findOne.mockResolvedValue(null);
       hashPassword.mockResolvedValue("hashedPassword123");
       const mockSave = jest.fn().mockResolvedValue({
@@ -104,7 +140,10 @@ describe("Auth Controller Comprehensive Backend Tests", () => {
         save: mockSave
       }));
       
+      // Act
       await registerController(req, res);
+
+      // Assert
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.send).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -115,8 +154,13 @@ describe("Auth Controller Comprehensive Backend Tests", () => {
     });
 
     test("should handle registration error", async () => {
+      // Arrange
       userModel.findOne.mockRejectedValue(new Error("DB Error"));
+      
+      // Act
       await registerController(req, res);
+
+      // Assert
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.send).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -127,11 +171,16 @@ describe("Auth Controller Comprehensive Backend Tests", () => {
     });
   });
 
-  // 2. Login Tests
+
   describe("loginController", () => {
     test("should fail if email or password is missing", async () => {
+      // Arrange
       req.body.email = "";
+
+      // Act
       await loginController(req, res);
+
+      // Assert
       expect(res.status).toHaveBeenCalledWith(404);
       expect(res.send).toHaveBeenCalledWith({
         success: false,
@@ -140,8 +189,13 @@ describe("Auth Controller Comprehensive Backend Tests", () => {
     });
 
     test("should fail if user not found", async () => {
+      // Arrange
       userModel.findOne.mockResolvedValue(null);
+
+      // Act
       await loginController(req, res);
+
+      // Assert
       expect(res.status).toHaveBeenCalledWith(404);
       expect(res.send).toHaveBeenCalledWith({
         success: false,
@@ -150,12 +204,17 @@ describe("Auth Controller Comprehensive Backend Tests", () => {
     });
 
     test("should fail with wrong password", async () => {
+      // Arrange
       userModel.findOne.mockResolvedValue({ 
         _id: "user123",
         password: "hashed" 
       });
       comparePassword.mockResolvedValue(false);
+
+      // Act
       await loginController(req, res);
+
+      // Assert
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.send).toHaveBeenCalledWith({
         success: false,
@@ -164,6 +223,7 @@ describe("Auth Controller Comprehensive Backend Tests", () => {
     });
 
     test("should successfully login", async () => {
+      // Arrange
       const mockUser = {
         _id: "user123",
         name: "Xiao Ao",
@@ -177,7 +237,10 @@ describe("Auth Controller Comprehensive Backend Tests", () => {
       comparePassword.mockResolvedValue(true);
       JWT.sign.mockReturnValue("token123");
       
+      // Act
       await loginController(req, res);
+
+      // Assert
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.send).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -189,8 +252,13 @@ describe("Auth Controller Comprehensive Backend Tests", () => {
     });
 
     test("should handle login error", async () => {
+      // Arrange
       userModel.findOne.mockRejectedValue(new Error("DB Error"));
+
+      // Act
       await loginController(req, res);
+
+      // Assert
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.send).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -201,33 +269,53 @@ describe("Auth Controller Comprehensive Backend Tests", () => {
     });
   });
 
-  // 3. Forgot Password Tests
+
   describe("forgotPasswordController", () => {
     test("should fail if email is missing", async () => {
+      // Arrange
       req.body.email = "";
+
+      // Act
       await forgotPasswordController(req, res);
+
+      // Assert
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.send).toHaveBeenCalledWith({ message: "Emai is required" });
     });
 
     test("should fail if answer is missing", async () => {
+      // Arrange
       req.body.answer = "";
+
+      // Act
       await forgotPasswordController(req, res);
+
+      // Assert
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.send).toHaveBeenCalledWith({ message: "answer is required" });
     });
 
     test("should fail if newPassword is missing", async () => {
+      // Arrange
       req.body.newPassword = "";
+
+      // Act
       await forgotPasswordController(req, res);
+
+      // Assert
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.send).toHaveBeenCalledWith({ message: "New Password is required" });
     });
 
     test("should fail if user not found with email/answer", async () => {
+      // Arrange
       req.body.newPassword = "newPassword123";
       userModel.findOne.mockResolvedValue(null);
+
+      // Act
       await forgotPasswordController(req, res);
+
+      // Assert
       expect(res.status).toHaveBeenCalledWith(404);
       expect(res.send).toHaveBeenCalledWith({
         success: false,
@@ -236,12 +324,16 @@ describe("Auth Controller Comprehensive Backend Tests", () => {
     });
 
     test("should successfully reset password", async () => {
+      // Arrange
       req.body.newPassword = "newPassword123";
       userModel.findOne.mockResolvedValue({ _id: "user123" });
       hashPassword.mockResolvedValue("hashedNewPassword");
       userModel.findByIdAndUpdate.mockResolvedValue({ _id: "user123" });
       
+      // Act
       await forgotPasswordController(req, res);
+
+      // Assert
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.send).toHaveBeenCalledWith({
         success: true,
@@ -250,9 +342,14 @@ describe("Auth Controller Comprehensive Backend Tests", () => {
     });
 
     test("should handle error in forgotPasswordController", async () => {
+      // Arrange
       req.body.newPassword = "newPassword123";
       userModel.findOne.mockRejectedValue(new Error("DB Crash"));
+
+      // Act
       await forgotPasswordController(req, res);
+
+      // Assert
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.send).toHaveBeenCalledWith(
         expect.objectContaining({ message: "Something went wrong" })
@@ -260,18 +357,24 @@ describe("Auth Controller Comprehensive Backend Tests", () => {
     });
   });
 
-  // 4. Update Profile Tests
+
   describe("updateProfileController", () => {
     test("should fail if password is too short", async () => {
+      // Arrange
       req.body.password = "123";
       userModel.findById.mockResolvedValue({ name: "Xiao Ao" });
+
+      // Act
       await updateProfileController(req, res);
+
+      // Assert
       expect(res.json).toHaveBeenCalledWith({ 
         error: "Passsword is required and 6 character long" 
       });
     });
 
     test("should successfully update profile with all fields", async () => {
+      // Arrange
       const mockUser = {
         _id: "user123",
         name: "Old Name",
@@ -294,7 +397,10 @@ describe("Auth Controller Comprehensive Backend Tests", () => {
         address: "New Address"
       });
       
+      // Act
       await updateProfileController(req, res);
+
+      // Assert
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.send).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -305,6 +411,7 @@ describe("Auth Controller Comprehensive Backend Tests", () => {
     });
 
     test("should successfully update profile with partial fields", async () => {
+      // Arrange
       const mockUser = {
         _id: "user123",
         name: "Xiao Ao",
@@ -320,8 +427,11 @@ describe("Auth Controller Comprehensive Backend Tests", () => {
       userModel.findByIdAndUpdate.mockResolvedValue({
         ...mockUser
       });
-      
+
+      // Act
       await updateProfileController(req, res);
+
+      // Assert
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.send).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -332,6 +442,7 @@ describe("Auth Controller Comprehensive Backend Tests", () => {
     });
 
     test("should keep existing password if not provided and use OR operator", async () => {
+      // Arrange
       const mockUser = {
         _id: "user123",
         name: "Xiao Ao",
@@ -351,9 +462,11 @@ describe("Auth Controller Comprehensive Backend Tests", () => {
         ...mockUser
       });
       
+      // Act
       await updateProfileController(req, res);
-      
       const callArgs = userModel.findByIdAndUpdate.mock.calls[0];
+
+      // Assert
       expect(callArgs[1].password).toBe("existingHash");
       
       expect(res.status).toHaveBeenCalledWith(200);
@@ -365,6 +478,7 @@ describe("Auth Controller Comprehensive Backend Tests", () => {
       );
     });
     test("should hash password when provided and use hashed value", async () => {
+      // Arrange
       const mockUser = {
         _id: "user123",
         name: "Xiao Ao",
@@ -386,8 +500,10 @@ describe("Auth Controller Comprehensive Backend Tests", () => {
         password: "newHashedPassword"
       });
       
+      // Act
       await updateProfileController(req, res);
       
+      // Assert
       expect(hashPassword).toHaveBeenCalledWith("newPassword123");
       
       const callArgs = userModel.findByIdAndUpdate.mock.calls[0];
@@ -397,6 +513,7 @@ describe("Auth Controller Comprehensive Backend Tests", () => {
     });
 
     test("should use all OR operators with existing user values", async () => {
+      // Arrange
       const mockUser = {
         _id: "user123",
         name: "ExistingName",
@@ -414,8 +531,10 @@ describe("Auth Controller Comprehensive Backend Tests", () => {
       userModel.findById.mockResolvedValue(mockUser);
       userModel.findByIdAndUpdate.mockResolvedValue(mockUser);
       
+      // Act
       await updateProfileController(req, res);
       
+      // Assert
       const callArgs = userModel.findByIdAndUpdate.mock.calls[0];
       expect(callArgs[1]).toEqual({
         name: "ExistingName",
@@ -427,8 +546,13 @@ describe("Auth Controller Comprehensive Backend Tests", () => {
       expect(res.status).toHaveBeenCalledWith(200);
     });
     test("should handle error in updateProfileController", async () => {
+      // Arrange
       userModel.findById.mockRejectedValue(new Error("DB Error"));
+
+      // Act
       await updateProfileController(req, res);
+
+      // Assert
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.send).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -439,23 +563,27 @@ describe("Auth Controller Comprehensive Backend Tests", () => {
     });
   });
 
-  // 5. Order Controllers Tests
   describe("getOrdersController", () => {
     test("should return orders for user", async () => {
+      // Arrange
       const mockOrders = [{ _id: "o1", buyer: "user123" }];
       const mockChain = {
         populate: jest.fn().mockReturnThis(),
       };
-      // Make sure the second populate call resolves to mockOrders
+      
       const firstPopulate = mockChain.populate.mockReturnValueOnce(mockChain);
       mockChain.populate.mockReturnValueOnce(Promise.resolve(mockOrders));
       orderModel.find.mockReturnValue(mockChain);
 
+      // Act
       await getOrdersController(req, res);
+
+      // Assert
       expect(res.json).toHaveBeenCalledWith(mockOrders);
     });
 
     test("should handle error in getOrdersController", async () => {
+      // Arrange
       const mockChain = {
         populate: jest.fn().mockReturnThis()
       };
@@ -463,7 +591,10 @@ describe("Auth Controller Comprehensive Backend Tests", () => {
       mockChain.populate.mockReturnValueOnce(Promise.reject(new Error("DB Error")));
       orderModel.find.mockReturnValue(mockChain);
       
+      // Act
       await getOrdersController(req, res);
+
+      // Assert
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.send).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -476,6 +607,7 @@ describe("Auth Controller Comprehensive Backend Tests", () => {
 
   describe("getAllOrdersController", () => {
     test("should fetch all orders and sort", async () => {
+      // Arrange
       const mockOrders = [{ _id: "o1" }, { _id: "o2" }];
       const mockChain = {
         populate: jest.fn().mockReturnThis(),
@@ -485,11 +617,15 @@ describe("Auth Controller Comprehensive Backend Tests", () => {
       mockChain.populate.mockReturnValueOnce(mockChain);
       orderModel.find.mockReturnValue(mockChain);
 
+      // Act
       await getAllOrdersController(req, res);
+
+      // Assert
       expect(res.json).toHaveBeenCalledWith(mockOrders);
     });
 
     test("should handle error in getAllOrdersController", async () => {
+      // Arrange
       const mockChain = {
         populate: jest.fn().mockReturnThis(),
         sort: jest.fn().mockRejectedValue(new Error("DB Error"))
@@ -498,7 +634,10 @@ describe("Auth Controller Comprehensive Backend Tests", () => {
       mockChain.populate.mockReturnValueOnce(mockChain);
       orderModel.find.mockReturnValue(mockChain);
       
+      // Act
       await getAllOrdersController(req, res);
+
+      // Assert
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.send).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -511,19 +650,27 @@ describe("Auth Controller Comprehensive Backend Tests", () => {
 
   describe("orderStatusController", () => {
     test("should update order status", async () => {
+      // Arrange
       const mockOrder = { _id: "order123", status: "Shipped" };
       orderModel.findByIdAndUpdate.mockResolvedValue(mockOrder);
       req.body.status = "Shipped";
 
+      // Act
       await orderStatusController(req, res);
+
+      // Assert
       expect(res.json).toHaveBeenCalledWith(mockOrder);
     });
 
     test("should handle error in orderStatusController", async () => {
+      // Arrange
       orderModel.findByIdAndUpdate.mockRejectedValue(new Error("DB Error"));
       req.body.status = "Shipped";
 
+      // Act
       await orderStatusController(req, res);
+
+      // Assert
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.send).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -534,18 +681,23 @@ describe("Auth Controller Comprehensive Backend Tests", () => {
     });
   });
 
-  // 6. Test Controller
   describe("testController", () => {
     test("should return protected routes", () => {
+      // Act
       testController(req, res);
+
+      // Assert
       expect(res.send).toHaveBeenCalledWith("Protected Routes");
     });
 
     test("should handle error in testController", () => {
+      // Arrange  
       const sendError = new Error("Send error");
       res.send.mockImplementation(() => {
         throw sendError;
       });
+
+      // Act & Assert
       expect(() => testController(req, res)).toThrow(sendError);
     });
   });

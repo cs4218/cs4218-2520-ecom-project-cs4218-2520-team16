@@ -17,24 +17,37 @@ describe('Auth Middleware Unit Tests', () => {
     jest.clearAllMocks();
   });
 
-  // Test for requireSignIn
   test('requireSignIn calls next() if token is valid', async () => {
-    JWT.verify.mockReturnValue({ _id: '123' }); // Arrange
-    await requireSignIn(req, res, next); // Act
-    expect(next).toHaveBeenCalled(); // Assert
+    // Arrange
+    JWT.verify.mockReturnValue({ _id: '123' });
+
+    // Act
+    await requireSignIn(req, res, next);
+
+    // Assert
+    expect(next).toHaveBeenCalled();
   });
 
-  // Test for isAdmin
   test('isAdmin calls next() if user is admin (role 1)', async () => {
-    userModel.findById.mockResolvedValue({ _id: '123', role: 1 }); // Arrange
-    await isAdmin(req, res, next); // Act
-    expect(next).toHaveBeenCalled(); // Assert
+    // Arrange
+    userModel.findById.mockResolvedValue({ _id: '123', role: 1 });
+
+    // Act
+    await isAdmin(req, res, next);
+
+    // Assert
+    expect(next).toHaveBeenCalled();
   });
 
   test('isAdmin returns 401 if user is not admin (role 0)', async () => {
-    userModel.findById.mockResolvedValue({ _id: '123', role: 0 }); // Arrange
-    await isAdmin(req, res, next); // Act
-    expect(res.status).toHaveBeenCalledWith(401); // Assert
+    // Arrange
+    userModel.findById.mockResolvedValue({ _id: '123', role: 0 });
+
+    // Act
+    await isAdmin(req, res, next);
+
+    // Assert
+    expect(res.status).toHaveBeenCalledWith(401);
     expect(res.send).toHaveBeenCalledWith(expect.objectContaining({ success: false }));
   });
 
@@ -44,8 +57,10 @@ describe('Auth Middleware Unit Tests', () => {
     JWT.verify.mockImplementation(() => {
         throw new Error("Invalid Token");
     });
+
     // Act
     await requireSignIn(req, res, next);
+
     // Assert
     expect(consoleSpy).toHaveBeenCalled();
     expect(next).not.toHaveBeenCalled();
@@ -55,8 +70,10 @@ describe('Auth Middleware Unit Tests', () => {
   test('isAdmin should send 401 on database error', async () => {
     // Arrange
     userModel.findById.mockRejectedValue(new Error("DB Error"));
+
     // Act
     await isAdmin(req, res, next);
+    
     // Assert
     expect(res.status).toHaveBeenCalledWith(401);
     expect(res.send).toHaveBeenCalledWith(expect.objectContaining({
