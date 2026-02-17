@@ -1,4 +1,4 @@
-// Wen Han Tang A0340008W
+// Wen Han Tang A0340008W - Updated this component to be more typesafe and resolved bugs discovered
 import React, { useState, useEffect } from "react";
 import UserMenu from "../../components/UserMenu";
 import Layout from "./../../components/Layout";
