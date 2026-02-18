@@ -26,12 +26,14 @@ export default {
   collectCoverage: true,
 
   // Xiao Ao, A0273305L, test coverage for recently edited files
+  // Appended by Wen Han Tang, A0340008W, to include Profile.js for coverage
   collectCoverageFrom: [
     "client/src/context/auth.js",
     "client/src/pages/Auth/Register.js",
     "client/src/pages/Auth/Login.js",
     "client/src/components/AdminMenu.js",
-    "client/src/pages/admin/AdminDashboard.js"
+    "client/src/pages/admin/AdminDashboard.js",
+    "client/src/pages/user/Profile.js",
   ],
   coverageThreshold: {
     global: {
