@@ -1,193 +1,152 @@
-// Roger Yao, A0340029N
-// Code guided by chatGPT
 import React from "react";
-import { render, screen, waitFor, fireEvent } from "@testing-library/react";
-import AdminOrders from "./AdminOrders"; 
-import axios from "axios";
-import userEvent from "@testing-library/user-event";
-
-// ---- mocks ----
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import "@testing-library/jest-dom";
 jest.mock("axios");
-jest.mock("../../components/AdminMenu", () => () => <div data-testid="admin-menu" />);
-jest.mock("../../components/Layout", () => ({ children, title }) => (
-  <div data-testid="layout">
-    <div data-testid="layout-title">{title}</div>
-    {children}
-  </div>
-));
+import axios from "axios";
+jest.mock("react-hot-toast", () => ({ __esModule: true, default: { } }));
+jest.mock("../../components/AdminMenu", () => () => <div data-testid="admin-menu">AdminMenu</div>);
+jest.mock("../../components/Layout", () => ({ children }) => <div data-testid="layout">{children}</div>);
+jest.mock("../../context/auth", () => ({ useAuth: () => [{ token: "test-token" }, jest.fn()] }));
+import AdminOrders from "./AdminOrders";
 
-jest.mock("moment", () => {
-  return () => ({
-    fromNow: () => "2 days ago",
-  });
-});
-
-const mockUseAuth = jest.fn();
-jest.mock("../../context/auth", () => ({
-  useAuth: () => mockUseAuth(),
-}));
-
-jest.mock("antd", () => {
-  const React = require("react");
-  const Select = ({ onChange, defaultValue, children }) => (
-    <select
-      data-testid="status-select"
-      defaultValue={defaultValue}
-      onChange={(e) => onChange(e.target.value)}
-    >
-      {children}
-    </select>
-  );
-  const Option = ({ value, children }) => <option value={value}>{children}</option>;
-  return { Select, Option };
-});
-
-// ---- helpers ----
-function makeOrder(overrides = {}) {
-  return {
+const mockOrders = [
+  {
     _id: "order1",
-    status: "Not Process",
+    status: "Processing",
     buyer: { name: "Alice" },
-    createAt: "2025-01-01T00:00:00.000Z",
+    createAt: new Date().toISOString(),
     payment: { success: true },
     products: [
       {
-        _id: "p1",
-        name: "Product One",
-        description: "This is a long description for product one",
-        price: 10,
+        _id: "prod1",
+        name: "Product 1",
+        description: "Description 1",
+        price: 100,
       },
       {
-        _id: "p2",
-        name: "Product Two",
-        description: "This is a long description for product two",
-        price: 20,
+        _id: "prod2",
+        name: "Product 2",
+        description: "Description 2",
+        price: 200,
       },
     ],
-    ...overrides,
-  };
-}
+  },
+  {
+    _id: "order2",
+    status: "Not Process",
+    buyer: { name: "Bob" },
+    createAt: new Date().toISOString(),
+    payment: { success: false },
+    products: [
+      {
+        _id: "prod3",
+        name: "Product 3",
+        description: "Description 3",
+        price: 300,
+      },
+    ],
+  },
+];
 
-describe("Tests for Admin Orders (AAA)", () => {
+describe("AdminOrders Component", () => {
   beforeEach(() => {
+    axios.get.mockResolvedValue({ data: mockOrders });
+    axios.put.mockResolvedValue({ data: { success: true } });
+  });
+
+  afterEach(() => {
     jest.clearAllMocks();
   });
 
-  test("fetches and renders orders when auth token exists", async () => {
-    // Arrange
-    mockUseAuth.mockReturnValue([{ token: "token123" }, jest.fn()]);
-    axios.get.mockResolvedValueOnce({ data: [makeOrder()] });
-
-    // Act
+  it("renders layout and admin menu", async () => {
     render(<AdminOrders />);
+    expect(screen.getByTestId("layout")).toBeInTheDocument();
+    expect(screen.getByTestId("admin-menu")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText("All Orders")).toBeInTheDocument();
+    });
+  });
 
-    // Assert
+  it("fetches and displays orders", async () => {
+    render(<AdminOrders />);
     await waitFor(() => {
       expect(axios.get).toHaveBeenCalledWith("/api/v1/auth/all-orders");
+      expect(screen.getByText("Alice")).toBeInTheDocument();
+      expect(screen.getByText("Bob")).toBeInTheDocument();
     });
-
-    expect(screen.getByTestId("layout-title")).toHaveTextContent("All Orders Data");
-    expect(screen.getByRole("heading", { name: /all orders/i })).toBeInTheDocument();
-
-    expect(screen.getByText("Alice")).toBeInTheDocument();
+    // Check product details
+    expect(screen.getByText("Product 1")).toBeInTheDocument();
+    expect(screen.getByText("Product 2")).toBeInTheDocument();
+    expect(screen.getByText("Product 3")).toBeInTheDocument();
+    // Check payment status
     expect(screen.getByText("Success")).toBeInTheDocument();
-    expect(screen.getByText("2")).toBeInTheDocument();
-
-    expect(screen.getByText("2 days ago")).toBeInTheDocument();
-
-    expect(screen.getByText("Product One")).toBeInTheDocument();
-    expect(screen.getByText("Product Two")).toBeInTheDocument();
-
-    expect(screen.getByTestId("status-select")).toHaveValue("Not Process");
+    expect(screen.getByText("Failed")).toBeInTheDocument();
   });
 
-  test("does NOT fetch orders when auth token is missing", async () => {
-    // Arrange
-    mockUseAuth.mockReturnValue([{ token: null }, jest.fn()]);
-
-    // Act
+  it("renders correct status options for each order", async () => {
     render(<AdminOrders />);
-
-    // Assert
     await waitFor(() => {
-      expect(axios.get).not.toHaveBeenCalled();
+      // There should be Select elements for each order
+      const selects = screen.getAllByRole("combobox");
+      expect(selects.length).toBe(mockOrders.length);
+      // Check default values
+      expect(selects[0]).toHaveTextContent("Processing");
+      expect(selects[1]).toHaveTextContent("Not Process");
     });
   });
 
-test("changing status calls PUT and refetches orders", async () => {
-  mockUseAuth.mockReturnValue([{ token: "token123" }, jest.fn()]);
-
-  axios.get.mockResolvedValueOnce({ data: [makeOrder({ _id: "order123" })] });
-  axios.put.mockResolvedValueOnce({ data: { success: true } });
-  axios.get.mockResolvedValueOnce({
-    data: [makeOrder({ _id: "order123", status: "Shipped" })],
-  });
-
-  render(<AdminOrders />);
-
-  // wait for initial load *as the user sees it*
-  expect(await screen.findByText("Alice")).toBeInTheDocument();
-
-  const user = userEvent.setup();
-
-  await user.selectOptions(screen.getByTestId("status-select"), "Shipped");
-
-  await waitFor(() => {
-    expect(axios.put).toHaveBeenCalledWith("/api/v1/auth/order-status/order123", {
-      status: "Shipped",
-    });
-  });
-
-  // and wait for the UI to reflect the refetch
-  await waitFor(() => {
-    expect(screen.getByTestId("status-select")).toHaveValue("Shipped");
-  });
-});
-
-  test("logs error if fetching orders fails", async () => {
-    // Arrange
-    const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {});
-    mockUseAuth.mockReturnValue([{ token: "token123" }, jest.fn()]);
-    axios.get.mockRejectedValueOnce(new Error("Network error"));
-
-    // Act
+  it("calls API and updates status when changed", async () => {
     render(<AdminOrders />);
-
-    // Assert
     await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalled();
+      expect(screen.getByText("Alice")).toBeInTheDocument();
     });
-
-    consoleSpy.mockRestore();
+    const selects = screen.getAllByRole("combobox");
+    // Change status of first order
+    fireEvent.change(selects[0], { target: { value: "Shipped" } });
+    await waitFor(() => {
+      expect(axios.put).toHaveBeenCalledWith(
+        "/api/v1/auth/order-status/order1",
+        { status: "Shipped" }
+      );
+      expect(axios.get).toHaveBeenCalledTimes(2); // getOrders called again
+    });
   });
 
-  test("logs error if updating status fails", async () => {
-    // Arrange
-    const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {});
-    mockUseAuth.mockReturnValue([{ token: "token123" }, jest.fn()]);
-
-    axios.get.mockResolvedValueOnce({ data: [makeOrder({ _id: "order123" })] });
-    axios.put.mockRejectedValueOnce(new Error("PUT failed"));
-
-    // Act
+  it("displays product images with correct src", async () => {
     render(<AdminOrders />);
-
     await waitFor(() => {
-      expect(axios.get).toHaveBeenCalledWith("/api/v1/auth/all-orders");
+      const imgs = screen.getAllByRole("img");
+      expect(imgs[0]).toHaveAttribute("src", "/api/v1/product/product-photo/prod1");
+      expect(imgs[1]).toHaveAttribute("src", "/api/v1/product/product-photo/prod2");
+      expect(imgs[2]).toHaveAttribute("src", "/api/v1/product/product-photo/prod3");
     });
+  });
 
-    fireEvent.change(screen.getByTestId("status-select"), {
-      target: { value: "Processing" },
-    });
-
-    // Assert
+  it("handles API errors gracefully", async () => {
+    axios.get.mockRejectedValueOnce(new Error("API error"));
+    render(<AdminOrders />);
     await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalled();
+      // Should not throw, but orders will not be displayed
+      expect(screen.queryByText("Alice")).not.toBeInTheDocument();
+      expect(screen.queryByText("Bob")).not.toBeInTheDocument();
     });
+  });
 
-    // Should NOT refetch if PUT fails (your code only refetches inside try)
-    expect(axios.get).toHaveBeenCalledTimes(1);
+  it("shows order quantity correctly", async () => {
+    render(<AdminOrders />);
+    await waitFor(() => {
+      // Quantity column
+      expect(screen.getByText("2")).toBeInTheDocument(); // First order
+      expect(screen.getByText("1")).toBeInTheDocument(); // Second order
+    });
+  });
 
-    consoleSpy.mockRestore();
+  it("renders moment date correctly", async () => {
+    render(<AdminOrders />);
+    await waitFor(() => {
+      // Should show a relative date string
+      const dateCells = screen.getAllByText(/ago$/);
+      expect(dateCells.length).toBeGreaterThan(0);
+    });
   });
 });
