@@ -2,7 +2,7 @@
 // Code guided by chatGPT
 import React from "react";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
-import AdminOrders from "../pages/Admin/AdminOrders"; // <-- change path
+import AdminOrders from "../pages/admin/AdminOrders"; 
 import axios from "axios";
 
 // ---- mocks ----
