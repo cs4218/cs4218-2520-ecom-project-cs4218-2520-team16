@@ -13,10 +13,10 @@ const AdminOrders = () => {
     "Not Process",
     "Processing",
     "Shipped",
-    "deliverd",
-    "cancel",
+    "Delivered",
+    "Cancel",
   ]);
-  const [changeStatus, setCHangeStatus] = useState("");
+  const [changeStatus, setChangeStatus] = useState("");
   const [orders, setOrders] = useState([]);
   const [auth, setAuth] = useAuth();
   const getOrders = async () => {
@@ -52,14 +52,14 @@ const AdminOrders = () => {
           <h1 className="text-center">All Orders</h1>
           {orders?.map((o, i) => {
             return (
-              <div className="border shadow">
+              <div className="border shadow" key={o._id}>
                 <table className="table">
                   <thead>
                     <tr>
                       <th scope="col">#</th>
                       <th scope="col">Status</th>
                       <th scope="col">Buyer</th>
-                      <th scope="col"> date</th>
+                      <th scope="col">Date</th>
                       <th scope="col">Payment</th>
                       <th scope="col">Quantity</th>
                     </tr>
@@ -72,23 +72,24 @@ const AdminOrders = () => {
                           bordered={false}
                           onChange={(value) => handleChange(o._id, value)}
                           defaultValue={o?.status}
+                          role="combobox"
                         >
-                          {status.map((s, i) => (
-                            <Option key={i} value={s}>
+                          {status.map((s, idx) => (
+                            <Option key={idx} value={s}>
                               {s}
                             </Option>
                           ))}
                         </Select>
                       </td>
                       <td>{o?.buyer?.name}</td>
-                      <td>{moment(o?.createAt).fromNow()}</td>
-                      <td>{o?.payment.success ? "Success" : "Failed"}</td>
+                      <td>{moment(o?.createAt || o?.createdAt).fromNow()}</td>
+                      <td>{o?.payment?.success ? "Success" : "Failed"}</td>
                       <td>{o?.products?.length}</td>
                     </tr>
                   </tbody>
                 </table>
                 <div className="container">
-                  {o?.products?.map((p, i) => (
+                  {o?.products?.map((p, idx) => (
                     <div className="row mb-2 p-3 card flex-row" key={p._id}>
                       <div className="col-md-4">
                         <img
@@ -96,7 +97,8 @@ const AdminOrders = () => {
                           className="card-img-top"
                           alt={p.name}
                           width="100px"
-                          height={"100px"}
+                          height="100px"
+                          role="img"
                         />
                       </div>
                       <div className="col-md-8">
