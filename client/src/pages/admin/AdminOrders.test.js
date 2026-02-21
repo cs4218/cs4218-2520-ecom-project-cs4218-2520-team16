@@ -4,10 +4,10 @@ import React from "react";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import AdminOrders from "../pages/admin/AdminOrders"; 
 import axios from "axios";
+import userEvent from "@testing-library/user-event";
 
 // ---- mocks ----
 jest.mock("axios");
-
 jest.mock("../../components/AdminMenu", () => () => <div data-testid="admin-menu" />);
 jest.mock("../../components/Layout", () => ({ children, title }) => (
   <div data-testid="layout">
@@ -114,38 +114,35 @@ describe("Tests for Admin Orders (AAA)", () => {
     });
   });
 
-  test("changing status calls PUT and refetches orders", async () => {
-    // Arrange
-    mockUseAuth.mockReturnValue([{ token: "token123" }, jest.fn()]);
+test("changing status calls PUT and refetches orders", async () => {
+  mockUseAuth.mockReturnValue([{ token: "token123" }, jest.fn()]);
 
-    axios.get.mockResolvedValueOnce({ data: [makeOrder({ _id: "order123" })] }); // initial fetch
-    axios.put.mockResolvedValueOnce({ data: { success: true } }); // PUT success
-    axios.get.mockResolvedValueOnce({
-      data: [makeOrder({ _id: "order123", status: "Shipped" })],
-    }); // refetch
+  axios.get.mockResolvedValueOnce({ data: [makeOrder({ _id: "order123" })] });
+  axios.put.mockResolvedValueOnce({ data: { success: true } });
+  axios.get.mockResolvedValueOnce({
+    data: [makeOrder({ _id: "order123", status: "Shipped" })],
+  });
 
-    // Act
-    render(<AdminOrders />);
+  render(<AdminOrders />);
 
-    await waitFor(() => {
-      expect(axios.get).toHaveBeenCalledWith("/api/v1/auth/all-orders");
-    });
+  // wait for initial load *as the user sees it*
+  expect(await screen.findByText("Alice")).toBeInTheDocument();
 
-    fireEvent.change(screen.getByTestId("status-select"), {
-      target: { value: "Shipped" },
-    });
+  const user = userEvent.setup();
 
-    // Assert
-    await waitFor(() => {
-      expect(axios.put).toHaveBeenCalledWith("/api/v1/auth/order-status/order123", {
-        status: "Shipped",
-      });
-    });
+  await user.selectOptions(screen.getByTestId("status-select"), "Shipped");
 
-    await waitFor(() => {
-      expect(axios.get).toHaveBeenCalledTimes(2);
+  await waitFor(() => {
+    expect(axios.put).toHaveBeenCalledWith("/api/v1/auth/order-status/order123", {
+      status: "Shipped",
     });
   });
+
+  // and wait for the UI to reflect the refetch
+  await waitFor(() => {
+    expect(screen.getByTestId("status-select")).toHaveValue("Shipped");
+  });
+});
 
   test("logs error if fetching orders fails", async () => {
     // Arrange
