@@ -6,7 +6,7 @@
 /* eslint-disable testing-library/no-node-access */
 
 import React from "react";
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { BrowserRouter } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -105,9 +105,11 @@ describe("Register Component", () => {
     const phoneInput = inputs.find((input) => input.id === "exampleInputPhone1");
 
     // Act
-    await userEvent.type(nameInput, "John Doe");
-    await userEvent.type(emailInput, "john@example.com");
-    await userEvent.type(phoneInput, "1234567890");
+    await act(async () => {
+      await userEvent.type(nameInput, "John Doe");
+      await userEvent.type(emailInput, "john@example.com");
+      await userEvent.type(phoneInput, "1234567890");
+    });
 
     // Assert
     expect(nameInput.value).toBe("John Doe");
@@ -143,14 +145,16 @@ describe("Register Component", () => {
     const submitButton = screen.getByRole("button", { name: /REGISTER/i });
 
     // Act
-    await userEvent.type(nameInput, "John Doe");
-    await userEvent.type(emailInput, "john@example.com");
-    await userEvent.type(passwordInput, "password123");
-    await userEvent.type(phoneInput, "1234567890");
-    await userEvent.type(addressInput, "123 Main St");
-    await userEvent.type(dobInput, "1990-01-01");
-    await userEvent.type(answerInput, "Football");
-    await userEvent.click(submitButton);
+    await act(async () => {
+      await userEvent.type(nameInput, "John Doe");
+      await userEvent.type(emailInput, "john@example.com");
+      await userEvent.type(passwordInput, "password123");
+      await userEvent.type(phoneInput, "1234567890");
+      await userEvent.type(addressInput, "123 Main St");
+      await userEvent.type(dobInput, "1990-01-01");
+      await userEvent.type(answerInput, "Football");
+      await userEvent.click(submitButton);
+    });
 
     // Assert
     await waitFor(() => {
@@ -202,14 +206,16 @@ describe("Register Component", () => {
     const submitButton = screen.getByRole("button", { name: /REGISTER/i });
 
     // Act
-    await userEvent.type(nameInput, "John Doe");
-    await userEvent.type(emailInput, "john@example.com");
-    await userEvent.type(passwordInput, "password123");
-    await userEvent.type(phoneInput, "1234567890");
-    await userEvent.type(addressInput, "123 Main St");
-    await userEvent.type(dobInput, "1990-01-01");
-    await userEvent.type(answerInput, "Football");
-    await userEvent.click(submitButton);
+    await act(async () => {
+      await userEvent.type(nameInput, "John Doe");
+      await userEvent.type(emailInput, "john@example.com");
+      await userEvent.type(passwordInput, "password123");
+      await userEvent.type(phoneInput, "1234567890");
+      await userEvent.type(addressInput, "123 Main St");
+      await userEvent.type(dobInput, "1990-01-01");
+      await userEvent.type(answerInput, "Football");
+      await userEvent.click(submitButton);
+    });
 
     // Assert
     await waitFor(() => {
@@ -245,14 +251,16 @@ describe("Register Component", () => {
     const submitButton = screen.getByRole("button", { name: /REGISTER/i });
 
     // Act
-    await userEvent.type(nameInput, "John Doe");
-    await userEvent.type(emailInput, "john@example.com");
-    await userEvent.type(passwordInput, "password123");
-    await userEvent.type(phoneInput, "1234567890");
-    await userEvent.type(addressInput, "123 Main St");
-    await userEvent.type(dobInput, "1990-01-01");
-    await userEvent.type(answerInput, "Football");
-    await userEvent.click(submitButton);
+    await act(async () => {
+      await userEvent.type(nameInput, "John Doe");
+      await userEvent.type(emailInput, "john@example.com");
+      await userEvent.type(passwordInput, "password123");
+      await userEvent.type(phoneInput, "1234567890");
+      await userEvent.type(addressInput, "123 Main St");
+      await userEvent.type(dobInput, "1990-01-01");
+      await userEvent.type(answerInput, "Football");
+      await userEvent.click(submitButton);
+    });
 
     // Assert
     await waitFor(() => {
@@ -283,14 +291,16 @@ describe("Register Component", () => {
     const submitButton = screen.getByRole("button", { name: /REGISTER/i });
 
     // Act
-    await userEvent.type(nameInput, "John Doe");
-    await userEvent.type(emailInput, "john@example.com");
-    await userEvent.type(passwordInput, "password123");
-    await userEvent.type(phoneInput, "1234567890");
-    await userEvent.type(addressInput, "123 Main St");
-    await userEvent.type(dobInput, "1990-01-01");
-    await userEvent.type(answerInput, "Football");
-    await userEvent.click(submitButton);
+    await act(async () => {
+      await userEvent.type(nameInput, "John Doe");
+      await userEvent.type(emailInput, "john@example.com");
+      await userEvent.type(passwordInput, "password123");
+      await userEvent.type(phoneInput, "1234567890");
+      await userEvent.type(addressInput, "123 Main St");
+      await userEvent.type(dobInput, "1990-01-01");
+      await userEvent.type(answerInput, "Football");
+      await userEvent.click(submitButton);
+    });
 
     // Assert
     await waitFor(() => {
