@@ -1,7 +1,7 @@
 // Roger Yao, A0340029N
 // Code guided by chatGPT
 import React from "react";
-import { render, screen, waitFor, fireEvent, within } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import AdminOrders from "../pages/Admin/AdminOrders"; // <-- change path
 import axios from "axios";
 
@@ -16,26 +16,17 @@ jest.mock("../../components/Layout", () => ({ children, title }) => (
   </div>
 ));
 
-// mock moment so it’s deterministic
 jest.mock("moment", () => {
   return () => ({
     fromNow: () => "2 days ago",
   });
 });
 
-// mock useAuth hook
 const mockUseAuth = jest.fn();
 jest.mock("../../context/auth", () => ({
   useAuth: () => mockUseAuth(),
 }));
 
-/**
- * Mock antd Select/Option so we can fire a simple change event.
- * Your component uses:
- *   <Select onChange={(value) => handleChange(...)} defaultValue={...}>
- *     <Option value={s}>{s}</Option>
- *   </Select>
- */
 jest.mock("antd", () => {
   const React = require("react");
   const Select = ({ onChange, defaultValue, children }) => (
@@ -77,96 +68,95 @@ function makeOrder(overrides = {}) {
   };
 }
 
-describe("AdminOrders", () => {
+describe("Tests for Admin Orders (AAA)", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   test("fetches and renders orders when auth token exists", async () => {
+    // Arrange
     mockUseAuth.mockReturnValue([{ token: "token123" }, jest.fn()]);
     axios.get.mockResolvedValueOnce({ data: [makeOrder()] });
 
+    // Act
     render(<AdminOrders />);
 
-    // should call GET when token exists
+    // Assert
     await waitFor(() => {
       expect(axios.get).toHaveBeenCalledWith("/api/v1/auth/all-orders");
     });
 
-    // Layout title rendered
     expect(screen.getByTestId("layout-title")).toHaveTextContent("All Orders Data");
-
-    // Header rendered
     expect(screen.getByRole("heading", { name: /all orders/i })).toBeInTheDocument();
 
-    // Buyer name, payment, quantity
     expect(screen.getByText("Alice")).toBeInTheDocument();
     expect(screen.getByText("Success")).toBeInTheDocument();
-    expect(screen.getByText("2")).toBeInTheDocument(); // quantity = products.length
+    expect(screen.getByText("2")).toBeInTheDocument();
 
-    // Date rendered via mocked moment
     expect(screen.getByText("2 days ago")).toBeInTheDocument();
 
-    // Product cards rendered
     expect(screen.getByText("Product One")).toBeInTheDocument();
     expect(screen.getByText("Product Two")).toBeInTheDocument();
 
-    // Status select exists and default value is order status
-    const select = screen.getByTestId("status-select");
-    expect(select).toHaveValue("Not Process");
+    expect(screen.getByTestId("status-select")).toHaveValue("Not Process");
   });
 
   test("does NOT fetch orders when auth token is missing", async () => {
+    // Arrange
     mockUseAuth.mockReturnValue([{ token: null }, jest.fn()]);
 
+    // Act
     render(<AdminOrders />);
 
-    // Give effects a tick; ensure axios.get never called
+    // Assert
     await waitFor(() => {
       expect(axios.get).not.toHaveBeenCalled();
     });
   });
 
   test("changing status calls PUT and refetches orders", async () => {
+    // Arrange
     mockUseAuth.mockReturnValue([{ token: "token123" }, jest.fn()]);
 
-    // initial fetch
-    axios.get.mockResolvedValueOnce({ data: [makeOrder({ _id: "order123" })] });
+    axios.get.mockResolvedValueOnce({ data: [makeOrder({ _id: "order123" })] }); // initial fetch
+    axios.put.mockResolvedValueOnce({ data: { success: true } }); // PUT success
+    axios.get.mockResolvedValueOnce({
+      data: [makeOrder({ _id: "order123", status: "Shipped" })],
+    }); // refetch
 
-    // PUT success
-    axios.put.mockResolvedValueOnce({ data: { success: true } });
-
-    // refetch after change
-    axios.get.mockResolvedValueOnce({ data: [makeOrder({ _id: "order123", status: "Shipped" })] });
-
+    // Act
     render(<AdminOrders />);
 
-    // Wait initial fetch render
-    await waitFor(() => expect(axios.get).toHaveBeenCalledWith("/api/v1/auth/all-orders"));
+    await waitFor(() => {
+      expect(axios.get).toHaveBeenCalledWith("/api/v1/auth/all-orders");
+    });
 
-    const select = screen.getByTestId("status-select");
-    fireEvent.change(select, { target: { value: "Shipped" } });
+    fireEvent.change(screen.getByTestId("status-select"), {
+      target: { value: "Shipped" },
+    });
 
+    // Assert
     await waitFor(() => {
       expect(axios.put).toHaveBeenCalledWith("/api/v1/auth/order-status/order123", {
         status: "Shipped",
       });
     });
 
-    // After PUT, it should refetch orders
     await waitFor(() => {
       expect(axios.get).toHaveBeenCalledTimes(2);
     });
   });
 
   test("logs error if fetching orders fails", async () => {
+    // Arrange
     const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {});
     mockUseAuth.mockReturnValue([{ token: "token123" }, jest.fn()]);
-
     axios.get.mockRejectedValueOnce(new Error("Network error"));
 
+    // Act
     render(<AdminOrders />);
 
+    // Assert
     await waitFor(() => {
       expect(consoleSpy).toHaveBeenCalled();
     });
@@ -175,20 +165,25 @@ describe("AdminOrders", () => {
   });
 
   test("logs error if updating status fails", async () => {
+    // Arrange
     const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {});
     mockUseAuth.mockReturnValue([{ token: "token123" }, jest.fn()]);
 
     axios.get.mockResolvedValueOnce({ data: [makeOrder({ _id: "order123" })] });
     axios.put.mockRejectedValueOnce(new Error("PUT failed"));
 
+    // Act
     render(<AdminOrders />);
 
-    await waitFor(() => expect(axios.get).toHaveBeenCalled());
+    await waitFor(() => {
+      expect(axios.get).toHaveBeenCalledWith("/api/v1/auth/all-orders");
+    });
 
     fireEvent.change(screen.getByTestId("status-select"), {
       target: { value: "Processing" },
     });
 
+    // Assert
     await waitFor(() => {
       expect(consoleSpy).toHaveBeenCalled();
     });
