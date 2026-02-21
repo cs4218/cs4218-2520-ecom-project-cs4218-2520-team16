@@ -2,7 +2,7 @@
 /* eslint-disable testing-library/no-node-access */
 
 import React from "react";
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import axios from "axios";
 import Search from "./Search";
@@ -110,7 +110,9 @@ describe("Search element", () => {
 			</actualSearch.SearchProvider>
 		);
 		const input = screen.getByRole("searchbox");
-		await userEvent.type(input, "laptop");
+		await act(async () => {
+			await userEvent.type(input, "laptop");
+		});
 
 		// Assert
 		expect(input).toHaveValue("laptop");
@@ -128,7 +130,9 @@ describe("Search element", () => {
 		// Act
 		render(<SearchInput />);
 		const submitButton = screen.getByRole("button", { name: /search/i });
-		await userEvent.click(submitButton);
+		await act(async () => {
+			await userEvent.click(submitButton);
+		});
 
 		// Assert
 		await waitFor(() => {

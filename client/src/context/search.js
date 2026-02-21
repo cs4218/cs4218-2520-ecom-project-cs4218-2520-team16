@@ -1,3 +1,4 @@
+// Edited by Wen Han Tang A0340008W to resolve import issues
 import React, { useState, useContext, createContext } from "react";
 
 const SearchContext = createContext();

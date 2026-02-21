@@ -144,6 +144,10 @@ To begin unit testing with Jest in your project, follow these steps:
      ```bash
      npm run test
      ```
+
+## CL Integration
+ [LINK](https://github.com/cs4218/cs4218-2520-ecom-project-cs4218-2520-team16/actions/runs/21854703681/job/63068917772)
+
 ## Work Allocation
 Xiao Ao:
 - Protected Routes
