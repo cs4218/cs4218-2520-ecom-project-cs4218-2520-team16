@@ -1,3 +1,5 @@
+// Written by Roger Yao with the help of Copilot
+
 jest.mock("braintree", () => ({
   Environment: { Sandbox: "Sandbox" },
   BraintreeGateway: jest.fn(() => ({
