@@ -6,7 +6,7 @@
 /* eslint-disable testing-library/no-node-access */
 
 import React from "react";
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { BrowserRouter } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -100,7 +100,9 @@ describe("Login Component", () => {
     expect(forgotPasswordBtn).toBeInTheDocument();
 
     // Act
-    await userEvent.click(forgotPasswordBtn);
+    await act(async () => {
+      await userEvent.click(forgotPasswordBtn);
+    });
 
     // Assert
     await waitFor(() => {
@@ -119,7 +121,9 @@ describe("Login Component", () => {
     const emailInput = inputs.find((input) => input.type === "email");
 
     // Act
-    await userEvent.type(emailInput, "test@example.com");
+    await act(async () => {
+      await userEvent.type(emailInput, "test@example.com");
+    });
 
     // Assert
     expect(emailInput.value).toBe("test@example.com");
@@ -135,7 +139,9 @@ describe("Login Component", () => {
     const passwordInputs = document.querySelector('input[type="password"]');
 
     // Act
-    await userEvent.type(passwordInputs, "password123");
+    await act(async () => {
+      await userEvent.type(passwordInputs, "password123");
+    });
 
     // Assert
     expect(passwordInputs.value).toBe("password123");
@@ -154,11 +160,13 @@ describe("Login Component", () => {
     axios.post.mockResolvedValue(mockResponse);
     toast.success = jest.fn();
 
-    render(
-      <BrowserRouter>
-        <Login />
-      </BrowserRouter>
-    );
+    await act(async () => {
+      render(
+        <BrowserRouter>
+          <Login />
+        </BrowserRouter>
+      );
+    });
 
     const inputs = Array.from(document.querySelectorAll("input"));
     const emailInput = inputs.find((input) => input.type === "email");
@@ -166,9 +174,11 @@ describe("Login Component", () => {
     const submitButton = screen.getByRole("button", { name: /LOGIN/i });
 
     // Act
-    await userEvent.type(emailInput, "test@example.com");
-    await userEvent.type(passwordInput, "password123");
-    await userEvent.click(submitButton);
+    await act(async () => {
+      await userEvent.type(emailInput, "test@example.com");
+      await userEvent.type(passwordInput, "password123");
+      await userEvent.click(submitButton);
+    });
 
     // Assert
     await waitFor(() => {
@@ -215,9 +225,11 @@ describe("Login Component", () => {
     const submitButton = screen.getByRole("button", { name: /LOGIN/i });
 
     // Act
-    await userEvent.type(emailInput, "test@example.com");
-    await userEvent.type(passwordInput, "password123");
-    await userEvent.click(submitButton);
+    await act(async () => {
+      await userEvent.type(emailInput, "test@example.com");
+      await userEvent.type(passwordInput, "password123");
+      await userEvent.click(submitButton);
+    });
 
     // Assert
     await waitFor(() => {
@@ -271,9 +283,11 @@ describe("Login Component", () => {
     const submitButton = screen.getByRole("button", { name: /LOGIN/i });
 
     // Act
-    await userEvent.type(emailInput, "test@example.com");
-    await userEvent.type(passwordInput, "wrongpassword");
-    await userEvent.click(submitButton);
+    await act(async () => {
+      await userEvent.type(emailInput, "test@example.com");
+      await userEvent.type(passwordInput, "wrongpassword");
+      await userEvent.click(submitButton);
+    });
 
     // Assert
     await waitFor(() => {
@@ -302,9 +316,11 @@ describe("Login Component", () => {
     const passwordInput = inputs.find((input) => input.type === "password");
     const submitButton = screen.getByRole("button", { name: /LOGIN/i });
 
-    await userEvent.type(emailInput, "test@example.com");
-    await userEvent.type(passwordInput, "wrongpassword");
-    await userEvent.click(submitButton);
+    await act(async () => {
+      await userEvent.type(emailInput, "test@example.com");
+      await userEvent.type(passwordInput, "wrongpassword");
+      await userEvent.click(submitButton);
+    });
 
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith("Login failed");
@@ -329,9 +345,11 @@ describe("Login Component", () => {
     const submitButton = screen.getByRole("button", { name: /LOGIN/i });
 
     // Act
-    await userEvent.type(emailInput, "test@example.com");
-    await userEvent.type(passwordInput, "password123");
-    await userEvent.click(submitButton);
+    await act(async () => {
+      await userEvent.type(emailInput, "test@example.com");
+      await userEvent.type(passwordInput, "password123");
+      await userEvent.click(submitButton);
+    });
 
     // Assert
     await waitFor(() => {
