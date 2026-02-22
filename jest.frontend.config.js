@@ -20,21 +20,31 @@ export default {
   transformIgnorePatterns: ["/node_modules/(?!(styleMock\\.js)$)"],
 
   // only run these tests
-  testMatch: [
-    "<rootDir>/client/src/pages/About.test.js",
-    "<rootDir>/client/src/pages/Pagenotfound.test.js"
-  ],
+  testMatch: ["<rootDir>/client/src/**/**/*.test.js"],
 
-  // jest code coverage
+  // jest code 
   collectCoverage: true,
+  
+  // Xiao Ao, A0273305L, test coverage for recently edited files
+  // Appended by Wen Han Tang, A0340008W, to include additional files for coverage
   collectCoverageFrom: [
-    "client/src/pages/About.js",
-    "client/src/pages/Pagenotfound.js"
+    "client/src/context/auth.js",
+    "client/src/pages/Auth/Register.js",
+    "client/src/pages/Auth/Login.js",
+    "client/src/components/AdminMenu.js",
+    "client/src/pages/admin/AdminDashboard.js",
+    "client/src/pages/user/Profile.js",
+    "client/src/pages/admin/Users.js",
+    "client/src/pages/Search.js",
+    "client/src/pages/user/Orders.js",
+    "client/src/pages/Policy.js"
   ],
   coverageThreshold: {
     global: {
-      lines: 100,
-      functions: 100,
+    statements: 100,
+    branches: 100,
+    functions: 100,
+    lines: 100,
     },
   },
   setupFilesAfterEnv: ["<rootDir>/client/src/setupTests.js"],
