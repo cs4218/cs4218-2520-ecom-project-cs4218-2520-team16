@@ -1,3 +1,5 @@
+// Code guided by ChatGPT
+// Xiao Ao, A0273305L
 export default {
   // display name
   displayName: "backend",
@@ -6,11 +8,17 @@ export default {
   testEnvironment: "node",
 
   // which test to run
-  testMatch: ["<rootDir>/controllers/*.test.js"],
+  testMatch: ["<rootDir>/**/*.test.js"],
 
   // jest code coverage
+  testPathIgnorePatterns: ["node_modules", "<rootDir>/client/"],
   collectCoverage: true,
-  collectCoverageFrom: ["controllers/**"],
+
+  // Xiao Ao, A0273305L, test coverage for recently edited files
+  collectCoverageFrom: [
+    "controllers/authController.js",
+    "middlewares/authMiddleware.js",
+    "helpers/authHelper.js"],
   coverageThreshold: {
     global: {
       lines: 100,

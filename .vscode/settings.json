@@ -1,0 +1,7 @@
+// Xiao Ao, A0273305L
+// Code guided by github Copilot
+{
+    "python-envs.defaultEnvManager": "ms-python.python:conda",
+    "python-envs.defaultPackageManager": "ms-python.python:conda",
+    "python-envs.pythonProjects": []
+}

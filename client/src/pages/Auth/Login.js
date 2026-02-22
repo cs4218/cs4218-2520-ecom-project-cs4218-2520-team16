@@ -1,3 +1,5 @@
+// Xiao Ao, A0273305L
+// Code Guided by github Copilot
 import React, { useState } from "react";
 import Layout from "./../../components/Layout";
 import axios from "axios";
@@ -10,11 +12,9 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [auth, setAuth] = useAuth();
-  
 
   const navigate = useNavigate();
   const location = useLocation();
-  
 
   // form function
   const handleSubmit = async (e) => {
@@ -25,32 +25,32 @@ const Login = () => {
         password,
       });
       if (res && res.data.success) {
-        toast.success(res.data && res.data.message, {
-            duration: 5000,
-            icon: "🙏",
-            style: {
-              background: "green",
-              color: "white",
-            },
-          });
+        toast.success(res.data.message, {
+          duration: 5000,
+          icon: "🙏",
+          style: {
+            background: "green",
+            color: "white",
+          },
+        });
         setAuth({
-            ...auth,
-            user: res.data.user,
-            token: res.data.token,
+          ...auth,
+          user: res.data.user,
+          token: res.data.token,
         });
         localStorage.setItem("auth", JSON.stringify(res.data));
-        navigate(location.state || "/");
+        navigate(location?.state?.from || "/");
       } else {
-        toast.error(res.data.message);
+        toast.error(res.data.message || "Login failed");
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast.error("Something went wrong");
     }
   };
   return (
     <Layout title="Login - Ecommerce App">
-      <div className="form-container " style={{ minHeight: "90vh" }}>
+      <div className="form-container" style={{ minHeight: "90vh" }}>
         <form onSubmit={handleSubmit}>
           <h4 className="title">LOGIN FORM</h4>
 
@@ -97,5 +97,4 @@ const Login = () => {
     </Layout>
   );
 };
-
 export default Login;
