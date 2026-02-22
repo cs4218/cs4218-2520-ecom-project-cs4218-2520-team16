@@ -1,5 +1,4 @@
-// Written by Roger Yao with the help of Copilot
-
+// Written by Roger Yao (A0340029N) with the help of Copilot.
 jest.mock("braintree", () => ({
   Environment: { Sandbox: "Sandbox" },
   BraintreeGateway: jest.fn(() => ({
