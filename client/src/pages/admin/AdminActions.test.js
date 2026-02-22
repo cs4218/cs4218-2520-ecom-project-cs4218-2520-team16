@@ -1,4 +1,4 @@
-// Written by Roger Yao with the help of Copilot
+// Written by Roger Yao (A0340029N) with the help of Copilot.
 
 import React from "react";
 import { render, screen, waitFor, act } from "@testing-library/react";
