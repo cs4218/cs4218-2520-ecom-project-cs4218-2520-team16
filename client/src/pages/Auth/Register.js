@@ -1,3 +1,6 @@
+// Xiao Ao, A0273305L
+// Code guided by github Copilot
+
 import React, { useState } from "react";
 import Layout from "./../../components/Layout";
 import axios from "axios";
@@ -31,10 +34,9 @@ const Register = () => {
         toast.success("Register Successfully, please login");
         navigate("/login");
       } else {
-        toast.error(res.data.message);
+        toast.error(res.data.message || "Registration failed");
       }
     } catch (error) {
-      console.log(error);
       toast.error("Something went wrong");
     }
   };
