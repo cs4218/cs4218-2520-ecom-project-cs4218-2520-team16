@@ -1,3 +1,9 @@
+/*
+Name: Wang Zihan
+Student ID: A0266073A
+Bug fix
+*/
+
 import React, { useState, useEffect } from "react";
 import Layout from "./../components/Layout";
 import { useCart } from "../context/cart";
@@ -37,6 +43,7 @@ const CartPage = () => {
     try {
       let myCart = [...cart];
       let index = myCart.findIndex((item) => item._id === pid);
+      if (index === -1) return;
       myCart.splice(index, 1);
       setCart(myCart);
       localStorage.setItem("cart", JSON.stringify(myCart));
@@ -60,6 +67,7 @@ const CartPage = () => {
 
   //handle payments
   const handlePayment = async () => {
+    debugger
     try {
       setLoading(true);
       const { nonce } = await instance.requestPaymentMethod();
@@ -85,7 +93,7 @@ const CartPage = () => {
             <h1 className="text-center bg-light p-2 mb-1">
               {!auth?.user
                 ? "Hello Guest"
-                : `Hello  ${auth?.token && auth?.user?.name}`}
+                : `Hello ${auth?.token && auth?.user?.name}`}
               <p className="text-center">
                 {cart?.length
                   ? `You Have ${cart.length} items in your cart ${
