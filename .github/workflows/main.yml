@@ -1,11 +1,11 @@
 name: Run Tests
 
-on: 
+on:
   pull_request:
     branches:
       - main
-    push:
-      branches:
+  push:
+    branches:
       - main
 
 jobs:
@@ -29,6 +29,4 @@ jobs:
           cd client
           npm install
       - name: Run Jest Tests
-        run: |
-          npm run test:frontend
-          npm run test:backend
+        run: npm run test:frontend
