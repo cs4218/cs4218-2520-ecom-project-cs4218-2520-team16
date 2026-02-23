@@ -1,13 +1,13 @@
 name: Run Tests
 
-on: 
+on:
   pull_request:
     branches:
       - main
   push:
-      branches:
+    branches:
       - main
-
+      
 jobs:
   test:
     runs-on: ubuntu-latest
