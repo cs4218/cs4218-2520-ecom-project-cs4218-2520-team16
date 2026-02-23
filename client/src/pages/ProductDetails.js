@@ -1,3 +1,9 @@
+/*
+Name: Wang Zihan
+Student ID: A0266073A
+Bug fix
+*/
+
 import React, { useState, useEffect } from "react";
 import Layout from "./../components/Layout";
 import axios from "axios";
@@ -62,7 +68,7 @@ const ProductDetails = () => {
             })}
           </h6>
           <h6>Category : {product?.category?.name}</h6>
-          <button class="btn btn-secondary ms-1">ADD TO CART</button>
+          <button className="btn btn-secondary ms-1">ADD TO CART</button>
         </div>
       </div>
       <hr />
