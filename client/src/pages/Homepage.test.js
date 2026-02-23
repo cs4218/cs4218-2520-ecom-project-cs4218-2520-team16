@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import '@testing-library/jest-dom/extend-expect';
-import HomePage from './Homepage';
+import HomePage from './HomePage';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
