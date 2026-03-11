@@ -7,6 +7,11 @@ export default {
   // when testing backend
   testEnvironment: "node",
 
+  // align backend transpilation behavior with frontend so ESM tests can use Jest mocking APIs reliably Wen Han Tang A0340008W
+  transform: {
+    "^.+\\.jsx?$": "babel-jest",
+  },
+
   // which test to run
   testMatch: ["<rootDir>/**/*.test.js"],
 

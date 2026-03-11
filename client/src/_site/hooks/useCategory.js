@@ -4,11 +4,11 @@ import axios from "axios";
 export default function useCategory() {
   const [categories, setCategories] = useState([]);
 
-  //get cat
+  // Rewrote this to be more typesafe Wen Han Tang A0340008W
   const getCategories = async () => {
     try {
-      const { data } = await axios.get("/api/v1/category/get-category");
-      setCategories(data?.category);
+      const response = await axios.get("/api/v1/category/get-category");
+      setCategories(response?.data?.category || []);
     } catch (error) {
       console.log(error);
     }
