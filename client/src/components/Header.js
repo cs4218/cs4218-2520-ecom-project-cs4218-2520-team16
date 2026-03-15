@@ -20,6 +20,8 @@ const Header = () => {
     localStorage.removeItem("auth");
     toast.success("Logout Successfully");
   };
+
+  // Added key to category list items to fix React warning about missing keys in lists. Used _id if available, otherwise fallback to slug. Wen Han Tang A0340008W
   return (
     <>
       <nav className="navbar navbar-expand-lg bg-body-tertiary">
@@ -61,7 +63,7 @@ const Header = () => {
                     </Link>
                   </li>
                   {categories?.map((c) => (
-                    <li>
+                    <li key={c._id || c.slug}>
                       <Link
                         className="dropdown-item"
                         to={`/category/${c.slug}`}

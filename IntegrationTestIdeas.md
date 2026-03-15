@@ -5,56 +5,47 @@ Written by Wen Han Tang A0340008W with inspiration from ChatGPT
 ## **1. AUTHENTICATION & USER MANAGEMENT**
 
 ### User Registration Flow
-- [ ] New user registration with valid data → user created in DB → can login
-- [ ] Register with duplicate email → error response → user not created
-- [ ] Register with missing required fields → validation error
+- [x] New user registration with valid data → user created in DB → can login
+- [x] Register with duplicate email → error response → user not created
+- [x] Register with missing required fields → validation error
 - [ ] Register with invalid email format → validation error
 - [ ] Register with weak password → validation error
 - [ ] Registered user data persisted correctly (name, email, phone, address, role=0)
 
 ### Login Flow
-- [ ] Valid credentials → JWT token returned → stored in localStorage
-- [ ] Invalid email → login fails with appropriate error
-- [ ] Invalid password → login fails with appropriate error
+- [x] Valid credentials → JWT token returned → stored in localStorage
+- [x] Invalid email → login fails with appropriate error
+- [x] Invalid password → login fails with appropriate error
 - [ ] Login → auth context updated → axios Authorization header set
-- [ ] Login with admin user (role=1) → redirects to admin dashboard
-- [ ] Login with regular user → redirects to user dashboard
-- [ ] Token persists across page refreshes → user remains logged in
 
 ### Protected Routes
-- [ ] Unauthenticated user cannot access `/dashboard/user/*`
-- [ ] Unauthenticated user cannot access `/dashboard/admin/*`
-- [ ] GET `/api/v1/auth/user-auth` with valid token → returns 200
-- [ ] GET `/api/v1/auth/user-auth` with invalid/no token → returns 401
-- [ ] GET `/api/v1/auth/admin-auth` with admin user → returns 200
-- [ ] GET `/api/v1/auth/admin-auth` with non-admin user → returns 401
+- [x] Unauthenticated user cannot access `/dashboard/user/*`
+- [x] Unauthenticated user cannot access `/dashboard/admin/*`
+- [x] GET `/api/v1/auth/user-auth` with valid token → returns 200
+- [x] GET `/api/v1/auth/user-auth` with invalid/no token → returns 401
+- [x] GET `/api/v1/auth/admin-auth` with admin user → returns 200
+- [x] GET `/api/v1/auth/admin-auth` with non-admin user → returns 401
 
 ### Profile Management
-- [ ] User updates profile (name, email, phone, address) → API call succeeds → data persists
+- [x] User updates profile (name, email, phone, address) → API call succeeds → data persists
 - [ ] User changes password → password updated in DB (hashed)
-- [ ] User updates email → new email used for future logins
 - [ ] Profile update with invalid/missing fields → validation error
-- [ ] Profile page displays current user data from auth context
 - [ ] Updated user info reflects in Header component immediately
 
 ### Password Reset
 - [ ] User provides security question answer → gets reset capability
-- [ ] Reset with correct answer → password reset succeeds
+- [x] Reset with correct answer → password reset succeeds
 - [ ] Reset with incorrect answer → error response
 
 ---
 
 ## **2. PRODUCT BROWSING & FILTERING**
 
-### Initial Product Load (HomePage)
+### HomePage & Pagination
 - [ ] HomePage loads → GET `/api/v1/product/product-list/1` called
-- [ ] 6 products per page displayed correctly
-- [ ] Product photo loads → GET `/api/v1/product/product-photo/{productId}`
 - [ ] Product count fetched → GET `/api/v1/product/product-count`
-- [ ] Pagination: clicking page 2 → GET `/api/v1/product/product-list/2`
-- [ ] "Load More" button paginated correctly
 
-### Product Filtering
+### Filtering
 - [ ] Select single category → POST `/api/v1/product/product-filters` with correct payload
 - [ ] Select multiple categories → filters by all selected categories
 - [ ] Select price range → filters by price (e.g., 100-500)
@@ -86,14 +77,14 @@ Written by Wen Han Tang A0340008W with inspiration from ChatGPT
 ### Cart Context Persistence
 - [ ] Add product to cart → item appears in cart context
 - [ ] Cart saved to localStorage key "cart"
-- [ ] Page refresh → cart persists from localStorage
+- [x] Page refresh → cart persists from localStorage
 - [ ] Add multiple products → all preserved in cart
 - [ ] Add same product twice → quantity increases OR duplicate items shown (verify behavior)
 
 ### Cart Operations
 - [ ] Remove item from CartPage → item removed from context + localStorage
 - [ ] Clear cart after successful purchase → localStorage "cart" emptied
-- [ ] Cart badge in Header shows correct item count
+- [x] Cart badge in Header shows correct item count
 - [ ] Cart updates are immediately reflected in Header badge
 - [ ] Cart total price calculated correctly
 
@@ -108,17 +99,17 @@ Written by Wen Han Tang A0340008W with inspiration from ChatGPT
 ## **4. SEARCH FUNCTIONALITY**
 
 ### Search Workflow
-- [ ] Type keyword in SearchInput → keyword set in search context
-- [ ] Submit search → GET `/api/v1/product/search/{keyword}` called
+- [x] Type keyword in SearchInput → keyword set in search context
+- [x] Submit search → GET `/api/v1/product/search/{keyword}` called
 - [ ] Search case-insensitive → "iPhone" finds products with "iphone"
 - [ ] Search by product name → matching products returned
 - [ ] Search by description keywords → matching products found
-- [ ] Navigate to Search page → results display from context
-- [ ] Display result count (e.g., "3 results found")
+- [x] Navigate to Search page → results display from context
+- [x] Display result count (e.g., "3 results found")
 - [ ] Empty search → returns all products OR error message
 
 ### Search Persistence
-- [ ] Results persist in context after navigation to Search page
+- [x] Results persist in context after navigation to Search page
 - [ ] Clearing search or navigating away → context results cleared
 - [ ] New search replaces previous results
 
@@ -162,16 +153,16 @@ Written by Wen Han Tang A0340008W with inspiration from ChatGPT
 ## **6. ORDER MANAGEMENT**
 
 ### User Orders
-- [ ] User dashboard Orders tab → GET `/api/v1/auth/orders` called
+- [x] User dashboard Orders tab → GET `/api/v1/auth/orders` called
 - [ ] Orders displayed with: ID, status, buyer, date, payment success, quantity
 - [ ] Order products populated correctly (not just IDs)
 - [ ] Product photo loads for each item in order
 - [ ] Dates formatted with moment.js (relative format)
-- [ ] Only user's own orders displayed
+- [x] Only user's own orders displayed
 
 ### Admin Orders
-- [ ] Admin Orders page → GET `/api/v1/auth/all-orders` called
-- [ ] All orders from all users displayed
+- [x] Admin Orders page → GET `/api/v1/auth/all-orders` called
+- [x] All orders from all users displayed
 - [ ] Each order shows all needed info (buyer name, products, etc.)
 - [ ] Status dropdown available for each order (Not Process → Processing → Shipped → deliverd)
 - [ ] Order status change → PUT `/api/v1/auth/order-status/{orderId}` called
@@ -266,11 +257,11 @@ Written by Wen Han Tang A0340008W with inspiration from ChatGPT
 
 ### Header Component Integration
 - [ ] Header displays auth status (logged out vs. logged in)
-- [ ] Cart badge shows item count from cart context
+- [x] Cart badge shows item count from cart context
 - [ ] Categories dropdown loads categories and links work
-- [ ] SearchInput submits search correctly
-- [ ] User dropdown shows current user from auth context
-- [ ] Logout clears auth context + localStorage
+- [x] SearchInput submits search correctly
+- [x] User dropdown shows current user from auth context
+- [x] Logout clears auth context + localStorage
 - [ ] After logout → redirects to home → cannot access protected pages
 
 ### Layout Component
