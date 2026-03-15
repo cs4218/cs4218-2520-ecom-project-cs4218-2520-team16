@@ -16,6 +16,12 @@ import { SearchProvider } from "../context/search";
 jest.mock("axios");
 jest.mock("react-hot-toast");
 
+// axios is fully mocked so axios.defaults is undefined — initialise it so
+// auth.js can set axios.defaults.headers.common["Authorization"] without crashing
+beforeEach(() => {
+  axios.defaults = { headers: { common: {} } };
+});
+
 jest.mock("../components/Layout", () => {
   return function MockLayout({ children }) {
     return <div>{children}</div>;
@@ -35,15 +41,18 @@ jest.mock("../components/Prices", () => ({
 }));
 
 jest.mock("braintree-web-drop-in-react", () => {
+  // jest.mock factories are hoisted before imports so React is out of scope;
+  // use require() with a mock-prefixed name which jest permits
+  const mockReact = require("react");
   return function MockDropIn({ onInstance }) {
-    React.useEffect(() => {
+    mockReact.useEffect(() => {
       onInstance({
         requestPaymentMethod: jest
           .fn()
           .mockResolvedValue({ nonce: "fake-nonce" }),
       });
-    }, []);
-    return <div data-testid="dropin">Payment Form</div>;
+    }, [onInstance]);
+    return mockReact.createElement("div", { "data-testid": "dropin" }, "Payment Form");
   };
 });
 
@@ -56,7 +65,7 @@ jest.mock("antd", () => {
   );
 
   const Radio = ({ children, value }) => (
-    <label>
+    <label data-value={JSON.stringify(value)}>
       <input type="radio" data-value={JSON.stringify(value)} readOnly />
       {children}
     </label>
@@ -66,12 +75,9 @@ jest.mock("antd", () => {
     <div
       data-testid="radio-group"
       onClick={(e) => {
-        const label = e.target.closest("label");
-        const input = label && label.querySelector("[data-value]");
-        if (input) {
-          onChange({
-            target: { value: JSON.parse(input.getAttribute("data-value")) },
-          });
+        const dataValue = e.target.dataset.value;
+        if (dataValue) {
+          onChange({ target: { value: JSON.parse(dataValue) } });
         }
       }}
     >
@@ -198,20 +204,20 @@ describe("Add to cart from HomePage", () => {
 
   test("adding a product saves it to localStorage cart", async () => {
     render(<HomeHarness />);
-    await waitFor(() => screen.getByText("Laptop"));
+    await screen.findByText("Laptop");
 
     fireEvent.click(screen.getAllByText("ADD TO CART")[0]);
 
     await waitFor(() => {
       const cart = JSON.parse(localStorage.getItem("cart"));
       expect(cart).toHaveLength(1);
-      expect(cart[0]._id).toBe("p1");
     });
+    expect(JSON.parse(localStorage.getItem("cart"))[0]._id).toBe("p1");
   });
 
   test("adding multiple products preserves all items in cart", async () => {
     render(<HomeHarness />);
-    await waitFor(() => screen.getByText("Laptop"));
+    await screen.findByText("Laptop");
 
     const addButtons = screen.getAllByText("ADD TO CART");
     fireEvent.click(addButtons[0]); // Laptop
@@ -220,15 +226,16 @@ describe("Add to cart from HomePage", () => {
     await waitFor(() => {
       const cart = JSON.parse(localStorage.getItem("cart"));
       expect(cart).toHaveLength(2);
-      expect(cart.map((i) => i._id)).toEqual(
-        expect.arrayContaining(["p1", "p2"])
-      );
     });
+    const cart = JSON.parse(localStorage.getItem("cart"));
+    expect(cart.map((i) => i._id)).toEqual(
+      expect.arrayContaining(["p1", "p2"])
+    );
   });
 
   test("adding the same product twice creates duplicate entries", async () => {
     render(<HomeHarness />);
-    await waitFor(() => screen.getByText("Laptop"));
+    await screen.findByText("Laptop");
 
     const addButtons = screen.getAllByText("ADD TO CART");
     fireEvent.click(addButtons[0]);
@@ -237,13 +244,14 @@ describe("Add to cart from HomePage", () => {
     await waitFor(() => {
       const cart = JSON.parse(localStorage.getItem("cart"));
       expect(cart).toHaveLength(2);
-      expect(cart.every((i) => i._id === "p1")).toBe(true);
     });
+    const cart = JSON.parse(localStorage.getItem("cart"));
+    expect(cart.every((i) => i._id === "p1")).toBe(true);
   });
 
   test("cart badge in Header updates immediately when item is added", async () => {
     render(<HomeWithHeaderHarness />);
-    await waitFor(() => screen.getByText("Laptop"));
+    await screen.findByText("Laptop");
 
     expect(screen.getByTestId("cart-count").textContent).toBe("0");
 
@@ -279,27 +287,17 @@ describe("CartPage display", () => {
 
   test("displays all cart items with name, description, and price", async () => {
     render(<CartHarness />);
-    await waitFor(() => {
-      expect(screen.getByText("Laptop")).toBeInTheDocument();
-      expect(screen.getByText("Phone")).toBeInTheDocument();
-      expect(screen.getByText(/Price : 1200/)).toBeInTheDocument();
-      expect(screen.getByText(/Price : 800/)).toBeInTheDocument();
-    });
+    expect(await screen.findByText("Laptop")).toBeInTheDocument();
+    expect(await screen.findByText("Phone")).toBeInTheDocument();
+    expect(await screen.findByText(/Price : 1200/)).toBeInTheDocument();
+    expect(await screen.findByText(/Price : 800/)).toBeInTheDocument();
   });
 
   test("product photo src uses product ID for each cart item", async () => {
     render(<CartHarness />);
-    await waitFor(() => {
-      const imgs = screen.getAllByRole("img");
-      expect(imgs[0]).toHaveAttribute(
-        "src",
-        "/api/v1/product/product-photo/p1"
-      );
-      expect(imgs[1]).toHaveAttribute(
-        "src",
-        "/api/v1/product/product-photo/p2"
-      );
-    });
+    const imgs = await screen.findAllByRole("img");
+    expect(imgs[0]).toHaveAttribute("src", "/api/v1/product/product-photo/p1");
+    expect(imgs[1]).toHaveAttribute("src", "/api/v1/product/product-photo/p2");
   });
 
   test("calculates and displays correct total price", async () => {
@@ -325,32 +323,32 @@ describe("CartPage remove operations", () => {
 
   test("removing an item updates localStorage cart", async () => {
     render(<CartHarness />);
-    await waitFor(() => screen.getByText("Laptop"));
+    await screen.findByText("Laptop");
 
     fireEvent.click(screen.getAllByText("Remove")[0]); // remove Laptop
 
     await waitFor(() => {
       const cart = JSON.parse(localStorage.getItem("cart"));
       expect(cart).toHaveLength(1);
-      expect(cart[0]._id).toBe("p2");
     });
+    expect(JSON.parse(localStorage.getItem("cart"))[0]._id).toBe("p2");
   });
 
   test("Remove button removes only the specific item, others remain", async () => {
     render(<CartHarness />);
-    await waitFor(() => screen.getByText("Laptop"));
+    await screen.findByText("Laptop");
 
     fireEvent.click(screen.getAllByText("Remove")[0]); // remove Laptop only
 
-    await waitFor(() => {
-      expect(screen.queryByText("Laptop")).not.toBeInTheDocument();
-      expect(screen.getByText("Phone")).toBeInTheDocument();
-    });
+    await waitFor(() =>
+      expect(screen.queryByText("Laptop")).not.toBeInTheDocument()
+    );
+    expect(await screen.findByText("Phone")).toBeInTheDocument();
   });
 
   test("total price updates after item is removed", async () => {
     render(<CartHarness />);
-    await waitFor(() => screen.getByText(/Total : \$2,000\.00/));
+    await screen.findByText(/Total : \$2,000\.00/);
 
     fireEvent.click(screen.getAllByText("Remove")[0]); // remove Laptop ($1,200)
 
@@ -402,9 +400,7 @@ describe("Cart cleared after payment", () => {
   test("cart is removed from localStorage after successful payment", async () => {
     render(<CartHarness />);
 
-    await waitFor(() =>
-      expect(screen.getByTestId("dropin")).toBeInTheDocument()
-    );
+    await screen.findByTestId("dropin");
     const payButton = screen.getByText("Make Payment");
     await waitFor(() => expect(payButton).not.toBeDisabled());
 
@@ -418,17 +414,15 @@ describe("Cart cleared after payment", () => {
   test("cart state is emptied and user navigates to orders after payment", async () => {
     render(<CartHarness />);
 
-    await waitFor(() =>
-      expect(screen.getByTestId("dropin")).toBeInTheDocument()
-    );
+    await screen.findByTestId("dropin");
     const payButton = screen.getByText("Make Payment");
     await waitFor(() => expect(payButton).not.toBeDisabled());
 
     fireEvent.click(payButton);
 
-    await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith("/dashboard/user/orders");
-      expect(screen.getByText(/Your Cart Is Empty/)).toBeInTheDocument();
-    });
+    await waitFor(() =>
+      expect(mockNavigate).toHaveBeenCalledWith("/dashboard/user/orders")
+    );
+    expect(await screen.findByText(/Your Cart Is Empty/)).toBeInTheDocument();
   });
 });

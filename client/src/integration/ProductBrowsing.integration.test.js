@@ -17,6 +17,12 @@ import { SearchProvider } from "../context/search";
 jest.mock("axios");
 jest.mock("react-hot-toast");
 
+// axios is fully mocked so axios.defaults is undefined — initialise it so
+// auth.js can set axios.defaults.headers.common["Authorization"] without crashing
+beforeEach(() => {
+  axios.defaults = { headers: { common: {} } };
+});
+
 jest.mock("../components/Layout", () => {
   return function MockLayout({ children }) {
     return <div>{children}</div>;
@@ -43,7 +49,7 @@ jest.mock("antd", () => {
   );
 
   const Radio = ({ children, value }) => (
-    <label>
+    <label data-value={JSON.stringify(value)}>
       <input type="radio" data-value={JSON.stringify(value)} readOnly />
       {children}
     </label>
@@ -53,12 +59,9 @@ jest.mock("antd", () => {
     <div
       data-testid="radio-group"
       onClick={(e) => {
-        const label = e.target.closest("label");
-        const input = label && label.querySelector("[data-value]");
-        if (input) {
-          onChange({
-            target: { value: JSON.parse(input.getAttribute("data-value")) },
-          });
+        const dataValue = e.target.dataset.value;
+        if (dataValue) {
+          onChange({ target: { value: JSON.parse(dataValue) } });
         }
       }}
     >
@@ -213,21 +216,19 @@ describe("HomePage loads products and categories", () => {
 
   test("fetches and displays categories in filter panel", async () => {
     render(<HomeHarness />);
-    await waitFor(() => {
-      expect(axios.get).toHaveBeenCalledWith("/api/v1/category/get-category");
-      expect(screen.getByText("Electronics")).toBeInTheDocument();
-      expect(screen.getByText("Books")).toBeInTheDocument();
-    });
+    await waitFor(() =>
+      expect(axios.get).toHaveBeenCalledWith("/api/v1/category/get-category")
+    );
+    expect(await screen.findByText("Electronics")).toBeInTheDocument();
+    expect(await screen.findByText("Books")).toBeInTheDocument();
   });
 
   test("displays fetched products with name and price", async () => {
     render(<HomeHarness />);
-    await waitFor(() => {
-      expect(screen.getByText("Laptop")).toBeInTheDocument();
-      expect(screen.getByText("Novel")).toBeInTheDocument();
-      expect(screen.getByText("$1,200.00")).toBeInTheDocument();
-      expect(screen.getByText("$15.00")).toBeInTheDocument();
-    });
+    expect(await screen.findByText("Laptop")).toBeInTheDocument();
+    expect(await screen.findByText("Novel")).toBeInTheDocument();
+    expect(await screen.findByText("$1,200.00")).toBeInTheDocument();
+    expect(await screen.findByText("$15.00")).toBeInTheDocument();
   });
 });
 
@@ -252,10 +253,10 @@ describe("HomePage product filtering", () => {
 
   test("selecting a single category POSTs correct filter payload", async () => {
     render(<HomeHarness />);
-    await waitFor(() => screen.getByText("Electronics"));
+    await screen.findByText("Electronics");
 
     const [electronicsCheckbox] = screen.getAllByRole("checkbox");
-    fireEvent.change(electronicsCheckbox, { target: { checked: true } });
+    fireEvent.click(electronicsCheckbox);
 
     await waitFor(() => {
       expect(axios.post).toHaveBeenCalledWith(
@@ -269,14 +270,14 @@ describe("HomePage product filtering", () => {
 
   test("selecting multiple categories includes all IDs in POST payload", async () => {
     render(<HomeHarness />);
-    await waitFor(() => screen.getByText("Electronics"));
+    await screen.findByText("Electronics");
 
     const [electronicsCheckbox, booksCheckbox] =
       screen.getAllByRole("checkbox");
-    fireEvent.change(electronicsCheckbox, { target: { checked: true } });
+    fireEvent.click(electronicsCheckbox);
     await waitFor(() => expect(axios.post).toHaveBeenCalledTimes(1));
 
-    fireEvent.change(booksCheckbox, { target: { checked: true } });
+    fireEvent.click(booksCheckbox);
     await waitFor(() => {
       const lastCall =
         axios.post.mock.calls[axios.post.mock.calls.length - 1];
@@ -288,9 +289,9 @@ describe("HomePage product filtering", () => {
 
   test("selecting a price range POSTs correct filter payload", async () => {
     render(<HomeHarness />);
-    await waitFor(() => screen.getByText("Electronics"));
+    await screen.findByText("Electronics");
 
-    fireEvent.click(screen.getByText("$0 to 19").closest("label"));
+    fireEvent.click(screen.getByText("$0 to 19"));
 
     await waitFor(() => {
       expect(axios.post).toHaveBeenCalledWith(
@@ -302,40 +303,40 @@ describe("HomePage product filtering", () => {
 
   test("selecting category + price range combines both in POST payload", async () => {
     render(<HomeHarness />);
-    await waitFor(() => screen.getByText("Electronics"));
+    await screen.findByText("Electronics");
 
     const [electronicsCheckbox] = screen.getAllByRole("checkbox");
-    fireEvent.change(electronicsCheckbox, { target: { checked: true } });
+    fireEvent.click(electronicsCheckbox);
     await waitFor(() => expect(axios.post).toHaveBeenCalledTimes(1));
 
-    fireEvent.click(screen.getByText("$0 to 19").closest("label"));
+    fireEvent.click(screen.getByText("$0 to 19"));
 
-    await waitFor(() => {
-      const lastCall =
-        axios.post.mock.calls[axios.post.mock.calls.length - 1];
-      expect(lastCall[1].checked).toContain("cat-1");
-      expect(lastCall[1].radio).toEqual([0, 19]);
-    });
+    await waitFor(() =>
+      expect(axios.post.mock.calls.length).toBeGreaterThanOrEqual(2)
+    );
+    const lastCall = axios.post.mock.calls[axios.post.mock.calls.length - 1];
+    expect(lastCall[1].checked).toContain("cat-1");
+    expect(lastCall[1].radio).toEqual([0, 19]);
   });
 
   test("filter results displayed match API response", async () => {
     axios.post.mockResolvedValue({ data: { products: [mockProducts[0]] } });
 
     render(<HomeHarness />);
-    await waitFor(() => screen.getByText("Electronics"));
+    await screen.findByText("Electronics");
 
     const [electronicsCheckbox] = screen.getAllByRole("checkbox");
-    fireEvent.change(electronicsCheckbox, { target: { checked: true } });
+    fireEvent.click(electronicsCheckbox);
 
-    await waitFor(() => {
-      expect(screen.getByText("Laptop")).toBeInTheDocument();
-      expect(screen.queryByText("Novel")).not.toBeInTheDocument();
-    });
+    expect(await screen.findByText("Laptop")).toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.queryByText("Novel")).not.toBeInTheDocument()
+    );
   });
 
   test("RESET FILTERS button calls window.location.reload", async () => {
     render(<HomeHarness />);
-    await waitFor(() => screen.getByText("RESET FILTERS"));
+    await screen.findByText("RESET FILTERS");
 
     fireEvent.click(screen.getByText("RESET FILTERS"));
 
@@ -400,12 +401,10 @@ describe("ProductDetails page", () => {
 
   test("displays product name, description, price, and category", async () => {
     render(<ProductDetailsHarness />);
-    await waitFor(() => {
-      expect(screen.getByText(/Laptop/)).toBeInTheDocument();
-      expect(screen.getByText(/A powerful laptop/)).toBeInTheDocument();
-      expect(screen.getByText(/\$1,200\.00/)).toBeInTheDocument();
-      expect(screen.getByText(/Electronics/)).toBeInTheDocument();
-    });
+    expect(await screen.findByText(/Laptop/)).toBeInTheDocument();
+    expect(await screen.findByText(/A powerful laptop/)).toBeInTheDocument();
+    expect(await screen.findByText(/\$1,200\.00/)).toBeInTheDocument();
+    expect(await screen.findByText(/Electronics/)).toBeInTheDocument();
   });
 
   test("product photo src uses product ID", async () => {
@@ -430,11 +429,9 @@ describe("ProductDetails page", () => {
 
   test("displays related products returned by API", async () => {
     render(<ProductDetailsHarness />);
-    await waitFor(() => {
-      expect(screen.getByText("Phone")).toBeInTheDocument();
-      expect(screen.getByText("Tablet")).toBeInTheDocument();
-      expect(screen.getByText("Monitor")).toBeInTheDocument();
-    });
+    expect(await screen.findByText("Phone")).toBeInTheDocument();
+    expect(await screen.findByText("Tablet")).toBeInTheDocument();
+    expect(await screen.findByText("Monitor")).toBeInTheDocument();
   });
 
   test("shows 'No Similar Products found' when none returned", async () => {
@@ -547,9 +544,7 @@ describe("Category navigation", () => {
 
   test("CategoryProduct displays only products in that category", async () => {
     render(<CategoryProductHarness />);
-    await waitFor(() => {
-      expect(screen.getByText("Laptop")).toBeInTheDocument();
-      expect(screen.getByText("Phone")).toBeInTheDocument();
-    });
+    expect(await screen.findByText("Laptop")).toBeInTheDocument();
+    expect(await screen.findByText("Phone")).toBeInTheDocument();
   });
 });
