@@ -42,33 +42,33 @@ Written by Wen Han Tang A0340008W with inspiration from ChatGPT
 ## **2. PRODUCT BROWSING & FILTERING**
 
 ### HomePage & Pagination
-- [ ] HomePage loads → GET `/api/v1/product/product-list/1` called
-- [ ] Product count fetched → GET `/api/v1/product/product-count`
+- [x] HomePage loads → GET `/api/v1/product/product-list/1` called
+- [x] Product count fetched → GET `/api/v1/product/product-count`
 
 ### Filtering
-- [ ] Select single category → POST `/api/v1/product/product-filters` with correct payload
-- [ ] Select multiple categories → filters by all selected categories
-- [ ] Select price range → filters by price (e.g., 100-500)
-- [ ] Select category + price range → combines both filters
-- [ ] Reset filters → all products shown again
-- [ ] Filter results count matches API response
+- [x] Select single category → POST `/api/v1/product/product-filters` with correct payload
+- [x] Select multiple categories → filters by all selected categories
+- [x] Select price range → filters by price (e.g., 100-500)
+- [x] Select category + price range → combines both filters
+- [x] Reset filters → all products shown again
+- [x] Filter results count matches API response
 
 ### Product Details Page
-- [ ] Navigate to product via slug → GET `/api/v1/product/get-product/{slug}` called
-- [ ] Product name, description, price, category displayed correctly
-- [ ] Product photo loads from → GET `/api/v1/product/product-photo/{productId}`
-- [ ] Related products fetched → GET `/api/v1/product/related-product/{pid}/{cid}`
-- [ ] Related products are in same category as current product
-- [ ] Related products exclude the current product itself
-- [ ] Max 3 related products shown
+- [x] Navigate to product via slug → GET `/api/v1/product/get-product/{slug}` called
+- [x] Product name, description, price, category displayed correctly
+- [x] Product photo loads from → GET `/api/v1/product/product-photo/{productId}`
+- [x] Related products fetched → GET `/api/v1/product/related-product/{pid}/{cid}`
+- [x] Related products are in same category as current product
+- [x] Related products exclude the current product itself
+- [x] Max 3 related products shown
 
 ### Category Navigation
-- [ ] Header loads → GET `/api/v1/category/get-category` called
-- [ ] Categories dropdown populated
-- [ ] Clicking category → navigates to `/category/{slug}`
-- [ ] CategoryProduct page → GET `/api/v1/product/product-category/{slug}`
-- [ ] Only products in that category displayed
-- [ ] Category name and product count shown
+- [x] Header loads → GET `/api/v1/category/get-category` called
+- [x] Categories dropdown populated
+- [x] Clicking category → navigates to `/category/{slug}`
+- [x] CategoryProduct page → GET `/api/v1/product/product-category/{slug}`
+- [x] Only products in that category displayed
+- [x] Category name and product count shown
 
 ---
 
