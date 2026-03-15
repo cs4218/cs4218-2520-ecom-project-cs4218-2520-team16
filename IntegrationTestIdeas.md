@@ -75,24 +75,24 @@ Written by Wen Han Tang A0340008W with inspiration from ChatGPT
 ## **3. CART MANAGEMENT**
 
 ### Cart Context Persistence
-- [ ] Add product to cart → item appears in cart context
-- [ ] Cart saved to localStorage key "cart"
+- [x] Add product to cart → item appears in cart context
+- [x] Cart saved to localStorage key "cart"
 - [x] Page refresh → cart persists from localStorage
-- [ ] Add multiple products → all preserved in cart
-- [ ] Add same product twice → quantity increases OR duplicate items shown (verify behavior)
+- [x] Add multiple products → all preserved in cart
+- [x] Add same product twice → quantity increases OR duplicate items shown (verify behavior)
 
 ### Cart Operations
-- [ ] Remove item from CartPage → item removed from context + localStorage
-- [ ] Clear cart after successful purchase → localStorage "cart" emptied
+- [x] Remove item from CartPage → item removed from context + localStorage
+- [x] Clear cart after successful purchase → localStorage "cart" emptied
 - [x] Cart badge in Header shows correct item count
-- [ ] Cart updates are immediately reflected in Header badge
-- [ ] Cart total price calculated correctly
+- [x] Cart updates are immediately reflected in Header badge
+- [x] Cart total price calculated correctly
 
 ### Cart Display
-- [ ] CartPage displays all cart items with photo, name, description, price
-- [ ] Product photo loads correctly for each cart item
-- [ ] Remove button removes specific item only
-- [ ] Cart total updates when items removed
+- [x] CartPage displays all cart items with photo, name, description, price
+- [x] Product photo loads correctly for each cart item
+- [x] Remove button removes specific item only
+- [x] Cart total updates when items removed
 
 ---
 
