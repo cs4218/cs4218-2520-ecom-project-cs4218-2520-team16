@@ -1,5 +1,6 @@
 // Xiao Ao A0233705L
 // Code guided by Claude
+// Test using Top-Down Approach with mocked API responses and component isolation
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
@@ -124,7 +125,7 @@ const mockProducts = [
   },
 ];
 
-//Harnesses 
+// Harnesses 
 function HomeHarness() {
   return (
     <AuthProvider>
