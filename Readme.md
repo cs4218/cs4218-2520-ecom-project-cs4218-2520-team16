@@ -197,3 +197,7 @@ Wang Zihan:
 - `client/src/pages/Search.js` — "ADD TO CART" button had no `onClick` handler; added `useCart` and `toast` to enable adding items to cart from search results
 - `client/src/pages/ProductDetails.js` — Main product "ADD TO CART" button had no `onClick` handler; added `useCart` and `toast` to enable adding the product to cart
 - `client/src/pages/ProductDetails.js` — Similar products "ADD TO CART" button was commented out; uncommented and wired up with cart handler
+
+**Unit Test Updates (due to bug fixes)**
+- `client/src/pages/Search.test.js` — Added mocks for `useCart` and `react-hot-toast` to reflect the bug fix in `Search.js` that introduced these dependencies
+- `client/src/pages/ProductDetails.test.js` — Added mocks for `useCart` and `react-hot-toast` to reflect the bug fix in `ProductDetails.js` that introduced these dependencies

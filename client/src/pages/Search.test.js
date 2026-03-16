@@ -1,5 +1,6 @@
 // Wen Han Tang A0340008W
 /* eslint-disable testing-library/no-node-access */
+// Xiao Ao A0273305L - update unit test due to bug fix in Search.js
 
 import React from "react";
 import { act, render, screen, waitFor } from "@testing-library/react";
@@ -9,6 +10,7 @@ import Search from "./Search";
 import SearchInput from "../components/Form/SearchInput";
 import { useSearch } from "../context/search";
 import { useNavigate } from "react-router-dom";
+import { useCart } from "../context/cart";
 
 jest.mock("axios");
 jest.mock("../context/search", () => {
@@ -18,6 +20,15 @@ jest.mock("../context/search", () => {
 		useSearch: jest.fn(),
 	};
 });
+
+jest.mock("../context/cart", () => ({
+	useCart: jest.fn(),
+}));
+
+jest.mock("react-hot-toast", () => ({
+	__esModule: true,
+	default: { success: jest.fn() },
+}));
 
 jest.mock("react-router-dom", () => ({
 	...jest.requireActual("react-router-dom"),
@@ -40,6 +51,7 @@ describe("Search element", () => {
 
 	beforeEach(() => {
 		jest.clearAllMocks();
+		useCart.mockReturnValue([[], jest.fn()]);
 	});
 
 	test("renders empty-state when no results exist", () => {

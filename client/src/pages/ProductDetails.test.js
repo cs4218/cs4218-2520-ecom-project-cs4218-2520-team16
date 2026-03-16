@@ -3,6 +3,7 @@ Name: Wang Zihan
 Student ID: A0266073A
 With suggestions and helps from ChatGPT 5.2 Thinking
 */
+// Xiao Ao A0273305L - update unit test due to bug fix in ProductDetails.js
 
 import { describe, it, expect, beforeAll, beforeEach, afterAll } from "@jest/globals";
 import React from "react";
@@ -12,8 +13,18 @@ import userEvent from "@testing-library/user-event";
 import axios from "axios";
 import ProductDetails from "./ProductDetails";
 import { useNavigate, useParams } from "react-router-dom";
+import { useCart } from "../context/cart";
 
 jest.mock("axios");
+
+jest.mock("../context/cart", () => ({
+  useCart: jest.fn(),
+}));
+
+jest.mock("react-hot-toast", () => ({
+  __esModule: true,
+  default: { success: jest.fn() },
+}));
 
 jest.mock(
   "./../components/Layout",
@@ -38,6 +49,7 @@ afterAll(() => log.mockRestore());
 describe("ProductDetails", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    useCart.mockReturnValue([[], jest.fn()]);
   });
 
   test("fetches product details, then fetches related products and renders both", async () => {
