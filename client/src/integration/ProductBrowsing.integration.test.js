@@ -153,11 +153,13 @@ function CategoryProductHarness({ slug = "electronics" }) {
   return (
     <AuthProvider>
       <CartProvider>
-        <MemoryRouter initialEntries={[`/category/${slug}`]}>
-          <Routes>
-            <Route path="/category/:slug" element={<CategoryProduct />} />
-          </Routes>
-        </MemoryRouter>
+        <SearchProvider>
+          <MemoryRouter initialEntries={[`/category/${slug}`]}>
+            <Routes>
+              <Route path="/category/:slug" element={<CategoryProduct />} />
+            </Routes>
+          </MemoryRouter>
+        </SearchProvider>
       </CartProvider>
     </AuthProvider>
   );

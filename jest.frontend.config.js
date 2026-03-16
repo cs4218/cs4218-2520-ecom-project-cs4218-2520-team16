@@ -48,4 +48,8 @@ export default {
     },
   },
   setupFilesAfterEnv: ["<rootDir>/client/src/setupTests.js"],
+
+  // Force Jest to exit after all tests complete, preventing hangs from open handles
+  // (e.g. react-hot-toast internal timers)
+  forceExit: true,
 };

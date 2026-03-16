@@ -67,7 +67,6 @@ const CartPage = () => {
 
   //handle payments
   const handlePayment = async () => {
-    debugger
     try {
       setLoading(true);
       const { nonce } = await instance.requestPaymentMethod();

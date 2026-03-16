@@ -28,8 +28,7 @@ jest.mock("react-hot-toast", () => ({
 
 jest.mock(
   "./../components/Layout",
-  () => ({ children }) => <div data-testid="layout">{children}</div>,
-  { virtual: true }
+  () => ({ children }) => <div data-testid="layout">{children}</div>
 );
 
 jest.mock("../styles/ProductDetailsStyles.css", () => ({}), { virtual: true });

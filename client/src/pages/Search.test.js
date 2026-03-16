@@ -111,6 +111,45 @@ describe("Search element", () => {
 		);
 	});
 
+	test("clicking More Details navigates to product details page", async () => {
+		// Arrange
+		const mockNavigate = jest.fn();
+		useNavigate.mockReturnValue(mockNavigate);
+		useSearch.mockReturnValue([
+			{ keyword: "shoe", results: [{ _id: "p1", name: "Running Shoe", description: "Lightweight trainer", price: 99, slug: "running-shoe" }] },
+			mockSetValues,
+		]);
+
+		// Act
+		render(<Search />);
+		await act(async () => {
+			await userEvent.click(screen.getByText("More Details"));
+		});
+
+		// Assert
+		expect(mockNavigate).toHaveBeenCalledWith("/product/running-shoe");
+	});
+
+	test("clicking ADD TO CART adds product to cart and saves to localStorage", async () => {
+		// Arrange
+		const mockSetCart = jest.fn();
+		useCart.mockReturnValue([[], mockSetCart]);
+		useSearch.mockReturnValue([
+			{ keyword: "shoe", results: [{ _id: "p1", name: "Running Shoe", description: "Lightweight trainer", price: 99, slug: "running-shoe" }] },
+			mockSetValues,
+		]);
+
+		// Act
+		render(<Search />);
+		await act(async () => {
+			await userEvent.click(screen.getByText("ADD TO CART"));
+		});
+
+		// Assert
+		expect(mockSetCart).toHaveBeenCalled();
+		expect(JSON.parse(localStorage.getItem("cart"))[0]._id).toBe("p1");
+	});
+
 	test("updates keyword when typing in search input", async () => {
 		// Arrange
 		useSearch.mockImplementation(actualSearch.useSearch);

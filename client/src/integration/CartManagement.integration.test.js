@@ -51,7 +51,7 @@ jest.mock("braintree-web-drop-in-react", () => {
           .fn()
           .mockResolvedValue({ nonce: "fake-nonce" }),
       });
-    }, [onInstance]);
+    }, []); // empty deps: fire once on mount to avoid infinite loop from inline onInstance prop
     return mockReact.createElement("div", { "data-testid": "dropin" }, "Payment Form");
   };
 });
@@ -165,13 +165,15 @@ function CartHarness() {
   return (
     <AuthProvider>
       <CartProvider>
-        <MemoryRouter initialEntries={["/cart"]}>
-          <Routes>
-            <Route path="/cart" element={<CartPage />} />
-            <Route path="/dashboard/user/orders" element={<div>Orders</div>} />
-            <Route path="/login" element={<div>Login</div>} />
-          </Routes>
-        </MemoryRouter>
+        <SearchProvider>
+          <MemoryRouter initialEntries={["/cart"]}>
+            <Routes>
+              <Route path="/cart" element={<CartPage />} />
+              <Route path="/dashboard/user/orders" element={<div>Orders</div>} />
+              <Route path="/login" element={<div>Login</div>} />
+            </Routes>
+          </MemoryRouter>
+        </SearchProvider>
       </CartProvider>
     </AuthProvider>
   );
