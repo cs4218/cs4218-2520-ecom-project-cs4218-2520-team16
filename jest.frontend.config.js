@@ -20,7 +20,7 @@ export default {
   transformIgnorePatterns: ["/node_modules/(?!(styleMock\\.js)$)"],
 
   // only run these tests
-  testMatch: ["<rootDir>/client/src/**/**/*.test.js"],
+  testMatch: ["**/client/src/**/*.test.js"],
 
   // jest code 
   collectCoverage: true,
@@ -48,4 +48,8 @@ export default {
     },
   },
   setupFilesAfterEnv: ["<rootDir>/client/src/setupTests.js"],
+
+  // Force Jest to exit after all tests complete, preventing hangs from open handles
+  // (e.g. react-hot-toast internal timers)
+  forceExit: true,
 };

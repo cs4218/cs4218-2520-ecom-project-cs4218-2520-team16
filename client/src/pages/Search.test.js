@@ -1,5 +1,6 @@
 // Wen Han Tang A0340008W
 /* eslint-disable testing-library/no-node-access */
+// Xiao Ao A0273305L - update unit test due to bug fix in Search.js
 
 import React from "react";
 import { act, render, screen, waitFor } from "@testing-library/react";
@@ -9,6 +10,7 @@ import Search from "./Search";
 import SearchInput from "../components/Form/SearchInput";
 import { useSearch } from "../context/search";
 import { useNavigate } from "react-router-dom";
+import { useCart } from "../context/cart";
 
 jest.mock("axios");
 jest.mock("../context/search", () => {
@@ -18,6 +20,15 @@ jest.mock("../context/search", () => {
 		useSearch: jest.fn(),
 	};
 });
+
+jest.mock("../context/cart", () => ({
+	useCart: jest.fn(),
+}));
+
+jest.mock("react-hot-toast", () => ({
+	__esModule: true,
+	default: { success: jest.fn() },
+}));
 
 jest.mock("react-router-dom", () => ({
 	...jest.requireActual("react-router-dom"),
@@ -40,6 +51,7 @@ describe("Search element", () => {
 
 	beforeEach(() => {
 		jest.clearAllMocks();
+		useCart.mockReturnValue([[], jest.fn()]);
 	});
 
 	test("renders empty-state when no results exist", () => {
@@ -97,6 +109,45 @@ describe("Search element", () => {
 			"src",
 			"/api/v1/product/product-photo/p2"
 		);
+	});
+
+	test("clicking More Details navigates to product details page", async () => {
+		// Arrange
+		const mockNavigate = jest.fn();
+		useNavigate.mockReturnValue(mockNavigate);
+		useSearch.mockReturnValue([
+			{ keyword: "shoe", results: [{ _id: "p1", name: "Running Shoe", description: "Lightweight trainer", price: 99, slug: "running-shoe" }] },
+			mockSetValues,
+		]);
+
+		// Act
+		render(<Search />);
+		await act(async () => {
+			await userEvent.click(screen.getByText("More Details"));
+		});
+
+		// Assert
+		expect(mockNavigate).toHaveBeenCalledWith("/product/running-shoe");
+	});
+
+	test("clicking ADD TO CART adds product to cart and saves to localStorage", async () => {
+		// Arrange
+		const mockSetCart = jest.fn();
+		useCart.mockReturnValue([[], mockSetCart]);
+		useSearch.mockReturnValue([
+			{ keyword: "shoe", results: [{ _id: "p1", name: "Running Shoe", description: "Lightweight trainer", price: 99, slug: "running-shoe" }] },
+			mockSetValues,
+		]);
+
+		// Act
+		render(<Search />);
+		await act(async () => {
+			await userEvent.click(screen.getByText("ADD TO CART"));
+		});
+
+		// Assert
+		expect(mockSetCart).toHaveBeenCalled();
+		expect(JSON.parse(localStorage.getItem("cart"))[0]._id).toBe("p1");
 	});
 
 	test("updates keyword when typing in search input", async () => {

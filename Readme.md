@@ -178,3 +178,26 @@ Wang Zihan:
 - Cart
 - Category
 - Payment
+
+# MS2 Work Allocation
+
+## Xiao Ao (A0233705L)
+
+**Integration Tests (Top-Down Approach)**
+- `client/src/integration/ProductBrowsing.integration.test.js` — 20 test cases covering product listing, filtering by category/price, product details page, and category navigation
+- `client/src/integration/CartManagement.integration.test.js` — 13 test cases covering add to cart from homepage, cart page display, item removal, cart persistence in localStorage, and cart cleared after payment
+
+**UI Tests (Playwright — Black-Box Approach)**
+- `playwright.config.js` — Playwright configuration (Chromium, baseURL localhost:3000)
+- `tests/ui/search.spec.js` — User journey: search for a product and view its details
+- `tests/ui/userProfile.spec.js` — User journey: login, update profile, and view orders
+
+**Bug Fixes**
+- `client/src/pages/Search.js` — "More Details" button had no `onClick` handler; added `useNavigate` to enable navigation to product details page (discovered via Playwright UI test)
+- `client/src/pages/Search.js` — "ADD TO CART" button had no `onClick` handler; added `useCart` and `toast` to enable adding items to cart from search results
+- `client/src/pages/ProductDetails.js` — Main product "ADD TO CART" button had no `onClick` handler; added `useCart` and `toast` to enable adding the product to cart
+- `client/src/pages/ProductDetails.js` — Similar products "ADD TO CART" button was commented out; uncommented and wired up with cart handler
+
+**Unit Test Updates (due to bug fixes)**
+- `client/src/pages/Search.test.js` — Added mocks for `useCart` and `react-hot-toast` to reflect the bug fix in `Search.js` that introduced these dependencies
+- `client/src/pages/ProductDetails.test.js` — Added mocks for `useCart` and `react-hot-toast` to reflect the bug fix in `ProductDetails.js` that introduced these dependencies

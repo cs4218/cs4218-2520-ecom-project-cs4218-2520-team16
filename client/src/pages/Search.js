@@ -1,9 +1,15 @@
 // Wen Han Tang A0340008W
+// Xiao Ao A0373305L - Bug fix
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import Layout from "./../components/Layout";
 import { useSearch } from "../context/search";
+import { useCart } from "../context/cart";
+import toast from "react-hot-toast";
 const Search = () => {
   const [values, setValues] = useSearch();
+  const [cart, setCart] = useCart();
+  const navigate = useNavigate();
   // Updated class to className and added a container div for better styling
   return (
     <Layout title={"Search results"}>
@@ -33,10 +39,23 @@ const Search = () => {
                     {p.description.substring(0, 30)}...
                   </p>
                   <p className="card-text"> $ {p.price}</p>
-                  <button className="btn btn-primary ms-1">
+                  <button
+                    className="btn btn-primary ms-1"
+                    onClick={() => navigate(`/product/${p.slug}`)}
+                  >
                     More Details
                   </button>
-                  <button className="btn btn-secondary ms-1">
+                  <button
+                    className="btn btn-secondary ms-1"
+                    onClick={() => {
+                      setCart([...cart, p]);
+                      localStorage.setItem(
+                        "cart",
+                        JSON.stringify([...cart, p])
+                      );
+                      toast.success("Item Added to cart");
+                    }}
+                  >
                     ADD TO CART
                   </button>
                 </div>
