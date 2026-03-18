@@ -3,10 +3,11 @@ Name: Wang Zihan
 Student ID: A0266073A
 Bug fix: cart is not written to local storage
 */
+// Additional bug fix by Wen Han Tang A0340008W 
 
 import React, { useState, useContext, createContext, useEffect } from "react";
 
-const CartContext = createContext();
+const CartContext = createContext([[], () => {}]);
 const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
 

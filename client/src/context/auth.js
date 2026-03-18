@@ -2,7 +2,8 @@ import React from "react";
 import { useState, useContext, createContext, useEffect } from "react";
 import axios from "axios";
 
-const AuthContext = createContext();
+const defaultAuthState = { user: null, token: "" };
+const AuthContext = createContext([defaultAuthState, () => {}]);
 
 const AuthProvider = ({ children }) => {
     const [auth, setAuth] = useState({
