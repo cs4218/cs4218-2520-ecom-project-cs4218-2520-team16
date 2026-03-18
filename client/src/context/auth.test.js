@@ -1,5 +1,6 @@
 // Xiao Ao, A0273305L
 // Code guided Github Copilot
+// Removed legacy test by Wen Han Tang A0340008W 
 
 
 /* eslint-disable testing-library/no-unnecessary-act */
@@ -104,15 +105,21 @@ test("skips hydration when localStorage has no auth (covers if(data) false branc
   getItemSpy.mockRestore();
 });
 
-test("useAuth returns undefined outside provider", () => {
+test("useAuth returns safe defaults outside provider", () => {
   // Arrange
   const Outside = () => {
-    const ctx = useAuth();
-    return <div data-testid="ctx">{ctx ? "has" : "none"}</div>;
+    const [auth, setAuth] = useAuth();
+
+    React.useEffect(() => {
+      // This should be a no-op from the context fallback.
+      setAuth({ user: { name: "noop" }, token: "noop" });
+    }, [setAuth]);
+
+    return <div data-testid="ctx">{auth ? "has" : "none"}</div>;
   };
   // Act
   render(<Outside />);
 
   // Assert
-  expect(screen.getByTestId("ctx")).toHaveTextContent("none");
+  expect(screen.getByTestId("ctx")).toHaveTextContent("has");
 });

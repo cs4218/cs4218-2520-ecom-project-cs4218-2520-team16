@@ -4,6 +4,8 @@ Student ID: A0266073A
 With suggestions and helps from ChatGPT 5.2 Thinking
 */
 
+// Buggy test fixed by Wen Han Tang A0340008W - tightened the mocks and adjusting the no-slug assertion to check category request
+
 import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -13,13 +15,16 @@ import { useNavigate, useParams } from "react-router-dom";
 
 jest.mock("axios");
 
-jest.mock(
-  "../components/Layout",
-  () => ({ children }) => <div data-testid="layout">{children}</div>,
-  { virtual: true }
-);
+jest.mock("../components/Layout", () => ({
+  __esModule: true,
+  default: ({ children }) => <div data-testid="layout">{children}</div>,
+}));
 
-jest.mock("react-router-dom");
+jest.mock("react-router-dom", () => ({
+  ...jest.requireActual("react-router-dom"),
+  useNavigate: jest.fn(),
+  useParams: jest.fn(),
+}));
 
 describe("CategoryProduct", () => {
   beforeEach(() => {
@@ -141,6 +146,10 @@ describe("CategoryProduct", () => {
     render(<CategoryProduct />);
 
     // assert
-    await waitFor(() => expect(axios.get).not.toHaveBeenCalled());
+    await waitFor(() => {
+      expect(axios.get).not.toHaveBeenCalledWith(
+        expect.stringContaining("/api/v1/product/product-category/")
+      );
+    });
   });
 });
