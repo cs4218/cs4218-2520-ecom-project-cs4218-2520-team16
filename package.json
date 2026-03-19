@@ -13,6 +13,7 @@
     "test:frontend": "jest --config jest.frontend.config.js --watchAll=false",
     "test:backend": "jest --config jest.backend.config.js",
     "test:ui": "playwright test",
+    "test:ui:ci": "playwright test --reporter=line --max-failures=10",
     "test:ui:headed": "playwright test --headed",
     "test:ui:debug": "playwright test --debug",
     "test:ui:report": "playwright show-report"
