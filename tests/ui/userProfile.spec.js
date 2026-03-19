@@ -4,12 +4,12 @@
 
 import { test, expect } from "@playwright/test";
 
-// Update these credentials to match your sample DB test user
-const TEST_EMAIL = "xa123@gmail.com";
-const TEST_PASSWORD = "12345";
+const TEST_EMAIL = "tester@example.com";
+const TEST_PASSWORD = "password123";
 
 test.describe("User Profile and Orders Journey", () => {
   test.beforeEach(async ({ page }) => {
+
     // Login before each test
     await page.goto("/login");
     await page.getByPlaceholder("Enter Your Email ").fill(TEST_EMAIL);
@@ -17,7 +17,7 @@ test.describe("User Profile and Orders Journey", () => {
     await page.getByRole("button", { name: "LOGIN" }).click();
 
     // Wait for redirect to homepage after login
-    await expect(page).toHaveURL("http://localhost:3000/", { timeout: 10000 });
+    await expect(page).toHaveURL(/\/$/, { timeout: 10000 });
   });
 
   test("logged-in user can update their profile successfully", async ({

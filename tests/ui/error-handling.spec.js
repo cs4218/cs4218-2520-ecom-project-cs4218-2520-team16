@@ -96,11 +96,12 @@ test.describe("Error Handling and Resilience", () => {
     // Try to access protected route without being logged in
     await page.goto("/dashboard/user/profile");
 
-    // Should redirect to login or blocked
-    await page.waitForLoadState("networkidle");
+    // Spinner redirects after ~3s in this app; give it enough time.
+    await page.waitForTimeout(4500);
 
-    const isOnLogin = page.url().includes("/login");
-    const isBlocked = !page.url().includes("/dashboard");
+    const currentUrl = page.url();
+    const isOnLogin = currentUrl.includes("/login");
+    const isBlocked = !currentUrl.includes("/dashboard/user/profile");
 
     expect(isOnLogin || isBlocked).toBeTruthy();
   });
@@ -143,8 +144,8 @@ test.describe("Error Handling and Resilience", () => {
     await page.goto("/this-page-does-not-exist");
 
     // Should show 404 page
-    const notFoundContent = page.locator(/text=404|not found|page not found/i);
-    const shown = await notFoundContent.first().isVisible();
+    const notFoundContent = page.getByText(/404|not found|page not found/i).first();
+    const shown = await notFoundContent.isVisible().catch(() => false);
 
     // Either 404 message shown or redirected to home
     const redirectedHome = page.url().includes("/") && !page.url().includes("this-page");

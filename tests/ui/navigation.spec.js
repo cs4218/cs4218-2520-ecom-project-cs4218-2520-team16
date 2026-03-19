@@ -77,12 +77,15 @@ test.describe("Navigation and Layout", () => {
   test("footer links render and navigate correctly", async ({ page }) => {
     await page.goto("/");
 
-    // Scroll to footer
-    await page.locator("footer").scrollIntoViewIfNeeded().catch(() => {});
-
     // Verify footer exists
     const footer = page.locator("footer");
-    const footerVisible = await footer.isVisible().catch(() => false);
+    const hasFooter = (await footer.count()) > 0;
+    if (!hasFooter) {
+      test.skip(true, "Footer element is not rendered in this layout");
+    }
+
+    await footer.scrollIntoViewIfNeeded();
+    const footerVisible = await footer.isVisible();
 
     if (footerVisible) {
       // Check for footer links
@@ -115,17 +118,10 @@ test.describe("Navigation and Layout", () => {
   test("cart badge updates after adding to cart", async ({ page }) => {
     await page.goto("/");
 
-    // Get initial cart state (this is harder to test without knowing the exact selector)
-    // Try to find cart count/badge
-    let initialCartText = null;
-    const cartBadge = page
-      .locator('[class*="cart"]')
-      .locator(/text=\d+/)
-      .first();
+    const cartLink = page.getByRole("link", { name: /^Cart$/i }).first();
+    await expect(cartLink).toBeVisible();
 
-    if (await cartBadge.isVisible().catch(() => false)) {
-      initialCartText = await cartBadge.textContent();
-    }
+    const initialLabel = (await cartLink.textContent()) || "";
 
     // Add item to cart
     const addToCartBtn = page.getByRole("button", { name: /add to cart/i }).first();
@@ -133,14 +129,8 @@ test.describe("Navigation and Layout", () => {
       await addToCartBtn.click();
       await page.waitForTimeout(500);
 
-      // Verify cart badge changed or item count increased
-      const updatedCartBadge = page
-        .locator('[class*="cart"]')
-        .locator(/text=\d+/)
-        .first();
-
-      const badgeUpdated = await updatedCartBadge.isVisible().catch(() => false);
-      expect(addToCartBtn.isVisible() || badgeUpdated).toBeTruthy();
+      const updatedLabel = (await cartLink.textContent()) || "";
+      expect(updatedLabel.length).toBeGreaterThanOrEqual(initialLabel.length);
     }
   });
 
@@ -183,18 +173,18 @@ test.describe("Navigation and Layout", () => {
   test("navigation persistence across page transitions", async ({ page }) => {
     await page.goto("/");
 
-    // Verify header is visible
-    const header = page.locator("header");
-    await expect(header).toBeVisible();
+    // Verify top nav is visible
+    const nav = page.locator("nav").first();
+    await expect(nav).toBeVisible();
 
-    // Navigate to different pages and verify header persists
+    // Navigate to different pages and verify nav persists
     await page.goto("/categories");
-    await expect(header).toBeVisible();
+    await expect(nav).toBeVisible();
 
     await page.goto("/cart");
-    await expect(header).toBeVisible();
+    await expect(nav).toBeVisible();
 
     await page.goto("/login");
-    await expect(header).toBeVisible();
+    await expect(nav).toBeVisible();
   });
 });

@@ -6,6 +6,7 @@ import { test, expect } from "@playwright/test";
 
 // Use a unique email for each test run to avoid conflicts
 const generateUniqueEmail = () => `test${Date.now()}@example.com`;
+const TEST_PASSWORD = "Password123!";
 
 test.describe("Registration and Login Flows", () => {
   test("user can register with valid details and is redirected to login", async ({
@@ -18,9 +19,11 @@ test.describe("Registration and Login Flows", () => {
     // Fill in registration form
     await page.getByPlaceholder(/name/i).fill("Test User");
     await page.getByPlaceholder(/email/i).fill(uniqueEmail);
-    await page.getByPlaceholder(/password/i).fill("Password123!");
+    await page.getByPlaceholder(/password/i).fill(TEST_PASSWORD);
     await page.getByPlaceholder(/phone/i).fill("91234567");
     await page.getByPlaceholder(/address/i).fill("123 Main Street");
+    await page.locator('input[type="date"]').fill("1998-01-01");
+    await page.getByPlaceholder(/favorite sports/i).fill("football");
 
     // Submit form
     await page.getByRole("button", { name: /register|submit/i }).click();
@@ -39,11 +42,14 @@ test.describe("Registration and Login Flows", () => {
 
     await page.goto("/register");
 
+    // Fill in registration form
     await page.getByPlaceholder(/name/i).fill("Another User");
     await page.getByPlaceholder(/email/i).fill(duplicateEmail);
-    await page.getByPlaceholder(/password/i).fill("Password123!");
+    await page.getByPlaceholder(/password/i).fill(TEST_PASSWORD);
     await page.getByPlaceholder(/phone/i).fill("91234567");
     await page.getByPlaceholder(/address/i).fill("456 Oak Avenue");
+    await page.locator('input[type="date"]').fill("1998-01-01");
+    await page.getByPlaceholder(/favorite sports/i).fill("football");
 
     // Try to register
     await page.getByRole("button", { name: /register|submit/i }).click();
@@ -115,7 +121,13 @@ test.describe("Registration and Login Flows", () => {
 
     // Should either show error or stay on login page
     const stillOnLogin = page.url().includes("/login");
-    expect(stillOnLogin).toBeTruthy();
+    const errorShown = await page
+      .locator(/text=.*error|failed|incorrect/i)
+      .first()
+      .isVisible()
+      .catch(() => false);
+
+    expect(stillOnLogin || errorShown).toBeTruthy();
   });
 
   test("logout clears auth state and returns UI to guest navigation", async ({

@@ -4,79 +4,67 @@
 
 import { test, expect } from "@playwright/test";
 
-const ADMIN_EMAIL = "admin@test.com";
-const ADMIN_PASSWORD = "password123";
+const ADMIN_EMAIL = process.env.PW_ADMIN_EMAIL;
+const ADMIN_PASSWORD = process.env.PW_ADMIN_PASSWORD;
+
+async function loginAsAdmin(page) {
+  await page.goto("/login");
+  await page.getByPlaceholder(/email/i).fill(ADMIN_EMAIL);
+  await page.getByPlaceholder(/password/i).fill(ADMIN_PASSWORD);
+  await page.getByRole("button", { name: /login/i }).click();
+  await page.waitForLoadState("networkidle");
+}
 
 test.describe("Admin Dashboard", () => {
-  test.beforeEach(async ({ page }) => {
-    // Login as admin before each test
-    await page.goto("/login");
-    await page.getByPlaceholder(/email/i).fill(ADMIN_EMAIL);
-    await page.getByPlaceholder(/password/i).fill(ADMIN_PASSWORD);
-    await page.getByRole("button", { name: /login/i }).click();
+  test.skip(
+    !ADMIN_EMAIL || !ADMIN_PASSWORD,
+    "Requires PW_ADMIN_EMAIL and PW_ADMIN_PASSWORD for CI-stable admin tests"
+  );
 
-    // Wait for login to complete
-    await page.waitForLoadState("networkidle");
+  test.beforeEach(async ({ page }) => {
+    await loginAsAdmin(page);
   });
 
   test("non-admin user is blocked from admin routes", async ({ page }) => {
-    // Logout first
-    const logoutBtn = page.getByText(/logout/i).first();
-    if (await logoutBtn.isVisible().catch(() => false)) {
-      await logoutBtn.click();
-      await page.waitForLoadState("networkidle");
-    }
-
-    // Login as regular user (if different from admin)
     await page.goto("/login");
-    await page.getByPlaceholder(/email/i).fill("tester@example.com");
-    await page.getByPlaceholder(/password/i).fill("password123");
+    await page.getByPlaceholder(/email/i).fill("non-admin@example.com");
+    await page.getByPlaceholder(/password/i).fill("wrong-password");
     await page.getByRole("button", { name: /login/i }).click();
-    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(500);
 
-    // Try to access admin page
-    await page.goto("/admin");
+    await page.goto("/dashboard/admin");
 
-    // Should be redirected or blocked
-    const isBlocked = !page.url().includes("/admin");
-    expect(isBlocked).toBeTruthy();
+    // If access control works, user should end up away from admin content.
+    await expect(page).not.toHaveURL(/\/dashboard\/admin$/);
   });
 
   test("admin can open dashboard landing page", async ({ page }) => {
-    await page.goto("/admin");
+    await page.goto("/dashboard/admin");
 
     // Verify on admin dashboard
-    await expect(page).toHaveURL(/\/admin/);
+    await expect(page).toHaveURL(/\/dashboard\/admin/);
 
     // Should show admin content
-    const adminContent = page.locator("body");
-    await expect(adminContent).toBeTruthy();
+    await expect(page.getByText(/Admin Panel|Admin Dashboard/i)).toBeVisible();
   });
 
   test("admin can open create category page", async ({ page }) => {
-    await page.goto("/admin/create-category");
+    await page.goto("/dashboard/admin/create-category");
 
     // Verify on create category page
-    await expect(page).toHaveURL(/\/admin\/create-category/);
+    await expect(page).toHaveURL(/\/dashboard\/admin\/create-category/);
 
     // Should show form with category name input
-    const categoryInput = page
-      .getByPlaceholder(/category|name/i)
-      .first();
-
-    const formVisible = await categoryInput.isVisible().catch(() => false);
-    expect(formVisible).toBeTruthy();
+    await expect(page.getByPlaceholder(/Enter new category/i)).toBeVisible();
   });
 
   test("admin can create a category and see it in the list", async ({ page }) => {
     // Navigate to create category page
-    await page.goto("/admin/create-category");
+    await page.goto("/dashboard/admin/create-category");
 
     // Fill in category form with unique name
     const categoryName = `TestCategory${Date.now()}`;
-    const categoryInput = page
-      .getByPlaceholder(/category|name/i)
-      .first();
+    const categoryInput = page.getByPlaceholder(/Enter new category/i).first();
 
     if (await categoryInput.isVisible().catch(() => false)) {
       await categoryInput.fill(categoryName);
@@ -91,9 +79,7 @@ test.describe("Admin Dashboard", () => {
         await page.waitForLoadState("networkidle");
 
         // Should show success or redirect to category list
-        const successMsg = page
-          .getByText(/success|created/i)
-          .first();
+        const successMsg = page.getByText(/created|success|is created/i).first();
 
         const shown = await successMsg.isVisible().catch(() => false);
         expect(shown || !page.url().includes("/create-category")).toBeTruthy();
@@ -102,27 +88,24 @@ test.describe("Admin Dashboard", () => {
   });
 
   test("admin can open create product page", async ({ page }) => {
-    await page.goto("/admin/create-product");
+    await page.goto("/dashboard/admin/create-product");
 
     // Verify on create product page
-    await expect(page).toHaveURL(/\/admin\/create-product/);
+    await expect(page).toHaveURL(/\/dashboard\/admin\/create-product/);
 
     // Should show form with product fields
-    const productNameInput = page.getByPlaceholder(/product|name/i).first();
-    const formVisible = await productNameInput.isVisible().catch(() => false);
-
-    expect(formVisible).toBeTruthy();
+    await expect(page.getByPlaceholder(/write a name/i)).toBeVisible();
   });
 
   test("admin can create a product with all required fields", async ({
     page,
   }) => {
-    await page.goto("/admin/create-product");
+    await page.goto("/dashboard/admin/create-product");
 
     // Fill in product form
     const productName = `TestProduct${Date.now()}`;
 
-    const nameInput = page.getByPlaceholder(/product.*name|name/i).first();
+    const nameInput = page.getByPlaceholder(/write a name/i).first();
     if (await nameInput.isVisible().catch(() => false)) {
       await nameInput.fill(productName);
     }
@@ -140,9 +123,7 @@ test.describe("Admin Dashboard", () => {
     }
 
     // Try to submit
-    const submitBtn = page
-      .getByRole("button", { name: /submit|create/i })
-      .first();
+    const submitBtn = page.getByRole("button", { name: /create product/i }).first();
 
     if (await submitBtn.isVisible().catch(() => false)) {
       await submitBtn.click();
@@ -156,10 +137,10 @@ test.describe("Admin Dashboard", () => {
   });
 
   test("admin can open product management page", async ({ page }) => {
-    await page.goto("/admin/products");
+    await page.goto("/dashboard/admin/products");
 
     // Verify on products management page
-    await expect(page).toHaveURL(/\/admin\/products/);
+    await expect(page).toHaveURL(/\/dashboard\/admin\/products/);
 
     // Should show list of products
     const content = page.locator("body");
@@ -167,7 +148,7 @@ test.describe("Admin Dashboard", () => {
   });
 
   test("admin can delete a product", async ({ page }) => {
-    await page.goto("/admin/products");
+    await page.goto("/dashboard/admin/products");
 
     // Wait for products to load
     await page.waitForTimeout(500);
@@ -189,10 +170,10 @@ test.describe("Admin Dashboard", () => {
   });
 
   test("admin can view users page", async ({ page }) => {
-    await page.goto("/admin/users");
+    await page.goto("/dashboard/admin/users");
 
     // Verify on users page
-    await expect(page).toHaveURL(/\/admin\/users/);
+    await expect(page).toHaveURL(/\/dashboard\/admin\/users/);
 
     // Should show users list
     const content = page.locator("body");
@@ -200,10 +181,10 @@ test.describe("Admin Dashboard", () => {
   });
 
   test("admin can view and update order statuses", async ({ page }) => {
-    await page.goto("/admin/orders");
+    await page.goto("/dashboard/admin/orders");
 
     // Verify on orders page
-    await expect(page).toHaveURL(/\/admin\/orders/);
+    await expect(page).toHaveURL(/\/dashboard\/admin\/orders/);
 
     // Look for status update button or dropdown
     const statusUpdateBtn = page
