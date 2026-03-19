@@ -204,16 +204,24 @@ test.describe("Product Discovery and Categories", () => {
   test("empty search results state is understandable to the user", async ({
     page,
   }) => {
+    await page.route("**/api/v1/product/search/**", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify([]),
+      });
+    });
+
     await page.goto("/");
 
     // Search for something unlikely to exist
     const searchInput = page.getByPlaceholder(/search/i);
     if (await searchInput.isVisible().catch(() => false)) {
       await searchInput.fill("xyznonexistent123");
-      await searchInput.press("Enter");
+      await page.getByRole("button", { name: /^Search$/ }).click();
 
       // Wait for navigation and results
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("domcontentloaded");
       const navigatedToSearch = page.url().includes("/search");
 
       // Should show "No Products Found" or similar message
@@ -251,18 +259,15 @@ test.describe("Product Discovery and Categories", () => {
   }) => {
     await page.goto("/categories");
 
-    // Find a category link
-    const categoryLink = page
-      .getByRole("link")
-      .or(page.locator('[class*="category"]').locator('a'))
-      .first();
+    // Find an actual category detail route link.
+    const categoryLink = page.locator('a[href^="/category/"]').first();
 
     if (await categoryLink.isVisible().catch(() => false)) {
       // Get the href to verify navigation
       const href = await categoryLink.getAttribute("href");
 
       await categoryLink.click();
-      await page.waitForLoadState("networkidle");
+      await expect(page).toHaveURL(/\/category\//, { timeout: 10000 });
 
       // Should navigate to category page
       expect(page.url()).toContain(href || "category");
@@ -275,11 +280,11 @@ test.describe("Product Discovery and Categories", () => {
     await page.goto("/categories");
 
     // Find and click a category
-    const categoryLink = page.locator('[class*="category"]').locator('a').first();
+    const categoryLink = page.locator('a[href^="/category/"]').first();
 
     if (await categoryLink.isVisible().catch(() => false)) {
       await categoryLink.click();
-      await page.waitForLoadState("networkidle");
+      await expect(page).toHaveURL(/\/category\//, { timeout: 10000 });
 
       // Verify on category page
       const isOnCategoryPage = page.url().includes("category");

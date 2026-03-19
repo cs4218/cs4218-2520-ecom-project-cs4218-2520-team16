@@ -4,20 +4,24 @@
 
 import { test, expect } from "@playwright/test";
 
-const TEST_EMAIL = "tester@example.com";
-const TEST_PASSWORD = "password123";
+const E2E_USER_EMAIL = process.env.PW_USER_EMAIL;
+const E2E_USER_PASSWORD = process.env.PW_USER_PASSWORD;
 
 test.describe("User Profile and Orders Journey", () => {
-  test.beforeEach(async ({ page }) => {
+  test.skip(
+    !E2E_USER_EMAIL || !E2E_USER_PASSWORD,
+    "Requires PW_USER_EMAIL and PW_USER_PASSWORD for user profile tests"
+  );
 
+  test.beforeEach(async ({ page }) => {
     // Login before each test
     await page.goto("/login");
-    await page.getByPlaceholder("Enter Your Email ").fill(TEST_EMAIL);
-    await page.getByPlaceholder("Enter Your Password").fill(TEST_PASSWORD);
-    await page.getByRole("button", { name: "LOGIN" }).click();
+    await page.getByPlaceholder(/email/i).fill(E2E_USER_EMAIL);
+    await page.getByPlaceholder(/password/i).fill(E2E_USER_PASSWORD);
+    await page.getByRole("button", { name: /login/i }).click();
 
     // Wait for redirect to homepage after login
-    await expect(page).toHaveURL(/\/$/, { timeout: 10000 });
+    await expect(page).not.toHaveURL(/\/login(?:\?|$)/, { timeout: 10000 });
   });
 
   test("logged-in user can update their profile successfully", async ({

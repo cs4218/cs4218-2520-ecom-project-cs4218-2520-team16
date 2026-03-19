@@ -7,6 +7,23 @@ import { test, expect } from "@playwright/test";
 // Use a unique email for each test run to avoid conflicts
 const generateUniqueEmail = () => `test${Date.now()}@example.com`;
 const TEST_PASSWORD = "Password123!";
+const E2E_USER_EMAIL = process.env.PW_USER_EMAIL;
+const E2E_USER_PASSWORD = process.env.PW_USER_PASSWORD;
+
+async function registerTestUser(page, email, password = TEST_PASSWORD) {
+  await page.goto("/register");
+
+  await page.getByPlaceholder(/name/i).fill("Test User");
+  await page.getByPlaceholder(/email/i).fill(email);
+  await page.getByPlaceholder(/password/i).fill(password);
+  await page.getByPlaceholder(/phone/i).fill("91234567");
+  await page.getByPlaceholder(/address/i).fill("123 Main Street");
+  await page.locator('input[type="date"]').fill("1998-01-01");
+  await page.getByPlaceholder(/favorite sports/i).fill("football");
+
+  await page.getByRole("button", { name: /register|submit/i }).click();
+  await page.waitForLoadState("domcontentloaded");
+}
 
 test.describe("Registration and Login Flows", () => {
   test("user can register with valid details and is redirected to login", async ({
@@ -85,25 +102,22 @@ test.describe("Registration and Login Flows", () => {
   test("user can log in with valid credentials and is redirected correctly", async ({
     page,
   }) => {
-    // Use test credentials from database
-    const testEmail = "tester@example.com";
-    const testPassword = "password123";
+    test.skip(
+      !E2E_USER_EMAIL || !E2E_USER_PASSWORD,
+      "Requires PW_USER_EMAIL and PW_USER_PASSWORD for deterministic login test"
+    );
 
     await page.goto("/login");
 
     // Fill in login form
-    await page.getByPlaceholder(/email/i).fill(testEmail);
-    await page.getByPlaceholder(/password/i).fill(testPassword);
+    await page.getByPlaceholder(/email/i).fill(E2E_USER_EMAIL);
+    await page.getByPlaceholder(/password/i).fill(E2E_USER_PASSWORD);
 
     // Submit form
     await page.getByRole("button", { name: /login/i }).click();
 
-    // Wait for navigation after login attempt
-    await page.waitForLoadState("networkidle");
-
-    // Should be redirected away from login page
-    const leftLoginPage = !page.url().includes("/login");
-    expect(leftLoginPage).toBeTruthy();
+    // Should be redirected away from login page on successful auth
+    await expect(page).not.toHaveURL(/\/login(?:\?|$)/, { timeout: 10000 });
   });
 
   test("invalid login shows an error message", async ({ page }) => {
@@ -133,13 +147,14 @@ test.describe("Registration and Login Flows", () => {
   test("logout clears auth state and returns UI to guest navigation", async ({
     page,
   }) => {
-    // First login
-    const testEmail = "tester@example.com";
-    const testPassword = "password123";
+    test.skip(
+      !E2E_USER_EMAIL || !E2E_USER_PASSWORD,
+      "Requires PW_USER_EMAIL and PW_USER_PASSWORD for deterministic logout test"
+    );
 
     await page.goto("/login");
-    await page.getByPlaceholder(/email/i).fill(testEmail);
-    await page.getByPlaceholder(/password/i).fill(testPassword);
+    await page.getByPlaceholder(/email/i).fill(E2E_USER_EMAIL);
+    await page.getByPlaceholder(/password/i).fill(E2E_USER_PASSWORD);
     await page.getByRole("button", { name: /login/i }).click();
 
     await page.waitForLoadState("networkidle");

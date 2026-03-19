@@ -1,3 +1,4 @@
+// Bug fix: Wehan Tang A0340008W - Updated SearchInput to handle API errors gracefully and ensure navigation to search results page regardless of API success or failure.
 import React from "react";
 import { useSearch } from "../../context/search";
 import axios from "axios";
@@ -13,9 +14,12 @@ const SearchInput = () => {
         `/api/v1/product/search/${values.keyword}`
       );
       setValues({ ...values, results: data });
-      navigate("/search");
     } catch (error) {
+      // Keep search UX predictable even if API request fails.
+      setValues({ ...values, results: [] });
       console.log(error);
+    } finally {
+      navigate("/search");
     }
   };
   return (

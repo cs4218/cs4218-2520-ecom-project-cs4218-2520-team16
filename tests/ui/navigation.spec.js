@@ -19,6 +19,17 @@ test.describe("Navigation and Layout", () => {
     const categoriesLink = page.getByRole("link", { name: /categories/i });
     if (await categoriesLink.isVisible().catch(() => false)) {
       await categoriesLink.click();
+
+      // In Bootstrap dropdown nav, first click may only expand menu.
+      if (!/\/categories/.test(page.url())) {
+        const allCategoriesLink = page
+          .getByRole("link", { name: /all categories/i })
+          .first();
+        if (await allCategoriesLink.isVisible().catch(() => false)) {
+          await allCategoriesLink.click();
+        }
+      }
+
       await expect(page).toHaveURL(/\/categories/);
     }
 
