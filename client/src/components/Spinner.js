@@ -1,3 +1,4 @@
+// Bug fix: Wen Han Tang A0340008W
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 const Spinner = ({ path = "login" }) => {
@@ -10,7 +11,7 @@ const Spinner = ({ path = "login" }) => {
       setCount((prevValue) => --prevValue);
     }, 1000);
     count === 0 && navigate(`/${path}`, {
-        state: location.pathname,
+        state: { from: location.pathname },
       });
     return () => clearInterval(interval);
   }, [count, navigate, location]);

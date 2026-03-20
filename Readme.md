@@ -201,3 +201,95 @@ Wang Zihan:
 **Unit Test Updates (due to bug fixes)**
 - `client/src/pages/Search.test.js` — Added mocks for `useCart` and `react-hot-toast` to reflect the bug fix in `Search.js` that introduced these dependencies
 - `client/src/pages/ProductDetails.test.js` — Added mocks for `useCart` and `react-hot-toast` to reflect the bug fix in `ProductDetails.js` that introduced these dependencies
+
+## Wen Han Tang (AA0340008W)
+
+
+**1. Playwright UI Coverage Expansion**
+
+Added new test suites:
+- `tests/ui/smoke.spec.js`
+- `tests/ui/navigation.spec.js`
+- `tests/ui/auth.spec.js`
+- `tests/ui/product-discovery.spec.js`
+- `tests/ui/cart.spec.js`
+- `tests/ui/admin.spec.js`
+- `tests/ui/error-handling.spec.js`
+
+Updated existing suites:
+- `tests/ui/search.spec.js` (stabilized with mocked search API responses and more reliable interactions)
+- `tests/ui/userProfile.spec.js` (uses env-driven credentials and skips safely if not configured)
+
+High-level scenarios now covered include:
+- smoke checks and routing
+- authentication and logout flows
+- product search, filtering, details, and category journeys
+- cart behavior (add/remove/persist/checkout prompts)
+- profile and order views
+- admin dashboard actions (category/product/user/order flows)
+- API/network failure resilience and 404 handling
+
+**2. CI and Tooling Updates**
+
+Pipeline changes in `.github/workflows/main.yml`:
+- Node version updated to 20
+- Playwright browsers installed in CI
+- Playwright UI tests added to CI run
+- Playwright report uploaded as build artifact
+
+NPM script updates in `package.json`:
+- `test` now runs backend + frontend + UI tests
+- added `test:ui`, `test:ui:ci`, `test:ui:headed`, `test:ui:debug`, and `test:ui:report`
+
+Playwright config updates in `playwright.config.js`:
+- CI-aware retry behavior and reporters
+- integrated `webServer` startup (`npm run dev`) for more deterministic test execution
+
+**3. Frontend Bug Fixes from UI Testing**
+
+`client/src/components/Form/SearchInput.js`:
+- search now navigates to results reliably even when API calls fail
+- fallback empty-results state applied on API failure
+
+`client/src/components/Spinner.js`:
+- redirect state normalized to `{ from: location.pathname }` for more predictable protected-route handling
+
+**4. Documentation Update**
+
+`UITestIdeas.md` was written to be a checklist of implemented Playwright tests
+
+`IntegrationTestIdeas.md` was written to be a checklist of implemented integration tests
+
+**5. Integration Testing and Reliability Fixes**
+
+**Bugs fixed**
+
+`jest.backend.config.js` and `package.json`:
+- Fixed unreliable backend test execution mode where experimental VM modules caused runtime errors (for example, `require is not defined`)
+- Added backend Jest transform configuration in `jest.backend.config.js`
+- Switched npm test scripts to stable Jest CLI commands in `package.json`
+
+`client/src/components/Layout/Header.js`:
+- Fixed missing React key in the Header category dropdown list
+- Added `key={c._id || c.slug}` to category items to remove warnings and improve list reconciliation stability
+
+`client/src/hooks/useCategory.js` and `client/src/_site/hooks/useCategory.js`:
+- Hardened category hook response handling so malformed or undefined responses do not create noisy runtime/test logs
+- Applied the same defensive handling to both source and generated site hooks
+
+**Integration tests written**
+
+Backend integration suite:
+- File: `integration/backend/api.integration.test.js`
+- Approach: Jest + in-memory Express app + native `fetch`
+- Scenarios covered:
+   - register validation for missing name
+   - login validation for missing credentials
+   - forgot-password validation for missing email
+
+Frontend integration suite:
+- File: `client/src/integration/HeaderSearchAuth.integration.test.js`
+- Approach: Jest + React Testing Library with context providers and router
+- Scenarios covered:
+   - auth/cart restoration from `localStorage` and logout behavior
+   - search flow from Header input to API call, route navigation, and result rendering from search context
