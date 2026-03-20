@@ -328,3 +328,7 @@ Frontend integration suite:
 - Scenarios covered:
    - auth/cart restoration from `localStorage` and logout behavior
    - search flow from Header input to API call, route navigation, and result rendering from search context
+
+**Sonarqube Report Generation**
+
+- Configured and ran report generation for converage on SonarQube, included screenshots in `SonarQubeScreenshots`
