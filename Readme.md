@@ -296,7 +296,7 @@ Frontend integration suite:
 
 ## Roger Yuzhe Yao (A0340029N)
 
-**Integration Tests Written** 
+**Integration Tests Written (Top-Down Approach)** 
 Backend integration suite:
 - File: `CreateProduct.test.js`
 - 17 total tests
@@ -318,3 +318,10 @@ Backend integration suite:
    - Basic Rendering
    - Handle multiple products
    - Display product image with correct endpoint
+
+**Bug Fixes**
+- Added await to both `axios.post()` in `CreateProduct.js` and `axios.put()` in `UpdateProduct.js`
+- Fixed the inverted success/error logic in both components
+
+**Unit Test Updates**
+- `AdminActions.test.js` - Updated mock responses to include `message` field, changed `mockReturnValue` to `mockResolvedValue` for async operations
