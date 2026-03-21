@@ -360,3 +360,5 @@ Backend integration suite:
 
 **Unit Test Updates**
 - `AdminActions.test.js` - Updated mock responses to include `message` field, changed `mockReturnValue` to `mockResolvedValue` for async operations
+
+- `tests/ui/userDashboard.spec.js` — User journey: Unauthenticated user is blocked from accessing dashboard routes and redirected to login
