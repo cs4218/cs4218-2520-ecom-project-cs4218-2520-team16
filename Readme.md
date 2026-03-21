@@ -145,6 +145,41 @@ To begin unit testing with Jest in your project, follow these steps:
      npm run test
      ```
 
+## 6. SonarQube Report Generation
+
+Use this workflow to generate a code-quality report with test coverage:
+
+1. **Start SonarQube locally**
+
+   If you have Docker installed:
+
+   ```bash
+   docker run -d --name sonarqube -p 9000:9000 sonarqube:lts-community
+   ```
+
+   Then open `http://localhost:9000`, complete first-time setup, and create a token.
+
+2. **Export your Sonar token**
+
+   ```bash
+   export SONAR_TOKEN=<your_token_here>
+   ```
+
+3. **Generate coverage + run Sonar scan**
+
+   ```bash
+   npm run sonar:report
+   ```
+
+   This command will:
+   - run Jest coverage using both backend and frontend Jest projects
+   - output coverage to `coverage/lcov.info`
+   - submit analysis to SonarQube using `sonar-project.properties`
+
+4. **View report**
+
+   Open your project in SonarQube dashboard at `http://localhost:9000`.
+
 ## CL Integration
  [LINK](https://github.com/cs4218/cs4218-2520-ecom-project-cs4218-2520-team16/actions/runs/21854703681/job/63068917772)
 
