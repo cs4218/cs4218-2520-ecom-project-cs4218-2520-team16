@@ -1,5 +1,7 @@
 /**
  * Integration Tests for Checkout & Payment Flow
+ * Author: Aum Chotaliya
+ * Student ID: A0338423E
  * Testing complete user journey from cart to payment completion
  */
 
