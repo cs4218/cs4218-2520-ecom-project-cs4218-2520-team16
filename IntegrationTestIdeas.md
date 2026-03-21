@@ -118,35 +118,35 @@ Written by Wen Han Tang A0340008W with inspiration from ChatGPT
 ## **5. CHECKOUT & PAYMENT**
 
 ### Pre-Checkout Validation
-- [ ] Unauthenticated user clicks checkout → shown login prompt or redirected to login
-- [ ] Authenticated user can proceed to checkout
-- [ ] Cart has items before payment → checkout button enabled
-- [ ] Empty cart → checkout disabled or error
+- [x] Unauthenticated user clicks checkout → shown login prompt or redirected to login
+- [x] Authenticated user can proceed to checkout
+- [x] Cart has items before payment → checkout button enabled
+- [x] Empty cart → checkout disabled or error
 
 ### Braintree Integration
-- [ ] CartPage checkout → GET `/api/v1/product/braintree/token` called
-- [ ] Braintree DropIn UI renders with valid token
-- [ ] User enters payment details in DropIn UI
-- [ ] Submission calls POST `/api/v1/product/braintree/payment`
-- [ ] Nonce from Braintree UI included in payment request
-- [ ] Payment payload includes cart items and user info
+- [x] CartPage checkout → GET `/api/v1/product/braintree/token` called
+- [x] Braintree DropIn UI renders with valid token
+- [x] User enters payment details in DropIn UI
+- [x] Submission calls POST `/api/v1/product/braintree/payment`
+- [x] Nonce from Braintree UI included in payment request
+- [x] Payment payload includes cart items and user info
 
 ### Payment Processing
-- [ ] Valid payment → HTTP 200 response
-- [ ] Payment data stored in Order.payment field
-- [ ] Order created in DB with:
+- [x] Valid payment → HTTP 200 response
+- [x] Payment data stored in Order.payment field
+- [x] Order created in DB with:
   - buyer ID
   - products array
   - payment object from Braintree
   - status = "Not Process"
-- [ ] Invalid payment → error response + order not created
-- [ ] Failed payment → cart not cleared
+- [x] Invalid payment → error response + order not created
+- [x] Failed payment → cart not cleared
 
 ### Post-Purchase
-- [ ] Successful payment → cart cleared from context + localStorage
-- [ ] Redirect to `/dashboard/user/orders` → user's orders page loads
-- [ ] Success toast/message shown
-- [ ] New order appears in user's orders list
+- [x] Successful payment → cart cleared from context + localStorage
+- [x] Redirect to `/dashboard/user/orders` → user's orders page loads
+- [x] Success toast/message shown
+- [x] New order appears in user's orders list
 
 ---
 
