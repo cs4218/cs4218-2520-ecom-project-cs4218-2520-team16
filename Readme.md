@@ -354,11 +354,13 @@ Backend integration suite:
    - Handle multiple products
    - Display product image with correct endpoint
 
+**Ui Tests**
+- `tests/ui/userDashboard.spec.js` — User journey: Unauthenticated user is blocked from accessing dashboard routes and redirected to login. 8 total tests.
+
+
 **Bug Fixes**
 - Added await to both `axios.post()` in `CreateProduct.js` and `axios.put()` in `UpdateProduct.js`
 - Fixed the inverted success/error logic in both components
 
 **Unit Test Updates**
 - `AdminActions.test.js` - Updated mock responses to include `message` field, changed `mockReturnValue` to `mockResolvedValue` for async operations
-
-- `tests/ui/userDashboard.spec.js` — User journey: Unauthenticated user is blocked from accessing dashboard routes and redirected to login
