@@ -4,16 +4,16 @@ import React from "react";
 import { render, screen, waitFor, act } from "@testing-library/react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import Products from "./Products";
+import Products from "../pages/admin/Products";
 
 jest.mock("axios");
 jest.mock("react-hot-toast");
-jest.mock("../../components/AdminMenu", () => {
+jest.mock("../components/AdminMenu", () => {
   return function MockAdminMenu() {
     return <div data-testid="admin-menu">Admin Menu</div>;
   };
 });
-jest.mock("../../components/Layout", () => {
+jest.mock("../components/Layout", () => {
   return function MockLayout({ children }) {
     return <div data-testid="layout">{children}</div>;
   };

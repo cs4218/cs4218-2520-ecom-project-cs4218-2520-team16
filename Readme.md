@@ -329,6 +329,34 @@ Frontend integration suite:
    - auth/cart restoration from `localStorage` and logout behavior
    - search flow from Header input to API call, route navigation, and result rendering from search context
 
-**Sonarqube Report Generation**
+## Roger Yuzhe Yao (A0340029N)
 
-- Configured and ran report generation for converage on SonarQube, included screenshots in `SonarQubeScreenshots`
+**Integration Tests Written (Top-Down Approach)** 
+Backend integration suite:
+- File: `client/src/integration/CreateProduct.integration.test.js`
+- 17 total tests
+- Scenarios Covered:
+   - Form setup and rendering 
+   - File upload and preview
+   - Form input and validation.
+
+- File: `client/src/integration/UpdateProduct.integration.test.js`
+- 33 total tests
+- Scenarios covered:
+   - Form setup and Loading
+   - Form pre-population with existing data
+   - photo update functionality
+
+- File: `client/src/integration/Products.test.js`
+- 21 total tests
+- Scenarios covered:
+   - Basic Rendering
+   - Handle multiple products
+   - Display product image with correct endpoint
+
+**Bug Fixes**
+- Added await to both `axios.post()` in `CreateProduct.js` and `axios.put()` in `UpdateProduct.js`
+- Fixed the inverted success/error logic in both components
+
+**Unit Test Updates**
+- `AdminActions.test.js` - Updated mock responses to include `message` field, changed `mockReturnValue` to `mockResolvedValue` for async operations
