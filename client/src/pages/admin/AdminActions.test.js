@@ -172,7 +172,7 @@ describe("AdminActions - CreateProduct", () => {
     axios.get.mockResolvedValue({
       data: { success: true, category: [{ _id: "cat-1", name: "Category One" }] },
     });
-    axios.post.mockResolvedValue({ data: { success: true } });
+    axios.post.mockResolvedValue({ data: { success: true, message: "Product Created Successfully" } });
 
     // Act
     await act(async () => {
@@ -208,8 +208,8 @@ describe("AdminActions - CreateProduct", () => {
   test("shows error toast when create fails", async () => {
     // Arrange
     axios.get.mockResolvedValue({ data: { success: true, category: [] } });
-    axios.post.mockReturnValue({
-      data: { success: true, message: "Create failed" },
+    axios.post.mockResolvedValue({
+      data: { success: false, message: "Create failed" },
     });
 
     // Act
@@ -347,7 +347,7 @@ describe("AdminActions - UpdateProduct", () => {
   test("updates product and navigates on success", async () => {
     // Arrange
     axios.get.mockImplementation(mockGet);
-    axios.put.mockResolvedValue({ data: { success: true } });
+    axios.put.mockResolvedValue({ data: { success: true, message: "Product Updated Successfully" } });
 
     // Act
     await act(async () => {
@@ -373,8 +373,8 @@ describe("AdminActions - UpdateProduct", () => {
   test("shows error toast when update fails", async () => {
     // Arrange
     axios.get.mockImplementation(mockGet);
-    axios.put.mockReturnValue({
-      data: { success: true, message: "Update failed" },
+    axios.put.mockResolvedValue({
+      data: { success: false, message: "Update failed" },
     });
 
     // Act
