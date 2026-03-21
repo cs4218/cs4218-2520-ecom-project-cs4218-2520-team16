@@ -298,21 +298,21 @@ Frontend integration suite:
 
 **Integration Tests Written (Top-Down Approach)** 
 Backend integration suite:
-- File: `CreateProduct.test.js`
+- File: `client/src/integration/CreateProduct.integration.test.js`
 - 17 total tests
 - Scenarios Covered:
    - Form setup and rendering 
    - File upload and preview
    - Form input and validation.
 
-- File: `UpdateProduct.test.js`
+- File: `client/src/integration/UpdateProduct.integration.test.js`
 - 33 total tests
 - Scenarios covered:
    - Form setup and Loading
    - Form pre-population with existing data
    - photo update functionality
 
-- File: `Products.test.js`
+- File: `client/src/integration/Products.test.js`
 - 21 total tests
 - Scenarios covered:
    - Basic Rendering
