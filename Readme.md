@@ -293,3 +293,28 @@ Frontend integration suite:
 - Scenarios covered:
    - auth/cart restoration from `localStorage` and logout behavior
    - search flow from Header input to API call, route navigation, and result rendering from search context
+
+## Roger Yuzhe Yao (A0340029N)
+
+**Integration Tests Written** 
+Backend integration suite:
+- File: `CreateProduct.test.js`
+- 17 total tests
+- Scenarios Covered:
+   - Form setup and rendering 
+   - File upload and preview
+   - Form input and validation.
+
+- File: `UpdateProduct.test.js`
+- 33 total tests
+- Scenarios covered:
+   - Form setup and Loading
+   - Form pre-population with existing data
+   - photo update functionality
+
+- File: `Products.test.js`
+- 21 total tests
+- Scenarios covered:
+   - Basic Rendering
+   - Handle multiple products
+   - Display product image with correct endpoint
