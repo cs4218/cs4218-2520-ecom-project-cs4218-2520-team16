@@ -381,10 +381,12 @@ Backend integration suite:
  - These route tests verify that Express routes are wired correctly to the right controllers, path params, and response flow. They are in `integration/integration-test-route.test.js`. There are 21 route test cases.
  - These tests are using a top-down approach, starting from the higher-level Express router entry point, and flows into the real controllers.
 #### Edge case integration test
- - Added file `./integration/integration-test-edge-case.js` to identify and fill the testing gaps and edge cases that the group mates' integration tests don't cover. There are 3 filled gaps and there are also bugs found within the gaps (refer to `Bugs found and fixed` above).
+ - Added file `./integration/integration-test-edge-case.js` to identify and fill the testing gaps and edge cases that the group mates' integration tests don't cover. There are 3 filled gaps and there are also bugs about redirection found within the gaps (mentioned above), and 2 test cases (last two in the list) to test for the bug fix:
    - guest checkout login returns the user to cart with cart contents intact
    - search API failure still navigates to search page and shows the empty state
    - failed payment keeps the cart and does not navigate away from cart
+   - login redirects to the route stored in location.state.from after a successful login
+   - login falls back to the home page when no redirect state is provided
  - These tests are using a top-down approach, starting with UI harness and goes down to the backend logic.
 ### UI Tests
 I wrote 8 UI test cases, focused on edge cases in real user journeys.

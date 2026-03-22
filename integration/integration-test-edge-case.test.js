@@ -109,6 +109,25 @@ function PaymentFailureHarness() {
   );
 }
 
+function LoginRedirectHarness({
+  initialEntry,
+  redirectRoute = "/dashboard/user",
+  redirectLabel = "User Dashboard",
+}) {
+  return (
+    <AuthProvider>
+      <MemoryRouter initialEntries={[initialEntry]}>
+        <LocationDisplay />
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<div>Home Page</div>} />
+          <Route path={redirectRoute} element={<div>{redirectLabel}</div>} />
+        </Routes>
+      </MemoryRouter>
+    </AuthProvider>
+  );
+}
+
 describe("Integration tests gaps", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -173,6 +192,93 @@ describe("Integration tests gaps", () => {
       screen.getByText(/You Have 1 items in your cart/i)
     ).not.toBeNull();
     expect(screen.getByText("Travel Backpack")).not.toBeNull();
+  });
+
+  test("login redirects to the route stored in location.state.from after a successful login", async () => {
+    // Arrange
+    axios.post.mockResolvedValue({
+      data: {
+        success: true,
+        message: "login successfully",
+        user: {
+          _id: "u2",
+          name: "Bob",
+          email: "bob@example.com",
+          phone: "88888888",
+          address: "456 Redirect Lane",
+          role: 0,
+        },
+        token: "token-redirect",
+      },
+    });
+
+    // Act
+    render(
+      <LoginRedirectHarness
+        initialEntry={{
+          pathname: "/login",
+          state: { from: "/dashboard/user" },
+        }}
+      />
+    );
+    await userEvent.type(
+      screen.getByPlaceholderText(/enter your email/i),
+      "bob@example.com"
+    );
+    await userEvent.type(
+      screen.getByPlaceholderText(/enter your password/i),
+      "password123"
+    );
+    await userEvent.click(screen.getByRole("button", { name: /login/i }));
+
+    // Assert
+    await waitFor(() => {
+      expect(screen.getByTestId("location").textContent).toContain(
+        "/dashboard/user"
+      );
+    });
+
+    expect(screen.getByText("User Dashboard")).not.toBeNull();
+    expect(toast.success).toHaveBeenCalled();
+  });
+
+  test("login falls back to the home page when no redirect state is provided", async () => {
+    // Arrange
+    axios.post.mockResolvedValue({
+      data: {
+        success: true,
+        message: "login successfully",
+        user: {
+          _id: "u3",
+          name: "Carol",
+          email: "carol@example.com",
+          phone: "77777777",
+          address: "789 Home Street",
+          role: 0,
+        },
+        token: "token-home",
+      },
+    });
+
+    // Act
+    render(<LoginRedirectHarness initialEntry="/login" />);
+    await userEvent.type(
+      screen.getByPlaceholderText(/enter your email/i),
+      "carol@example.com"
+    );
+    await userEvent.type(
+      screen.getByPlaceholderText(/enter your password/i),
+      "password123"
+    );
+    await userEvent.click(screen.getByRole("button", { name: /login/i }));
+
+    // Assert
+    await waitFor(() => {
+      expect(screen.getByTestId("location").textContent).toBe("/");
+    });
+
+    expect(screen.getByText("Home Page")).not.toBeNull();
+    expect(toast.success).toHaveBeenCalled();
   });
 
   test("search API failure still navigates to search page and shows the empty state", async () => {
