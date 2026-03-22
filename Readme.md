@@ -376,6 +376,14 @@ Backend integration suite:
     - added a message when there is no product in the category
   - made admin update product page made refetch product data when params.slug is available
   - in the login page `pages/Auth/Login.js`, fixed the redirect bug where cart checkout passed state: `/cart` but login only handled `state.from`
+  - Files modified for fixing bugs:
+    - `client/src/pages/Auth/ForgotPassword.js`
+    - `client/src/App.js`
+    - `client/src/pages/CategoryProduct.js`
+    - `client/src/pages/Contact.js`
+    - `client/src/pages/admin/UpdateProduct.js`
+    - `client/src/pages/user/Orders.js`
+    - `client/src/pages/Auth/Login.js`
 ### Integration Tests:
 #### Route test
  - These route tests verify that Express routes are wired correctly to the right controllers, path params, and response flow. They are in `integration/integration-test-route.test.js`. There are 21 route test cases.
