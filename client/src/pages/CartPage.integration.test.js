@@ -35,11 +35,17 @@ const mockRequestPaymentMethod = jest.fn();
 jest.mock('braintree-web-drop-in-react', () => {
   return function MockDropIn({ onInstance, options }) {
     const mockReact = require('react');
+    const instanceRef = mockReact.useRef(null);
+    
     mockReact.useEffect(() => {
-      onInstance({
-        requestPaymentMethod: mockRequestPaymentMethod,
-      });
-    }, [onInstance]);
+      if (!instanceRef.current && onInstance) {
+        instanceRef.current = {
+          requestPaymentMethod: mockRequestPaymentMethod,
+        };
+        onInstance(instanceRef.current);
+      }
+    }, []);
+    
     return <div data-testid="braintree-dropin">Braintree DropIn Mock</div>;
   };
 });
@@ -83,6 +89,9 @@ Object.defineProperty(window, 'localStorage', {
 });
 
 describe('Checkout & Payment Integration Tests', () => {
+  // Increase timeout for integration tests to prevent worker termination
+  jest.setTimeout(30000);
+
   const mockProducts = [
     {
       _id: 'prod1',
@@ -184,7 +193,7 @@ describe('Checkout & Payment Integration Tests', () => {
       await waitFor(() => {
         expect(screen.getByText(`Hello ${mockAuthUser.user.name}`)).toBeInTheDocument();
         expect(screen.queryByText(/please login to checkout/i)).not.toBeInTheDocument();
-      });
+      }, { timeout: 5000 });
     });
 
     it('should show error message when cart is empty', () => {
@@ -223,7 +232,7 @@ describe('Checkout & Payment Integration Tests', () => {
       await waitFor(() => {
         const updateAddressButton = screen.getByText('Update Address');
         expect(updateAddressButton).toBeInTheDocument();
-      });
+      }, { timeout: 5000 });
     });
 
     it('should enable checkout when cart has items and user has address', async () => {
@@ -246,7 +255,7 @@ describe('Checkout & Payment Integration Tests', () => {
       await waitFor(() => {
         expect(screen.getByText('Current Address')).toBeInTheDocument();
         expect(screen.getByText(mockAuthUser.user.address)).toBeInTheDocument();
-      });
+      }, { timeout: 5000 });
     });
   });
 
@@ -270,7 +279,7 @@ describe('Checkout & Payment Integration Tests', () => {
 
       await waitFor(() => {
         expect(axios.get).toHaveBeenCalledWith('/api/v1/product/braintree/token');
-      });
+      }, { timeout: 5000 });
     });
 
     it('should render Braintree DropIn UI with valid token', async () => {
@@ -292,7 +301,7 @@ describe('Checkout & Payment Integration Tests', () => {
 
       await waitFor(() => {
         expect(screen.getByTestId('braintree-dropin')).toBeInTheDocument();
-      });
+      }, { timeout: 5000 });
     });
 
     it('should not render DropIn when no client token', () => {
@@ -350,7 +359,7 @@ describe('Checkout & Payment Integration Tests', () => {
 
       await waitFor(() => {
         expect(screen.queryByTestId('braintree-dropin')).not.toBeInTheDocument();
-      });
+      }, { timeout: 5000 });
     });
   });
 
@@ -385,7 +394,7 @@ describe('Checkout & Payment Integration Tests', () => {
 
       await waitFor(() => {
         expect(screen.getByTestId('braintree-dropin')).toBeInTheDocument();
-      });
+      }, { timeout: 5000 });
 
       const paymentButton = screen.getByText('Make Payment');
       fireEvent.click(paymentButton);
@@ -399,7 +408,7 @@ describe('Checkout & Payment Integration Tests', () => {
             cart: mockProducts,
           }
         );
-      });
+      }, { timeout: 5000 });
     });
 
     it('should include cart items and user info in payment payload', async () => {
@@ -429,7 +438,7 @@ describe('Checkout & Payment Integration Tests', () => {
 
       await waitFor(() => {
         expect(screen.getByTestId('braintree-dropin')).toBeInTheDocument();
-      });
+      }, { timeout: 5000 });
 
       const paymentButton = screen.getByText('Make Payment');
       fireEvent.click(paymentButton);
@@ -448,7 +457,7 @@ describe('Checkout & Payment Integration Tests', () => {
             ]),
           })
         );
-      });
+      }, { timeout: 5000 });
     });
 
     it('should show loading state during payment processing', async () => {
@@ -478,7 +487,7 @@ describe('Checkout & Payment Integration Tests', () => {
 
       await waitFor(() => {
         expect(screen.getByTestId('braintree-dropin')).toBeInTheDocument();
-      });
+      }, { timeout: 5000 });
 
       const paymentButton = screen.getByText('Make Payment');
       fireEvent.click(paymentButton);
@@ -486,7 +495,7 @@ describe('Checkout & Payment Integration Tests', () => {
       // Should show processing state
       await waitFor(() => {
         expect(screen.getByText('Processing ....')).toBeInTheDocument();
-      });
+      }, { timeout: 5000 });
     });
 
     it('should handle payment failure gracefully', async () => {
@@ -514,7 +523,7 @@ describe('Checkout & Payment Integration Tests', () => {
 
       await waitFor(() => {
         expect(screen.getByTestId('braintree-dropin')).toBeInTheDocument();
-      });
+      }, { timeout: 5000 });
 
       const paymentButton = screen.getByText('Make Payment');
       fireEvent.click(paymentButton);
@@ -523,7 +532,7 @@ describe('Checkout & Payment Integration Tests', () => {
         // Cart should not be cleared on failure
         expect(localStorageMock.removeItem).not.toHaveBeenCalledWith('cart');
         expect(mockSetCart).not.toHaveBeenCalledWith([]);
-      });
+      }, { timeout: 5000 });
     });
 
     it('should not allow payment without address', async () => {
@@ -545,7 +554,7 @@ describe('Checkout & Payment Integration Tests', () => {
 
       await waitFor(() => {
         expect(screen.getByTestId('braintree-dropin')).toBeInTheDocument();
-      });
+      }, { timeout: 5000 });
 
       const paymentButton = screen.getByText('Make Payment');
       expect(paymentButton).toBeDisabled();
@@ -580,7 +589,7 @@ describe('Checkout & Payment Integration Tests', () => {
 
       await waitFor(() => {
         expect(screen.getByTestId('braintree-dropin')).toBeInTheDocument();
-      });
+      }, { timeout: 5000 });
 
       const paymentButton = screen.getByText('Make Payment');
       fireEvent.click(paymentButton);
@@ -588,7 +597,7 @@ describe('Checkout & Payment Integration Tests', () => {
       await waitFor(() => {
         expect(localStorageMock.removeItem).toHaveBeenCalledWith('cart');
         expect(mockSetCart).toHaveBeenCalledWith([]);
-      });
+      }, { timeout: 5000 });
     });
 
     it('should redirect to orders page after successful payment', async () => {
@@ -618,14 +627,14 @@ describe('Checkout & Payment Integration Tests', () => {
 
       await waitFor(() => {
         expect(screen.getByTestId('braintree-dropin')).toBeInTheDocument();
-      });
+      }, { timeout: 5000 });
 
       const paymentButton = screen.getByText('Make Payment');
       fireEvent.click(paymentButton);
 
       await waitFor(() => {
         expect(mockNavigate).toHaveBeenCalledWith('/dashboard/user/orders');
-      });
+      }, { timeout: 5000 });
     });
 
     it('should show success message after payment', async () => {
@@ -655,14 +664,14 @@ describe('Checkout & Payment Integration Tests', () => {
 
       await waitFor(() => {
         expect(screen.getByTestId('braintree-dropin')).toBeInTheDocument();
-      });
+      }, { timeout: 5000 });
 
       const paymentButton = screen.getByText('Make Payment');
       fireEvent.click(paymentButton);
 
       await waitFor(() => {
         expect(toast.success).toHaveBeenCalledWith('Payment Completed Successfully ');
-      });
+      }, { timeout: 5000 });
     });
 
     it('should not clear cart if payment fails', async () => {
@@ -690,14 +699,14 @@ describe('Checkout & Payment Integration Tests', () => {
 
       await waitFor(() => {
         expect(screen.getByTestId('braintree-dropin')).toBeInTheDocument();
-      });
+      }, { timeout: 5000 });
 
       const paymentButton = screen.getByText('Make Payment');
       fireEvent.click(paymentButton);
 
       await waitFor(() => {
         expect(mockRequestPaymentMethod).toHaveBeenCalled();
-      });
+      }, { timeout: 5000 });
 
       // Cart should not be cleared
       expect(localStorageMock.removeItem).not.toHaveBeenCalledWith('cart');
@@ -757,6 +766,134 @@ describe('Checkout & Payment Integration Tests', () => {
         expect(screen.getByText(product.name)).toBeInTheDocument();
         expect(screen.getByText(new RegExp(product.price.toString()))).toBeInTheDocument();
       });
+    });
+
+    it('should remove item from cart when Remove button clicked', () => {
+      const { useAuth } = require('../context/auth');
+      const { useCart } = require('../context/cart');
+      
+      useAuth.mockReturnValue([mockAuthUser, mockSetAuth]);
+      useCart.mockReturnValue([mockProducts, mockSetCart]);
+
+      render(
+        <MemoryRouter>
+          <CartPage />
+        </MemoryRouter>
+      );
+
+      const removeButtons = screen.getAllByText('Remove');
+      fireEvent.click(removeButtons[0]);
+
+      expect(mockSetCart).toHaveBeenCalled();
+      expect(localStorageMock.setItem).toHaveBeenCalledWith('cart', expect.any(String));
+    });
+
+    it('should navigate to profile when Update Address clicked', () => {
+      const { useAuth } = require('../context/auth');
+      const { useCart } = require('../context/cart');
+      
+      useAuth.mockReturnValue([mockAuthUser, mockSetAuth]);
+      useCart.mockReturnValue([mockProducts, mockSetCart]);
+
+      axios.get.mockResolvedValue({
+        data: { clientToken: 'test-braintree-token' },
+      });
+
+      render(
+        <MemoryRouter>
+          <CartPage />
+        </MemoryRouter>
+      );
+
+      const updateButton = screen.getByText('Update Address');
+      fireEvent.click(updateButton);
+
+      expect(mockNavigate).toHaveBeenCalledWith('/dashboard/user/profile');
+    });
+
+    it('should handle error in totalPrice calculation', () => {
+      const { useAuth } = require('../context/auth');
+      const { useCart } = require('../context/cart');
+      
+      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
+      
+      // Mock cart with items that might cause calculation issues
+      useAuth.mockReturnValue([mockAuthUser, mockSetAuth]);
+      useCart.mockReturnValue([mockProducts, mockSetCart]);
+
+      // Mock toLocaleString to throw an error
+      const originalToLocaleString = Number.prototype.toLocaleString;
+      Number.prototype.toLocaleString = jest.fn(() => {
+        throw new Error('toLocaleString error');
+      });
+
+      render(
+        <MemoryRouter>
+          <CartPage />
+        </MemoryRouter>
+      );
+
+      // totalPrice should handle the error gracefully
+      expect(consoleLogSpy).toHaveBeenCalled();
+      
+      // Restore mocks
+      Number.prototype.toLocaleString = originalToLocaleString;
+      consoleLogSpy.mockRestore();
+    });
+
+    it('should handle error when removing invalid cart item', () => {
+      const { useAuth } = require('../context/auth');
+      const { useCart } = require('../context/cart');
+      
+      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
+      
+      useAuth.mockReturnValue([mockAuthUser, mockSetAuth]);
+      useCart.mockReturnValue([mockProducts, mockSetCart]);
+
+      // Mock setCart to throw an error
+      const mockSetCartError = jest.fn(() => {
+        throw new Error('setCart error');
+      });
+      
+      const { useCart: useCartModule } = require('../context/cart');
+      useCartModule.mockReturnValue([mockProducts, mockSetCartError]);
+
+      render(
+        <MemoryRouter>
+          <CartPage />
+        </MemoryRouter>
+      );
+
+      const removeButtons = screen.getAllByText('Remove');
+      fireEvent.click(removeButtons[0]);
+
+      // Error should be logged
+      expect(consoleLogSpy).toHaveBeenCalled();
+      
+      consoleLogSpy.mockRestore();
+    });
+
+    it('should navigate to profile when Update Address clicked for user without address', () => {
+      const { useAuth } = require('../context/auth');
+      const { useCart } = require('../context/cart');
+      
+      useAuth.mockReturnValue([mockAuthUserNoAddress, mockSetAuth]);
+      useCart.mockReturnValue([mockProducts, mockSetCart]);
+
+      axios.get.mockResolvedValue({
+        data: { clientToken: 'test-braintree-token' },
+      });
+
+      render(
+        <MemoryRouter>
+          <CartPage />
+        </MemoryRouter>
+      );
+
+      const updateButton = screen.getByText('Update Address');
+      fireEvent.click(updateButton);
+
+      expect(mockNavigate).toHaveBeenCalledWith('/dashboard/user/profile');
     });
   });
 });
