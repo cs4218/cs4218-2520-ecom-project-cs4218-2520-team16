@@ -992,40 +992,5 @@ describe('Order Management Integration Tests', () => {
         );
       }, { timeout: 5000 });
     });
-
-    it('should handle non-array status gracefully', async () => {
-      const { useAuth } = require('../context/auth');
-      useAuth.mockReturnValue([mockAdminAuth, mockSetAuth]);
-
-      const React = require('react');
-      const originalUseState = React.useState;
-      let callCount = 0;
-
-      jest.spyOn(React, 'useState').mockImplementation((initialValue) => {
-        callCount++;
-        // The status state is the second useState call in AdminOrders
-        if (callCount === 2 && Array.isArray(initialValue) && initialValue.includes('Not Process')) {
-          // Return null instead of the array to trigger the defensive branch
-          return [null, jest.fn()];
-        }
-        return originalUseState(initialValue);
-      });
-
-      axios.get.mockResolvedValue({
-        data: [mockOrders[0]],
-      });
-
-      render(
-        <MemoryRouter>
-          <AdminOrders />
-        </MemoryRouter>
-      );
-
-      await waitFor(() => {
-        expect(axios.get).toHaveBeenCalledWith('/api/v1/auth/all-orders');
-      }, { timeout: 5000 });
-
-      React.useState.mockRestore();
-    });
   });
 });

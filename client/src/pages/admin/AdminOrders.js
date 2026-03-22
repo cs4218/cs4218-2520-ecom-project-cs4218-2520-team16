@@ -79,13 +79,11 @@ const AdminOrders = () => {
                             defaultValue={o && o.status ? o.status : status[0]}
                             data-testid="status-select"
                           >
-                            {Array.isArray(status)
-                              ? status.map((s, idx) => (
-                                  <Option key={idx} value={s}>
-                                    {s}
-                                  </Option>
-                                ))
-                              : null}
+                            {status.map((s, idx) => (
+                              <Option key={idx} value={s}>
+                                {s}
+                              </Option>
+                            ))}
                           </Select>
                         </td>
                         <td>{o && o.buyer && o.buyer.name ? o.buyer.name : ""}</td>
