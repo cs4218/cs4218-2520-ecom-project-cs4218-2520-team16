@@ -1,5 +1,6 @@
 // Xiao Ao, A0273305L
 // Code Guided by github Copilot
+// Wang Zihan A0266073A: Modified this file to fix the navigation bug (when integrated with cart page) in milestone 2
 import React, { useState } from "react";
 import Layout from "./../../components/Layout";
 import axios from "axios";
@@ -15,6 +16,10 @@ const Login = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
+  const redirectPath =
+    typeof location?.state === "string"
+      ? location.state
+      : location?.state?.from || "/";
 
   // form function
   const handleSubmit = async (e) => {
@@ -39,7 +44,7 @@ const Login = () => {
           token: res.data.token,
         });
         localStorage.setItem("auth", JSON.stringify(res.data));
-        navigate(location?.state?.from || "/");
+        navigate(redirectPath);
       } else {
         toast.error(res.data.message || "Login failed");
       }
