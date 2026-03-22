@@ -7,21 +7,23 @@ test.describe("Profile Page Address Propagation", () => {
   test("updating the profile address is reflected on the cart page", async ({
     page,
   }) => {
+    test.skip(!process.env.PW_USER_EMAIL || !process.env.PW_USER_PASSWORD, "process.env.PW_USER_EMAIL or process.env.PW_USER_PASSWORD is invalid");
+    
     const username = "testuser" + Math.random() + "_profile_page_address_propagation_test";
     const email = username + "@test.test";
     await page.goto("/register")
     await page.getByPlaceholder("Enter Your Name").fill(username);
     await page.getByPlaceholder("Enter Your Email").fill(email);
-    await page.getByPlaceholder("Enter Your Password").fill("testpassword");
+    await page.getByPlaceholder("Enter Your Password").fill("test");
     await page.getByPlaceholder("Enter Your Phone").fill("00000000");
-    await page.getByPlaceholder("Enter Your Address").fill("OldAddress");
+    await page.getByPlaceholder("Enter Your Address").fill("Old Address");
     await page.locator("input[type='date']").fill("2026-03-23");
     await page.getByPlaceholder("What is Your Favorite sports").fill("walking");
     await page.getByRole("button", { name: "REGISTER" }).click();
-    await page.goto("/login")
+    await expect(page).toHaveURL("/login");
 
     await page.getByPlaceholder("Enter Your Email").fill(email);
-    await page.getByPlaceholder("Enter Your Password").fill("testpassword");
+    await page.getByPlaceholder("Enter Your Password").fill("test");
     await page.getByRole("button", { name: "LOGIN" }).click();
     await expect(page).not.toHaveURL("/login");
 
@@ -33,7 +35,7 @@ test.describe("Profile Page Address Propagation", () => {
     await expect(page).toHaveURL("dashboard/user/profile");
 
     const addressInput = page.getByPlaceholder("Enter Your Address");
-    await addressInput.fill("NewAddress");
+    await addressInput.fill("NEW ADDRESS");
     await page.getByRole("button", { name: "UPDATE" }).click();
 
     await expect(
@@ -44,6 +46,6 @@ test.describe("Profile Page Address Propagation", () => {
     await expect(page).toHaveURL("/cart");
 
     await expect(page.getByText("Current Address")).toBeVisible();
-    await expect(page.getByText("NewAddress")).toBeVisible();
+    await expect(page.getByText("NEW ADDRESS")).toBeVisible();
   });
 });
