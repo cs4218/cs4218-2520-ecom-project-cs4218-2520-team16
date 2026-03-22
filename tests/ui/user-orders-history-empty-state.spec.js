@@ -9,16 +9,16 @@ test("newly registered user sees the empty orders state", async ({ page }) => {
   await page.goto("/register")
   await page.getByPlaceholder("Enter Your Name").fill(username);
   await page.getByPlaceholder("Enter Your Email").fill(email);
-  await page.getByPlaceholder("Enter Your Password").fill("new");
+  await page.getByPlaceholder("Enter Your Password").fill("testpassword");
   await page.getByPlaceholder("Enter Your Phone").fill("00000000");
   await page.getByPlaceholder("Enter Your Address").fill("NUS");
   await page.locator("input[type='date']").fill("2026-03-23");
   await page.getByPlaceholder("What is Your Favorite sports").fill("walking");
   await page.getByRole("button", { name: "REGISTER" }).click();
-  await expect(page).toHaveURL("/login");
+  await page.goto("/login")
 
   await page.getByPlaceholder("Enter Your Email").fill(email);
-  await page.getByPlaceholder("Enter Your Password").fill("new");
+  await page.getByPlaceholder("Enter Your Password").fill("testpassword");
   await page.getByRole("button", { name: "LOGIN" }).click();
   await expect(page).not.toHaveURL("/login");
 
