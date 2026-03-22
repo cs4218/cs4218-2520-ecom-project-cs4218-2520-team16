@@ -364,3 +364,40 @@ Backend integration suite:
 
 **Unit Test Updates**
 - `AdminActions.test.js` - Updated mock responses to include `message` field, changed `mockReturnValue` to `mockResolvedValue` for async operations
+
+## Wang Zihan (A0266073A)
+### Bugs found and fixed
+ - Missing `/forgot-password` page. Clicking "forgot password" button in login page will navigate to 404
+   - Fix: added a reset password page and its route in the client
+   - `./client/src/pages/Auth/ForgotPassword.js`
+  - Order page does not show a message when the order list is empty
+    - added a message when there is no product in the order
+  - CategoryProduct.js does not show a message when there is no products in a category
+    - added a message when there is no product in the category
+  - made admin update product page made refetch product data when params.slug is available
+  - in the login page `pages/Auth/Login.js`, fixed the redirect bug where cart checkout passed state: `/cart` but login only handled `state.from`
+### Integration Tests:
+#### Route test
+ - These route tests verify that Express routes are wired correctly to the right controllers, path params, and response flow. They are in `integration/integration-test-route.test.js`. There are 21 route test cases.
+ - These tests are using a top-down approach, starting from the higher-level Express router entry point, and flows into the real controllers.
+#### Edge case integration test
+ - Added file `./client/src/integration/integration-test-edge-case.js` to identify and fill the testing gaps and edge cases that the group mates' integration tests don't cover. There are 3 filled gaps and there are also bugs about redirection found within the gaps (mentioned above), and 2 test cases (last two in the list) to test for the bug fix:
+   - guest checkout login returns the user to cart with cart contents intact
+   - search API failure still navigates to search page and shows the empty state
+   - failed payment keeps the cart and does not navigate away from cart
+   - login redirects to the route stored in location.state.from after a successful login
+   - login falls back to the home page when no redirect state is provided
+ - These tests are using a top-down approach, starting with UI harness and goes down to the backend logic.
+### UI Tests
+I wrote 8 UI test cases, focused on edge cases in real user journeys.
+Files (in `./tests/ui`):
+ - `admin-category.spec.js` tests for admin editing and deleting categories
+ - `admin-category-empty-state.spec.js` tests for a newly created empty category shows the empty message in admin view
+ - `forgot-password.spec.js` tests the user journey of `click reset password in login page -> reset password -> login again with new password`
+ - `login-redirect-from-cart.spec.js` tests the user journey of `guest checkout -> login -> back to cart`
+ - `profile-page-address-propagation.spec.js` tests the user journey of `update address in profile -> navigate to cart page -> see updated address in cart page`
+ - `admin-update-product-page.spec.js` tests the admin can open the update product page from the products list
+ - `user-orders-history-empty-state.spec.js` tests the bug fix of showing empty message when the order is empty
+ - `contact.spec.js` tests for `/contact` working well
+ - `presist-search-result.spec.js` tests for adding to cart from search results persists after a refresh
+
