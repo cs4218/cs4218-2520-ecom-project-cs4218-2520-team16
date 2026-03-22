@@ -11,7 +11,7 @@ test.describe("Forgot Password Journey", () => {
   }) => {
     test.skip(!process.env.PW_USER_EMAIL || !process.env.PW_USER_PASSWORD, "process.env.PW_USER_EMAIL or process.env.PW_USER_PASSWORD is invalid");
 
-    const username = "testuser" + Math.random();
+    const username = "testuser" + Math.random() + "_forgot_password_test";
     const email = username + "@test.test";
     await page.goto("/register")
     await page.getByPlaceholder("Enter Your Name").fill(username);

@@ -4,7 +4,7 @@
 import { test, expect } from "@playwright/test";
 
 test("newly registered user sees the empty orders state", async ({ page }) => {
-  const username = "newuser" + Math.random();
+  const username = "newuser" + Math.random() + "_empty_order_list_test";
   const email = username + "@new.new";
   await page.goto("/register")
   await page.getByPlaceholder("Enter Your Name").fill(username);

@@ -7,7 +7,7 @@ test.describe("Profile Page Address Propagation", () => {
   test("updating the profile address is reflected on the cart page", async ({
     page,
   }) => {
-    const username = "testuser" + Math.random();
+    const username = "testuser" + Math.random() + "_profile_page_address_propagation_test";
     const email = username + "@test.test";
     await page.goto("/register")
     await page.getByPlaceholder("Enter Your Name").fill(username);
