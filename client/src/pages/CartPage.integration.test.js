@@ -792,42 +792,39 @@ describe('Checkout & Payment Integration Tests', () => {
       const { useAuth } = require('../context/auth');
       const { useCart } = require('../context/cart');
       
-      // Create a scenario where cart changes after render
-      let currentCart = [...mockProducts];
-      const mockSetCartDynamic = jest.fn((newCart) => {
-        currentCart = typeof newCart === 'function' ? newCart(currentCart) : newCart;
+      // Create a cart with one item
+      const testCart = [mockProducts[0]];
+      let cartState = [...testCart];
+      
+      const mockSetCartWithSpy = jest.fn((newCart) => {
+        cartState = newCart;
       });
       
       useAuth.mockReturnValue([mockAuthUser, mockSetAuth]);
-      useCart.mockReturnValue([currentCart, mockSetCartDynamic]);
+      useCart.mockReturnValue([cartState, mockSetCartWithSpy]);
 
-      const { rerender } = render(
+      const { container } = render(
         <MemoryRouter>
           <CartPage />
         </MemoryRouter>
       );
 
-      // Manually test the removeCartItem logic with a non-existent ID
-      // Since we can't call the function directly, we need to ensure the code path is hit
-      // The early return on line 46 happens when findIndex returns -1
-      // This would happen if we try to remove an item with an ID that doesn't exist
+      // Spy on Array.prototype.findIndex to simulate the item not being found
+      const originalFindIndex = Array.prototype.findIndex;
+      const findIndexSpy = jest.spyOn(Array.prototype, 'findIndex');
       
-      // Change the cart to simulate the race condition
-      currentCart = [{ ...mockProducts[0], _id: 'different-id' }];
-      useCart.mockReturnValue([currentCart, mockSetCartDynamic]);
-      
-      rerender(
-        <MemoryRouter>
-          <CartPage />
-        </MemoryRouter>
-      );
+      // Make findIndex return -1 for the next call (simulating item not found)
+      findIndexSpy.mockReturnValueOnce(-1);
 
-      // Now there's a button for an item with 'different-id'
-      // But if we somehow tried to remove with the original ID, it would hit line 46
-      // However, this is hard to trigger through the UI
-      
-      // Alternative: just verify the component renders correctly
-      expect(screen.getByText('Cart Summary')).toBeInTheDocument();
+      const removeButton = screen.getByText('Remove');
+      fireEvent.click(removeButton);
+
+      // The cart should NOT have been updated because findIndex returned -1
+      expect(mockSetCartWithSpy).not.toHaveBeenCalled();
+
+      // Restore the original function
+      findIndexSpy.mockRestore();
+      Array.prototype.findIndex = originalFindIndex;
     });
 
     it('should navigate to profile when Update Address clicked', () => {
