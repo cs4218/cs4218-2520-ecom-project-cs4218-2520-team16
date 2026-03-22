@@ -154,26 +154,26 @@ Written by Wen Han Tang A0340008W with inspiration from ChatGPT
 
 ### User Orders
 - [x] User dashboard Orders tab → GET `/api/v1/auth/orders` called
-- [ ] Orders displayed with: ID, status, buyer, date, payment success, quantity
-- [ ] Order products populated correctly (not just IDs)
-- [ ] Product photo loads for each item in order
-- [ ] Dates formatted with moment.js (relative format)
+- [x] Orders displayed with: ID, status, buyer, date, payment success, quantity
+- [x] Order products populated correctly (not just IDs)
+- [x] Product photo loads for each item in order
+- [x] Dates formatted with moment.js (relative format)
 - [x] Only user's own orders displayed
 
 ### Admin Orders
 - [x] Admin Orders page → GET `/api/v1/auth/all-orders` called
 - [x] All orders from all users displayed
-- [ ] Each order shows all needed info (buyer name, products, etc.)
-- [ ] Status dropdown available for each order (Not Process → Processing → Shipped → deliverd)
-- [ ] Order status change → PUT `/api/v1/auth/order-status/{orderId}` called
-- [ ] Status update persists → refreshing page shows new status
-- [ ] Admin cannot edit orders they shouldn't (permissions enforced)
+- [x] Each order shows all needed info (buyer name, products, etc.)
+- [x] Status dropdown available for each order (Not Process → Processing → Shipped → deliverd)
+- [x] Order status change → PUT `/api/v1/auth/order-status/{orderId}` called
+- [x] Status update persists → refreshing page shows new status
+- [x] Admin cannot edit orders they shouldn't (permissions enforced)
 
 ### Order Status Workflow
-- [ ] New order → initial status "Not Process"
-- [ ] Admin changes status → PUT request with new status
-- [ ] Status changed to "deliverd" → order marked as complete
-- [ ] Can move backwards through statuses (or verify if restricted)
+- [x] New order → initial status "Not Process"
+- [x] Admin changes status → PUT request with new status
+- [x] Status changed to "deliverd" → order marked as complete
+- [x] Can move backwards through statuses (or verify if restricted)
 
 ---
 

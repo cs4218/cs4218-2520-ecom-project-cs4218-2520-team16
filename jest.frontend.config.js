@@ -38,7 +38,8 @@ export default {
     "client/src/pages/Search.js",
     "client/src/pages/user/Orders.js",
     "client/src/pages/Policy.js",
-    "client/src/pages/CartPage.js"
+    "client/src/pages/CartPage.js",
+    "client/src/pages/admin/AdminOrders.js"
   ],
   coverageThreshold: {
     global: {
