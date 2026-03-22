@@ -1,3 +1,5 @@
+// Wang Zihan A0266073A: Modified this file to make this page refetch product data when params.slug is available
+
 import React, { useState, useEffect } from "react";
 import Layout from "./../../components/Layout";
 import AdminMenu from "./../../components/AdminMenu";
@@ -39,9 +41,10 @@ const UpdateProduct = () => {
     }
   };
   useEffect(() => {
-    getSingleProduct();
-    //eslint-disable-next-line
-  }, []);
+    if (params?.slug) {
+      getSingleProduct();
+    }
+  }, [params?.slug]);
   //get all category
   const getAllCategory = async () => {
     try {
