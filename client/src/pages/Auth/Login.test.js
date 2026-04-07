@@ -53,6 +53,7 @@ describe("Login Component", () => {
     });
 
     Object.defineProperty(window, "matchMedia", {
+      configurable: true,
       writable: true,
       value: jest.fn().mockImplementation((query) => ({
         matches: false,

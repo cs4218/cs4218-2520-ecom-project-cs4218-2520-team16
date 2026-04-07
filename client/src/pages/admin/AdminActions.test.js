@@ -1,7 +1,7 @@
 // Written by Roger Yao (A0340029N) with the help of Copilot.
 
 import React from "react";
-import { render, screen, waitFor, act } from "@testing-library/react";
+import { render, screen, waitFor, act, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -74,8 +74,9 @@ jest.mock("antd", () => {
 
   MockSelect.Option = MockOption;
 
-  const MockModal = ({ visible, children }) => {
-    if (!visible) return null;
+  const MockModal = ({ open, visible, children }) => {
+    const isOpen = open ?? visible;
+    if (!isOpen) return null;
     return <div data-testid="modal">{children}</div>;
   };
 
@@ -557,7 +558,7 @@ describe("AdminActions - CreateCategory", () => {
     const modalInput = inputs[inputs.length - 1];
     await userEvent.clear(modalInput);
     await userEvent.type(modalInput, "Updated Category");
-    await userEvent.click(screen.getAllByRole("button", { name: "Submit" })[1]);
+    fireEvent.click(screen.getAllByRole("button", { name: "Submit" })[1]);
 
     // Assert
     await waitFor(() => {
@@ -613,7 +614,7 @@ describe("AdminActions - CreateCategory", () => {
     });
 
     await userEvent.click(screen.getByRole("button", { name: "Edit" }));
-    await userEvent.click(screen.getAllByRole("button", { name: "Submit" })[1]);
+    fireEvent.click(screen.getAllByRole("button", { name: "Submit" })[1]);
 
     // Assert
     await waitFor(() => {

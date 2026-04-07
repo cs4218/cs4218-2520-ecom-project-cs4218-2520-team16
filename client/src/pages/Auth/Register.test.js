@@ -41,6 +41,7 @@ describe("Register Component", () => {
     useNavigate.mockReturnValue(mockNavigate);
     // Mock window.matchMedia
     Object.defineProperty(window, "matchMedia", {
+      configurable: true,
       writable: true,
       value: jest.fn().mockImplementation((query) => ({
         matches: false,
