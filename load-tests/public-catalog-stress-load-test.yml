@@ -2,31 +2,27 @@
 config:
   target: "http://localhost:6060"
   phases:
-    - duration: 20
-      arrivalRate: 1
-      rampTo: 5
-      name: warm-up
-    - duration: 40
+    - duration: 30
       arrivalRate: 5
-      name: steady-state
-    - duration: 20
-      arrivalRate: 10
       rampTo: 20
-      name: spike
+      name: ramp-up
+    - duration: 60
+      arrivalRate: 20
+      rampTo: 60
+      name: stress-ramp
+    - duration: 30
+      arrivalRate: 60
+      name: peak
   defaults:
     headers:
       Accept: application/json
 
 scenarios:
-  - name: browse-public-catalog
-    weight: 8
+  - name: stress-browse-catalog
+    weight: 7
     flow:
       - get:
           url: /api/v1/product/get-product
-          expect:
-            - statusCode: 200
-      - get:
-          url: /api/v1/category/get-category
           expect:
             - statusCode: 200
       - get:
@@ -38,10 +34,14 @@ scenarios:
           expect:
             - statusCode: 200
 
-  - name: search-catalog
-    weight: 2
+  - name: stress-search-catalog
+    weight: 3
     flow:
       - get:
           url: /api/v1/product/search/shoe
+          expect:
+            - statusCode: 200
+      - get:
+          url: /api/v1/product/search/bag
           expect:
             - statusCode: 200

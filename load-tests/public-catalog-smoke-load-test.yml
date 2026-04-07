@@ -4,22 +4,14 @@ config:
   phases:
     - duration: 20
       arrivalRate: 1
-      rampTo: 5
-      name: warm-up
-    - duration: 40
-      arrivalRate: 5
-      name: steady-state
-    - duration: 20
-      arrivalRate: 10
-      rampTo: 20
-      name: spike
+      rampTo: 3
+      name: smoke
   defaults:
     headers:
       Accept: application/json
 
 scenarios:
-  - name: browse-public-catalog
-    weight: 8
+  - name: smoke-browse-and-search
     flow:
       - get:
           url: /api/v1/product/get-product
@@ -30,17 +22,9 @@ scenarios:
           expect:
             - statusCode: 200
       - get:
-          url: /api/v1/product/product-list/1
-          expect:
-            - statusCode: 200
-      - get:
           url: /api/v1/product/product-count
           expect:
             - statusCode: 200
-
-  - name: search-catalog
-    weight: 2
-    flow:
       - get:
           url: /api/v1/product/search/shoe
           expect:

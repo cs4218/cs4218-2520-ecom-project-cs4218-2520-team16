@@ -196,13 +196,21 @@ This repository includes a lightweight Artillery scenario that exercises the pub
    npm run test:load
    ```
 
+   Other useful profiles:
+
+   ```bash
+   npm run test:load:smoke   # quick sanity check (about 20s)
+   npm run test:load:stress  # find failure thresholds under higher concurrency
+   npm run test:load:soak    # sustained traffic to detect degradation/leaks
+   ```
+
 3. Optionally override the target host.
 
    ```bash
    LOAD_TEST_BASE_URL=http://localhost:6060 npm run test:load:report
    ```
 
-The scenario lives in [load-tests/public-catalog-load-test.yml](load-tests/public-catalog-load-test.yml) and focuses on stable read-only routes such as product, category, search, and product counts.
+The scenarios live under [load-tests/](load-tests/) and focus on stable read-only routes such as product, category, search, and product counts.
 
 ## CL Integration
  [LINK](https://github.com/cs4218/cs4218-2520-ecom-project-cs4218-2520-team16/actions/runs/21854703681/job/63068917772)

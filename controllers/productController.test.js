@@ -3,6 +3,7 @@ Name: Wang Zihan
 Student ID: A0266073A
 With suggestions and helps from ChatGPT 5.2 Thinking
 */
+// Edited By Wen Han Tang A0340008W, adding regression tests
 
 import {
   getProductController,
@@ -213,7 +214,7 @@ describe("productPhotoController", () => {
     expect(res.send).toHaveBeenCalledWith(Buffer.from("img"));
   });
 
-  it("success: photo not exists", async () => {
+  it("error: photo not exists -> returns 404", async () => {
     // Arrange
     const product = { photo: { data: null, contentType: "image/png" } };
     const mockResult = { select: jest.fn().mockResolvedValue(product) };
@@ -226,9 +227,30 @@ describe("productPhotoController", () => {
     await productPhotoController(req, res);
 
     // Assert
-    expect(res.set).not.toHaveBeenCalled();
-    expect(res.status).not.toHaveBeenCalled();
-    expect(res.send).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.send).toHaveBeenCalledWith({
+      success: false,
+      message: "Photo not found",
+    });
+  });
+
+  it("error: product not found -> returns 404", async () => {
+    // Arrange
+    const mockResult = { select: jest.fn().mockResolvedValue(null) };
+    productModel.findById.mockReturnValue(mockResult);
+
+    const req = { params: { pid: "missing" } };
+    const res = makeResponse();
+
+    // Act
+    await productPhotoController(req, res);
+
+    // Assert
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.send).toHaveBeenCalledWith({
+      success: false,
+      message: "Photo not found",
+    });
   });
 
   it("error: 500", async () => {
@@ -308,6 +330,40 @@ describe("productFiltersController", () => {
         message: "Error WHile Filtering Products",
       })
     );
+  });
+
+  it("error: non-numeric page -> 400 invalid page", async () => {
+    // Arrange
+    const req = { params: { page: "abc" } };
+    const res = makeResponse();
+
+    // Act
+    await productListController(req, res);
+
+    // Assert
+    expect(productModel.find).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.send).toHaveBeenCalledWith({
+      success: false,
+      message: "Invalid page number",
+    });
+  });
+
+  it("error: page less than 1 -> 400 invalid page", async () => {
+    // Arrange
+    const req = { params: { page: "0" } };
+    const res = makeResponse();
+
+    // Act
+    await productListController(req, res);
+
+    // Assert
+    expect(productModel.find).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.send).toHaveBeenCalledWith({
+      success: false,
+      message: "Invalid page number",
+    });
   });
 });
 

@@ -1,3 +1,4 @@
+// Edited By Wen Han Tang A0340008W, adding rigorous error checks
 import productModel from "../models/productModel.js";
 import categoryModel from "../models/categoryModel.js";
 import orderModel from "../models/orderModel.js";
@@ -111,6 +112,12 @@ export const getSingleProductController = async (req, res) => {
 export const productPhotoController = async (req, res) => {
   try {
     const product = await productModel.findById(req.params.pid).select("photo");
+    if (!product || !product.photo || !product.photo.data) {
+      return res.status(404).send({
+        success: false,
+        message: "Photo not found",
+      });
+    }
     if (product.photo.data) {
       res.set("Content-type", product.photo.contentType);
       return res.status(200).send(product.photo.data);
@@ -236,7 +243,13 @@ export const productCountController = async (req, res) => {
 export const productListController = async (req, res) => {
   try {
     const perPage = 6;
-    const page = req.params.page ? req.params.page : 1;
+    const page = Number(req.params.page || 1);
+    if (!Number.isInteger(page) || page < 1) {
+      return res.status(400).send({
+        success: false,
+        message: "Invalid page number",
+      });
+    }
     const products = await productModel
       .find({})
       .select("-photo")
