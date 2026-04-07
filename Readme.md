@@ -293,3 +293,15 @@ Frontend integration suite:
 - Scenarios covered:
    - auth/cart restoration from `localStorage` and logout behavior
    - search flow from Header input to API call, route navigation, and result rendering from search context
+
+# MS3 Work Allocation
+
+## Xiao Ao (A0233705L)
+
+**Non-Functional Testing — Spike Testing (Locust)**
+- `spike-tests/locustfile.py` — Locust spike test scenarios simulating a sudden surge of 200 concurrent users (0 → 200 in 10s, hold 60s, drop to 0)
+  - `ProductBrowsingUser` class: product listing, product count, product search, category browsing
+  - `AuthAndCheckoutUser` class: user login, Braintree payment token retrieval
+- `spike-tests/requirements.txt` — Locust dependency specification
+- `spike-tests/Locust_spike_test.png` — Screenshot of Locust statistics (all endpoints, p50/p95/p99, 0% failure rate at 94 RPS)
+- `spike-tests/Locust_Chart.png` — Screenshot of Locust charts (RPS over time, response time trends, user count ramp)
