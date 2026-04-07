@@ -2,17 +2,20 @@
 config:
   target: "http://localhost:6060"
   phases:
-    - duration: 20
+    - duration: 30
       arrivalRate: 1
       rampTo: 5
       name: warm-up
-    - duration: 40
+    - duration: 60
       arrivalRate: 5
-      name: steady-state
-    - duration: 20
-      arrivalRate: 10
-      rampTo: 20
-      name: spike
+      name: baseline-load
+    - duration: 30
+      arrivalRate: 5
+      rampTo: 8
+      name: ramp-up
+    - duration: 60
+      arrivalRate: 8
+      name: sustained-load
   defaults:
     headers:
       Accept: application/json

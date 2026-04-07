@@ -196,11 +196,13 @@ This repository includes a lightweight Artillery scenario that exercises the pub
    npm run test:load
    ```
 
+   The default profile is a load test (gradual ramp + sustained steady phases), not a spike test.
+
    Other useful profiles:
 
    ```bash
    npm run test:load:smoke   # quick sanity check (about 20s)
-   npm run test:load:stress  # find failure thresholds under higher concurrency
+   npm run test:load:stress  # includes aggressive ramp/peak behavior (spike-like)
    npm run test:load:soak    # sustained traffic to detect degradation/leaks
    ```
 
