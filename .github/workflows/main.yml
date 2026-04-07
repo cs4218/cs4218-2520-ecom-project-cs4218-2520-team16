@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   test:
@@ -44,3 +45,53 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
+
+  load-test-smoke:
+    runs-on: ubuntu-latest
+    if: ${{ secrets.MONGO_URL != '' }}
+    needs: test
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install client dependencies
+        run: |
+          cd client
+          npm install
+
+      - name: Start backend
+        env:
+          MONGO_URL: ${{ secrets.MONGO_URL }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          DEV_MODE: github-actions
+        run: |
+          npm start > server.log 2>&1 &
+          echo $! > server.pid
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:6060/ > /dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat server.log
+          exit 1
+
+      - name: Run smoke load test
+        run: npm run test:load:smoke
+
+      - name: Upload backend log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: load-test-backend-log
+          path: server.log
+          retention-days: 14

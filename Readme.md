@@ -212,6 +212,8 @@ This repository includes a lightweight Artillery scenario that exercises the pub
 
 The scenarios live under [load-tests/](load-tests/) and focus on stable read-only routes such as product, category, search, and product counts.
 
+GitHub Actions runs the smoke profile automatically when `MONGO_URL` is configured as a repository secret; the stress and soak profiles are intended for manual runs.
+
 ## CL Integration
  [LINK](https://github.com/cs4218/cs4218-2520-ecom-project-cs4218-2520-team16/actions/runs/21854703681/job/63068917772)
 
