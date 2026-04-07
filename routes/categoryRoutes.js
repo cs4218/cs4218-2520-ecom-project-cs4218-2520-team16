@@ -1,3 +1,4 @@
+// Bug Fixed By Wen Han Tang With Help From ChatGPT A0340008W
 import express from "express";
 import { isAdmin, requireSignIn } from "./../middlewares/authMiddleware.js";
 import {
@@ -7,6 +8,7 @@ import {
   singleCategoryController,
   updateCategoryController,
 } from "./../controllers/categoryController.js";
+import { responseCache } from "./../middlewares/responseCacheMiddleware.js";
 
 const router = express.Router();
 
@@ -28,7 +30,7 @@ router.put(
 );
 
 //getALl category
-router.get("/get-category", categoryControlller);
+router.get("/get-category", responseCache(15), categoryControlller);
 
 //single category
 router.get("/single-category/:slug", singleCategoryController);

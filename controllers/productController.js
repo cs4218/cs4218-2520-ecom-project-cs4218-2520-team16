@@ -1,4 +1,4 @@
-// Edited By Wen Han Tang A0340008W, adding rigorous error checks
+// Edited By Wen Han Tang A0340008W, adding rigorous error checks and bug fixes
 import productModel from "../models/productModel.js";
 import categoryModel from "../models/categoryModel.js";
 import orderModel from "../models/orderModel.js";
@@ -70,7 +70,8 @@ export const getProductController = async (req, res) => {
       .populate("category")
       .select("-photo")
       .limit(12)
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
     res.status(200).send({
       success: true,
       counTotal: products.length,
@@ -92,7 +93,8 @@ export const getSingleProductController = async (req, res) => {
     const product = await productModel
       .findOne({ slug: req.params.slug })
       .select("-photo")
-      .populate("category");
+      .populate("category")
+      .lean();
     res.status(200).send({
       success: true,
       message: "Single Product Fetched",
@@ -224,7 +226,7 @@ export const productFiltersController = async (req, res) => {
 // product count
 export const productCountController = async (req, res) => {
   try {
-    const total = await productModel.find({}).estimatedDocumentCount();
+    const total = await productModel.estimatedDocumentCount();
     res.status(200).send({
       success: true,
       total,
@@ -255,7 +257,8 @@ export const productListController = async (req, res) => {
       .select("-photo")
       .skip((page - 1) * perPage)
       .limit(perPage)
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
     res.status(200).send({
       success: true,
       products,
@@ -274,14 +277,17 @@ export const productListController = async (req, res) => {
 export const searchProductController = async (req, res) => {
   try {
     const { keyword } = req.params;
+    const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const resutls = await productModel
       .find({
         $or: [
-          { name: { $regex: keyword, $options: "i" } },
-          { description: { $regex: keyword, $options: "i" } },
+          { name: { $regex: escapedKeyword, $options: "i" } },
+          { description: { $regex: escapedKeyword, $options: "i" } },
         ],
       })
-      .select("-photo");
+      .select("-photo")
+      .limit(20)
+      .lean();
     res.json(resutls);
   } catch (error) {
     console.log(error);
@@ -304,7 +310,8 @@ export const realtedProductController = async (req, res) => {
       })
       .select("-photo")
       .limit(3)
-      .populate("category");
+      .populate("category")
+      .lean();
     res.status(200).send({
       success: true,
       products,
@@ -322,8 +329,17 @@ export const realtedProductController = async (req, res) => {
 // get prdocyst by catgory
 export const productCategoryController = async (req, res) => {
   try {
-    const category = await categoryModel.findOne({ slug: req.params.slug });
-    const products = await productModel.find({ category }).populate("category");
+    const category = await categoryModel.findOne({ slug: req.params.slug }).lean();
+    if (!category) {
+      return res.status(404).send({
+        success: false,
+        message: "Category not found",
+      });
+    }
+    const products = await productModel
+      .find({ category: category._id })
+      .populate("category")
+      .lean();
     res.status(200).send({
       success: true,
       category,

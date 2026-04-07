@@ -18,7 +18,12 @@ const connectDB = async () => {
             throw new Error("Missing MONGO_URL in environment variables");
         }
 
-        const conn = await mongoose.connect(mongoUrl);
+        const conn = await mongoose.connect(mongoUrl, {
+            maxPoolSize: 40,
+            minPoolSize: 5,
+            serverSelectionTimeoutMS: 5000,
+            socketTimeoutMS: 45000,
+        });
         console.log(`Connected To Mongodb Database ${conn.connection.host}`.bgMagenta.white);
     } catch (error) {
         console.log(`Error in Mongodb ${error}`.bgRed.white);
