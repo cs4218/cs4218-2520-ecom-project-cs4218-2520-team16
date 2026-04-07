@@ -54,8 +54,10 @@ test.describe("Registration and Login Flows", () => {
   });
 
   test("registration shows an error for duplicate email", async ({ page }) => {
-    // Using a hardcoded test email that should exist in test database
-    const duplicateEmail = "test@test.com";
+    const duplicateEmail = generateUniqueEmail();
+
+    await registerTestUser(page, duplicateEmail);
+    await page.waitForURL(/\/login(?:\?|$)|\/$/);
 
     await page.goto("/register");
 
@@ -74,7 +76,7 @@ test.describe("Registration and Login Flows", () => {
     // Should show error message (either toast or inline)
     await page.waitForLoadState("networkidle");
     const errorExists = await page
-      .locator(/text=.*already.*exist|duplicate|error/i)
+      .getByText(/already register please login|registration failed|something went wrong/i)
       .first()
       .isVisible()
       .catch(() => false);
