@@ -9,9 +9,6 @@ on:
       - main
   workflow_dispatch:
 
-env:
-  HAS_MONGO_URL: ${{ secrets.MONGO_URL && 'true' || '' }}
-
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -51,27 +48,44 @@ jobs:
 
   load-test-smoke:
     runs-on: ubuntu-latest
-    if: ${{ env.HAS_MONGO_URL == 'true' }}
     needs: test
 
     steps:
+      - name: Check smoke-test prerequisites
+        id: smoke_gate
+        env:
+          MONGO_URL: ${{ secrets.MONGO_URL }}
+        run: |
+          if [ -n "$MONGO_URL" ]; then
+            echo "run_load_test=true" >> "$GITHUB_OUTPUT"
+            echo "MONGO_URL is configured; running smoke load test."
+          else
+            echo "run_load_test=false" >> "$GITHUB_OUTPUT"
+            echo "MONGO_URL is not configured; skipping smoke load test."
+          fi
+
       - name: Checkout repository
+        if: ${{ steps.smoke_gate.outputs.run_load_test == 'true' }}
         uses: actions/checkout@v5
 
       - name: Set up Node.js
+        if: ${{ steps.smoke_gate.outputs.run_load_test == 'true' }}
         uses: actions/setup-node@v5
         with:
           node-version: '20'
 
       - name: Install dependencies
+        if: ${{ steps.smoke_gate.outputs.run_load_test == 'true' }}
         run: npm install
 
       - name: Install client dependencies
+        if: ${{ steps.smoke_gate.outputs.run_load_test == 'true' }}
         run: |
           cd client
           npm install
 
       - name: Start backend
+        if: ${{ steps.smoke_gate.outputs.run_load_test == 'true' }}
         env:
           MONGO_URL: ${{ secrets.MONGO_URL }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
@@ -89,10 +103,11 @@ jobs:
           exit 1
 
       - name: Run smoke load test
+        if: ${{ steps.smoke_gate.outputs.run_load_test == 'true' }}
         run: npm run test:load:smoke
 
       - name: Upload backend log
-        if: always()
+        if: ${{ always() && steps.smoke_gate.outputs.run_load_test == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: load-test-backend-log
