@@ -1,3 +1,4 @@
+// Bug Fixed By Wen Han Tang With Help From ChatGPT A0340008W
 import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema(
@@ -37,5 +38,10 @@ const productSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+productSchema.index({ slug: 1 }, { unique: true });
+productSchema.index({ createdAt: -1 });
+productSchema.index({ category: 1, createdAt: -1 });
+productSchema.index({ name: "text", description: "text" });
 
 export default mongoose.model("Products", productSchema);

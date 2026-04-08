@@ -16,7 +16,7 @@ Virtual Vault is a full-stack MERN (MongoDB, Express.js, React.js, Node.js) e-co
 - **Unit and Integration Testing**: Utilize Jest for writing and running tests to ensure individual components and functions work as expected, finding and fixing bugs in the process.
 - **UI Testing**: Utilize Playwright for UI testing to validate the behavior and appearance of the website's user interface.
 - **Code Analysis and Coverage**: Utilize SonarQube for static code analysis and coverage reports to maintain code quality and identify potential issues.
-- **Load Testing**: Leverage JMeter for load testing to assess the performance and scalability of the ecommerce platform under various traffic conditions.
+- **Load Testing**: Use the checked-in Artillery scenario to assess the performance and scalability of the ecommerce platform under various traffic conditions.
 
 ## 4. Setting Up The Project
 
@@ -179,6 +179,42 @@ Use this workflow to generate a code-quality report with test coverage:
 4. **View report**
 
    Open your project in SonarQube dashboard at `http://localhost:9000`.
+
+## 7. Load Testing
+
+This repository includes a lightweight Artillery scenario that exercises the public catalog endpoints.
+
+1. Start the backend so it can answer requests.
+
+   ```bash
+   npm run server
+   ```
+
+2. Run the default load test.
+
+   ```bash
+   npm run test:load
+   ```
+
+   The default profile is a load test (gradual ramp + sustained steady phases), not a spike test.
+
+   Other useful profiles:
+
+   ```bash
+   npm run test:load:smoke   # quick sanity check (about 20s)
+   npm run test:load:stress  # includes aggressive ramp/peak behavior (spike-like)
+   npm run test:load:soak    # sustained traffic to detect degradation/leaks
+   ```
+
+3. Optionally override the target host.
+
+   ```bash
+   LOAD_TEST_BASE_URL=http://localhost:6060 npm run test:load:report
+   ```
+
+The scenarios live under [load-tests/](load-tests/) and focus on stable read-only routes such as product, category, search, and product counts.
+
+GitHub Actions runs the smoke profile automatically when `MONGO_URL` is configured as a repository secret; the stress and soak profiles are intended for manual runs.
 
 ## CL Integration
  [LINK](https://github.com/cs4218/cs4218-2520-ecom-project-cs4218-2520-team16/actions/runs/21854703681/job/63068917772)

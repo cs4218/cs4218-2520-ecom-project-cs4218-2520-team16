@@ -85,6 +85,7 @@ const localStorageMock = (() => {
 })();
 
 Object.defineProperty(window, 'localStorage', {
+  configurable: true,
   value: localStorageMock,
 });
 
@@ -667,6 +668,7 @@ describe('Checkout & Payment Integration Tests', () => {
       }, { timeout: 5000 });
 
       const paymentButton = screen.getByText('Make Payment');
+      await waitFor(() => expect(paymentButton).not.toBeDisabled(), { timeout: 5000 });
       fireEvent.click(paymentButton);
 
       await waitFor(() => {

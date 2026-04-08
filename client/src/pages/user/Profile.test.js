@@ -34,11 +34,22 @@ jest.mock('../../context/auth', () => ({
 }));
 
 Object.defineProperty(window, 'localStorage', {
-	value: {
-		setItem: jest.fn(),
-		getItem: jest.fn(),
-		removeItem: jest.fn()
-	},
+	configurable: true,
+	value: (() => {
+		let store = {};
+		return {
+			setItem: jest.fn((key, value) => {
+				store[key] = value.toString();
+			}),
+			getItem: jest.fn((key) => store[key] || null),
+			removeItem: jest.fn((key) => {
+				delete store[key];
+			}),
+			clear: jest.fn(() => {
+				store = {};
+			}),
+		};
+	})(),
 	writable: true
 });
 
