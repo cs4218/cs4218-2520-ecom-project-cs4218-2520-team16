@@ -73,10 +73,10 @@ Use this as a living checklist for the Playwright suite. The goal is to cover th
 
 ## User Dashboard
 
-- [ ] Unauthenticated user is blocked from user dashboard routes.
-- [ ] Logged-in user can open the dashboard landing page.
+- [x] Unauthenticated user is blocked from user dashboard routes.
+- [x] Logged-in user can open the dashboard landing page.
 - [x] Logged-in user can open orders page. **(userProfile.spec.js)**
-- [ ] Logged-in user can open profile page.
+- [x] Logged-in user can open profile page.
 - [x] Profile update persists and the new address is reflected in checkout. **(userProfile.spec.js)**
 - [ ] Orders page handles empty and populated order history.
 

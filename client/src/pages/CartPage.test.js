@@ -147,7 +147,11 @@ describe("CartPage", () => {
   it("should disable the payment button when loading", async () => {
     // arrange
     axios.post.mockResolvedValue({ data: {} });
-    jest.spyOn(require('braintree-web-drop-in-react'), 'default').mockImplementation(({ onInstance }) => {
+    const mockInstance = {
+      requestPaymentMethod: jest.fn().mockResolvedValue({ nonce: "mockNonce" }),
+    };
+    jest.spyOn(require("braintree-web-drop-in-react"), "default").mockImplementation(({ onInstance }) => {
+      onInstance?.(mockInstance);
       return null;
     });
     // act
@@ -158,9 +162,8 @@ describe("CartPage", () => {
     ));
     await waitFor(() => expect(axios.get).toHaveBeenCalledWith("/api/v1/product/braintree/token"));
     const payButton = screen.getByText("Make Payment");
-    await act(async () => {
-      fireEvent.click(payButton);
-    });
+    fireEvent.click(payButton);
+    await waitFor(() => expect(payButton).toBeDisabled());
     // assert
     expect(payButton).toBeDisabled();
   });

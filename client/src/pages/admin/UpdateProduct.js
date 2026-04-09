@@ -1,3 +1,5 @@
+// Wang Zihan A0266073A: Modified this file to make this page refetch product data when params.slug is available
+
 import React, { useState, useEffect } from "react";
 import Layout from "./../../components/Layout";
 import AdminMenu from "./../../components/AdminMenu";
@@ -39,9 +41,10 @@ const UpdateProduct = () => {
     }
   };
   useEffect(() => {
-    getSingleProduct();
-    //eslint-disable-next-line
-  }, []);
+    if (params?.slug) {
+      getSingleProduct();
+    }
+  }, [params?.slug]);
   //get all category
   const getAllCategory = async () => {
     try {
@@ -70,15 +73,15 @@ const UpdateProduct = () => {
       productData.append("quantity", quantity);
       photo && productData.append("photo", photo);
       productData.append("category", category);
-      const { data } = axios.put(
+      const { data } = await axios.put(
         `/api/v1/product/update-product/${id}`,
         productData
       );
       if (data?.success) {
-        toast.error(data?.message);
-      } else {
-        toast.success("Product Updated Successfully");
+        toast.success(data?.message);
         navigate("/dashboard/admin/products");
+      } else {
+        toast.error(data?.message);
       }
     } catch (error) {
       console.log(error);

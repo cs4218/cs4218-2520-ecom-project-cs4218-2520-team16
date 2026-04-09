@@ -220,8 +220,15 @@ test.describe("Product Discovery and Categories", () => {
       await searchInput.fill("xyznonexistent123");
       await page.getByRole("button", { name: /^Search$/ }).click();
 
-      // Wait for navigation and results
-      await page.waitForLoadState("domcontentloaded");
+      // Wait for SPA route transition and/or search page content.
+      await Promise.race([
+        page.waitForURL(/\/search(?:\?|$)/, { timeout: 8000 }),
+        page
+          .getByRole("heading", { name: /Search Resuts|Search Results/i })
+          .first()
+          .waitFor({ state: "visible", timeout: 8000 }),
+      ]).catch(() => {});
+
       const navigatedToSearch = page.url().includes("/search");
 
       // Should show "No Products Found" or similar message
@@ -230,10 +237,20 @@ test.describe("Product Discovery and Categories", () => {
         .first();
 
       const shown = await noResultsMsg.isVisible().catch(() => false);
+      const headingShown = await page
+        .getByRole("heading", { name: /Search Resuts|Search Results/i })
+        .first()
+        .isVisible()
+        .catch(() => false);
 
       // Either message is shown or page clearly indicates no results
       const content = await page.locator("body").textContent();
-      expect(navigatedToSearch || shown || content?.includes("Found")).toBeTruthy();
+      expect(
+        navigatedToSearch ||
+          shown ||
+          headingShown ||
+          content?.includes("No Products Found")
+      ).toBeTruthy();
     }
   });
 

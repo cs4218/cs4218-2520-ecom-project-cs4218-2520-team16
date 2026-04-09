@@ -1,3 +1,4 @@
+// Edited By Wen Han Tang A0340008W, reading error messages and adding more rigorous error checks in categoryController.js, and adding regression tests in categoryController.test.js
 import categoryModel from "../models/categoryModel.js";
 import slugify from "slugify";
 export const createCategoryController = async (req, res) => {
@@ -26,7 +27,7 @@ export const createCategoryController = async (req, res) => {
     console.log(error);
     res.status(500).send({
       success: false,
-      errro,
+      error,
       message: "Errro in Category",
     });
   }

@@ -1,0 +1,50 @@
+# Created By Wen Han Tang With Help From ChatGPT A0340008W
+config:
+  target: "http://localhost:6060"
+  phases:
+    - duration: 30
+      arrivalRate: 1
+      rampTo: 5
+      name: warm-up
+    - duration: 60
+      arrivalRate: 5
+      name: baseline-load
+    - duration: 30
+      arrivalRate: 5
+      rampTo: 8
+      name: ramp-up
+    - duration: 60
+      arrivalRate: 8
+      name: sustained-load
+  defaults:
+    headers:
+      Accept: application/json
+
+scenarios:
+  - name: browse-public-catalog
+    weight: 8
+    flow:
+      - get:
+          url: /api/v1/product/get-product
+          expect:
+            - statusCode: 200
+      - get:
+          url: /api/v1/category/get-category
+          expect:
+            - statusCode: 200
+      - get:
+          url: /api/v1/product/product-list/1
+          expect:
+            - statusCode: 200
+      - get:
+          url: /api/v1/product/product-count
+          expect:
+            - statusCode: 200
+
+  - name: search-catalog
+    weight: 2
+    flow:
+      - get:
+          url: /api/v1/product/search/shoe
+          expect:
+            - statusCode: 200

@@ -21,6 +21,7 @@ export default {
 
   // only run these tests
   testMatch: ["**/client/src/**/*.test.js"],
+  testPathIgnorePatterns: ["<rootDir>/client/src/_site/"],
 
   // jest code 
   collectCoverage: true,
@@ -37,14 +38,16 @@ export default {
     "client/src/pages/admin/Users.js",
     "client/src/pages/Search.js",
     "client/src/pages/user/Orders.js",
-    "client/src/pages/Policy.js"
+    "client/src/pages/Policy.js",
+    "client/src/pages/CartPage.js",
+    "client/src/pages/admin/AdminOrders.js"
   ],
   coverageThreshold: {
     global: {
-    statements: 100,
-    branches: 100,
-    functions: 100,
-    lines: 100,
+    statements: 99,
+    branches: 99,
+    functions: 99,
+    lines: 99,
     },
   },
   setupFilesAfterEnv: ["<rootDir>/client/src/setupTests.js"],

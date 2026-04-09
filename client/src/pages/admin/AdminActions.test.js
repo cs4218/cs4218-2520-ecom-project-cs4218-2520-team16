@@ -1,7 +1,7 @@
 // Written by Roger Yao (A0340029N) with the help of Copilot.
 
 import React from "react";
-import { render, screen, waitFor, act } from "@testing-library/react";
+import { render, screen, waitFor, act, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -74,8 +74,9 @@ jest.mock("antd", () => {
 
   MockSelect.Option = MockOption;
 
-  const MockModal = ({ visible, children }) => {
-    if (!visible) return null;
+  const MockModal = ({ open, visible, children }) => {
+    const isOpen = open ?? visible;
+    if (!isOpen) return null;
     return <div data-testid="modal">{children}</div>;
   };
 
@@ -172,7 +173,7 @@ describe("AdminActions - CreateProduct", () => {
     axios.get.mockResolvedValue({
       data: { success: true, category: [{ _id: "cat-1", name: "Category One" }] },
     });
-    axios.post.mockResolvedValue({ data: { success: true } });
+    axios.post.mockResolvedValue({ data: { success: true, message: "Product Created Successfully" } });
 
     // Act
     await act(async () => {
@@ -208,8 +209,8 @@ describe("AdminActions - CreateProduct", () => {
   test("shows error toast when create fails", async () => {
     // Arrange
     axios.get.mockResolvedValue({ data: { success: true, category: [] } });
-    axios.post.mockReturnValue({
-      data: { success: true, message: "Create failed" },
+    axios.post.mockResolvedValue({
+      data: { success: false, message: "Create failed" },
     });
 
     // Act
@@ -347,7 +348,7 @@ describe("AdminActions - UpdateProduct", () => {
   test("updates product and navigates on success", async () => {
     // Arrange
     axios.get.mockImplementation(mockGet);
-    axios.put.mockResolvedValue({ data: { success: true } });
+    axios.put.mockResolvedValue({ data: { success: true, message: "Product Updated Successfully" } });
 
     // Act
     await act(async () => {
@@ -373,8 +374,8 @@ describe("AdminActions - UpdateProduct", () => {
   test("shows error toast when update fails", async () => {
     // Arrange
     axios.get.mockImplementation(mockGet);
-    axios.put.mockReturnValue({
-      data: { success: true, message: "Update failed" },
+    axios.put.mockResolvedValue({
+      data: { success: false, message: "Update failed" },
     });
 
     // Act
@@ -557,7 +558,7 @@ describe("AdminActions - CreateCategory", () => {
     const modalInput = inputs[inputs.length - 1];
     await userEvent.clear(modalInput);
     await userEvent.type(modalInput, "Updated Category");
-    await userEvent.click(screen.getAllByRole("button", { name: "Submit" })[1]);
+    fireEvent.click(screen.getAllByRole("button", { name: "Submit" })[1]);
 
     // Assert
     await waitFor(() => {
@@ -613,7 +614,7 @@ describe("AdminActions - CreateCategory", () => {
     });
 
     await userEvent.click(screen.getByRole("button", { name: "Edit" }));
-    await userEvent.click(screen.getAllByRole("button", { name: "Submit" })[1]);
+    fireEvent.click(screen.getAllByRole("button", { name: "Submit" })[1]);
 
     // Assert
     await waitFor(() => {

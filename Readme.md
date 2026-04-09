@@ -16,7 +16,7 @@ Virtual Vault is a full-stack MERN (MongoDB, Express.js, React.js, Node.js) e-co
 - **Unit and Integration Testing**: Utilize Jest for writing and running tests to ensure individual components and functions work as expected, finding and fixing bugs in the process.
 - **UI Testing**: Utilize Playwright for UI testing to validate the behavior and appearance of the website's user interface.
 - **Code Analysis and Coverage**: Utilize SonarQube for static code analysis and coverage reports to maintain code quality and identify potential issues.
-- **Load Testing**: Leverage JMeter for load testing to assess the performance and scalability of the ecommerce platform under various traffic conditions.
+- **Load Testing**: Use the checked-in Artillery scenario to assess the performance and scalability of the ecommerce platform under various traffic conditions.
 
 ## 4. Setting Up The Project
 
@@ -144,6 +144,77 @@ To begin unit testing with Jest in your project, follow these steps:
      ```bash
      npm run test
      ```
+
+## 6. SonarQube Report Generation
+
+Use this workflow to generate a code-quality report with test coverage:
+
+1. **Start SonarQube locally**
+
+   If you have Docker installed:
+
+   ```bash
+   docker run -d --name sonarqube -p 9000:9000 sonarqube:lts-community
+   ```
+
+   Then open `http://localhost:9000`, complete first-time setup, and create a token.
+
+2. **Export your Sonar token**
+
+   ```bash
+   export SONAR_TOKEN=<your_token_here>
+   ```
+
+3. **Generate coverage + run Sonar scan**
+
+   ```bash
+   npm run sonar:report
+   ```
+
+   This command will:
+   - run Jest coverage using both backend and frontend Jest projects
+   - output coverage to `coverage/lcov.info`
+   - submit analysis to SonarQube using `sonar-project.properties`
+
+4. **View report**
+
+   Open your project in SonarQube dashboard at `http://localhost:9000`.
+
+## 7. Load Testing
+
+This repository includes a lightweight Artillery scenario that exercises the public catalog endpoints.
+
+1. Start the backend so it can answer requests.
+
+   ```bash
+   npm run server
+   ```
+
+2. Run the default load test.
+
+   ```bash
+   npm run test:load
+   ```
+
+   The default profile is a load test (gradual ramp + sustained steady phases), not a spike test.
+
+   Other useful profiles:
+
+   ```bash
+   npm run test:load:smoke   # quick sanity check (about 20s)
+   npm run test:load:stress  # includes aggressive ramp/peak behavior (spike-like)
+   npm run test:load:soak    # sustained traffic to detect degradation/leaks
+   ```
+
+3. Optionally override the target host.
+
+   ```bash
+   LOAD_TEST_BASE_URL=http://localhost:6060 npm run test:load:report
+   ```
+
+The scenarios live under [load-tests/](load-tests/) and focus on stable read-only routes such as product, category, search, and product counts.
+
+GitHub Actions runs the smoke profile automatically when `MONGO_URL` is configured as a repository secret; the stress and soak profiles are intended for manual runs.
 
 ## CL Integration
  [LINK](https://github.com/cs4218/cs4218-2520-ecom-project-cs4218-2520-team16/actions/runs/21854703681/job/63068917772)
@@ -305,3 +376,83 @@ Frontend integration suite:
 - `spike-tests/requirements.txt` — Locust dependency specification
 - `spike-tests/Locust_spike_test.png` — Screenshot of Locust statistics (all endpoints, p50/p95/p99, 0% failure rate at 94 RPS)
 - `spike-tests/Locust_Chart.png` — Screenshot of Locust charts (RPS over time, response time trends, user count ramp)
+## Roger Yuzhe Yao (A0340029N)
+
+**Integration Tests Written (Top-Down Approach)** 
+Backend integration suite:
+- File: `client/src/integration/CreateProduct.integration.test.js`
+- 17 total tests
+- Scenarios Covered:
+   - Form setup and rendering 
+   - File upload and preview
+   - Form input and validation.
+
+- File: `client/src/integration/UpdateProduct.integration.test.js`
+- 33 total tests
+- Scenarios covered:
+   - Form setup and Loading
+   - Form pre-population with existing data
+   - photo update functionality
+
+- File: `client/src/integration/Products.test.js`
+- 21 total tests
+- Scenarios covered:
+   - Basic Rendering
+   - Handle multiple products
+   - Display product image with correct endpoint
+
+**Ui Tests**
+- `tests/ui/userDashboard.spec.js` — User journey: Unauthenticated user is blocked from accessing dashboard routes and redirected to login. 8 total tests.
+
+
+**Bug Fixes**
+- Added await to both `axios.post()` in `CreateProduct.js` and `axios.put()` in `UpdateProduct.js`
+- Fixed the inverted success/error logic in both components
+
+**Unit Test Updates**
+- `AdminActions.test.js` - Updated mock responses to include `message` field, changed `mockReturnValue` to `mockResolvedValue` for async operations
+
+## Wang Zihan (A0266073A)
+### Bugs found and fixed
+ - Missing `/forgot-password` page. Clicking "forgot password" button in login page will navigate to 404
+   - Fix: added a reset password page and its route in the client
+   - `./client/src/pages/Auth/ForgotPassword.js`
+  - Order page does not show a message when the order list is empty
+    - added a message when there is no product in the order
+  - CategoryProduct.js does not show a message when there is no products in a category
+    - added a message when there is no product in the category
+  - made admin update product page made refetch product data when params.slug is available
+  - in the login page `pages/Auth/Login.js`, fixed the redirect bug where cart checkout passed state: `/cart` but login only handled `state.from`
+  - Files modified for fixing bugs:
+    - `client/src/pages/Auth/ForgotPassword.js`
+    - `client/src/App.js`
+    - `client/src/pages/CategoryProduct.js`
+    - `client/src/pages/Contact.js`
+    - `client/src/pages/admin/UpdateProduct.js`
+    - `client/src/pages/user/Orders.js`
+    - `client/src/pages/Auth/Login.js`
+### Integration Tests:
+#### Route test
+ - These route tests verify that Express routes are wired correctly to the right controllers, path params, and response flow. They are in `integration/integration-test-route.test.js`. There are 21 route test cases.
+ - These tests are using a top-down approach, starting from the higher-level Express router entry point, and flows into the real controllers.
+#### Edge case integration test
+ - Added file `./client/src/integration/integration-test-edge-case.js` to identify and fill the testing gaps and edge cases that the group mates' integration tests don't cover. There are 3 filled gaps and there are also bugs about redirection found within the gaps (mentioned above), and 2 test cases (last two in the list) to test for the bug fix:
+   - guest checkout login returns the user to cart with cart contents intact
+   - search API failure still navigates to search page and shows the empty state
+   - failed payment keeps the cart and does not navigate away from cart
+   - login redirects to the route stored in location.state.from after a successful login
+   - login falls back to the home page when no redirect state is provided
+ - These tests are using a top-down approach, starting with UI harness and goes down to the backend logic.
+### UI Tests
+I wrote 9 UI test cases, focused on edge cases in real user journeys.
+Files (in `./tests/ui`):
+ - `admin-category.spec.js` tests for admin editing and deleting categories
+ - `admin-category-empty-state.spec.js` tests for a newly created empty category shows the empty message in admin view
+ - `forgot-password.spec.js` tests the user journey of `click reset password in login page -> reset password -> login again with new password`
+ - `login-redirect-from-cart.spec.js` tests the user journey of `guest checkout -> login -> back to cart`
+ - `profile-page-address-propagation.spec.js` tests the user journey of `update address in profile -> navigate to cart page -> see updated address in cart page`
+ - `admin-update-product-page.spec.js` tests the admin can open the update product page from the products list
+ - `user-orders-history-empty-state.spec.js` tests the bug fix of showing empty message when the order is empty
+ - `contact.spec.js` tests for `/contact` working well
+ - `presist-search-result.spec.js` tests for adding to cart from search results persists after a refresh
+

@@ -1,0 +1,39 @@
+# Created By Wen Han Tang With Help From ChatGPT A0340008W
+config:
+  target: "http://localhost:6060"
+  phases:
+    - duration: 60
+      arrivalRate: 2
+      rampTo: 8
+      name: warm-up
+    - duration: 900
+      arrivalRate: 8
+      name: soak
+  defaults:
+    headers:
+      Accept: application/json
+
+scenarios:
+  - name: soak-browse-catalog
+    weight: 8
+    flow:
+      - get:
+          url: /api/v1/product/get-product
+          expect:
+            - statusCode: 200
+      - get:
+          url: /api/v1/category/get-category
+          expect:
+            - statusCode: 200
+      - get:
+          url: /api/v1/product/product-list/1
+          expect:
+            - statusCode: 200
+
+  - name: soak-search-catalog
+    weight: 2
+    flow:
+      - get:
+          url: /api/v1/product/search/shoe
+          expect:
+            - statusCode: 200

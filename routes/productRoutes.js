@@ -1,3 +1,4 @@
+// Bug Fixed By Wen Han Tang With Help From ChatGPT A0340008W
 import express from "express";
 import {
   brainTreePaymentController,
@@ -16,6 +17,7 @@ import {
   updateProductController,
 } from "../controllers/productController.js";
 import { isAdmin, requireSignIn } from "../middlewares/authMiddleware.js";
+import { responseCache } from "../middlewares/responseCacheMiddleware.js";
 import formidable from "express-formidable";
 
 const router = express.Router();
@@ -38,7 +40,7 @@ router.put(
 );
 
 //get products
-router.get("/get-product", getProductController);
+router.get("/get-product", responseCache(15), getProductController);
 
 //single product
 router.get("/get-product/:slug", getSingleProductController);
@@ -53,13 +55,13 @@ router.delete("/delete-product/:pid", deleteProductController);
 router.post("/product-filters", productFiltersController);
 
 //product count
-router.get("/product-count", productCountController);
+router.get("/product-count", responseCache(15), productCountController);
 
 //product per page
-router.get("/product-list/:page", productListController);
+router.get("/product-list/:page", responseCache(15), productListController);
 
 //search product
-router.get("/search/:keyword", searchProductController);
+router.get("/search/:keyword", responseCache(10), searchProductController);
 
 //similar product
 router.get("/related-product/:pid/:cid", realtedProductController);

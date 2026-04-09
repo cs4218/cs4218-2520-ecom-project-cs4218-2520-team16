@@ -29,12 +29,25 @@ jest.mock('../context/search', () => ({
 }));
 
 // Mock localStorage
+const localStorageMock = (() => {
+  let store = {};
+  return {
+    setItem: jest.fn((key, value) => {
+      store[key] = value.toString();
+    }),
+    getItem: jest.fn((key) => store[key] || null),
+    removeItem: jest.fn((key) => {
+      delete store[key];
+    }),
+    clear: jest.fn(() => {
+      store = {};
+    }),
+  };
+})();
+
 Object.defineProperty(window, 'localStorage', {
-  value: {
-    setItem: jest.fn(),
-    getItem: jest.fn(),
-    removeItem: jest.fn(),
-  },
+  configurable: true,
+  value: localStorageMock,
   writable: true,
 });
 

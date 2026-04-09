@@ -1,0 +1,31 @@
+# Created By Wen Han Tang With Help From ChatGPT A0340008W
+config:
+  target: "http://localhost:6060"
+  phases:
+    - duration: 20
+      arrivalRate: 1
+      rampTo: 3
+      name: smoke
+  defaults:
+    headers:
+      Accept: application/json
+
+scenarios:
+  - name: smoke-browse-and-search
+    flow:
+      - get:
+          url: /api/v1/product/get-product
+          expect:
+            - statusCode: 200
+      - get:
+          url: /api/v1/category/get-category
+          expect:
+            - statusCode: 200
+      - get:
+          url: /api/v1/product/product-count
+          expect:
+            - statusCode: 200
+      - get:
+          url: /api/v1/product/search/shoe
+          expect:
+            - statusCode: 200
