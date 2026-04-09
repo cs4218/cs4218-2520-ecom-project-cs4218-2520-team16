@@ -1,0 +1,35 @@
+# search-keywords.csv - Roger Yao, A0340029N
+# Diverse keywords chosen to minimise cache hits (10s TTL on search route).
+# Mix of common terms, partial words, and unlikely strings to stress
+# both matching and non-matching MongoDB full-text query paths.
+keyword
+shirt
+shoe
+book
+laptop
+phone
+jacket
+watch
+headphones
+camera
+tablet
+running
+cotton
+leather
+wireless
+bluetooth
+gaming
+sport
+winter
+summer
+casual
+novel
+fiction
+charger
+keyboard
+mouse
+backpack
+sneaker
+dress
+jeans
+hoodie

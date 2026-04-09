@@ -1,0 +1,10 @@
+# page-numbers.csv - Roger Yao, A0340029N
+# Pages 1-5 are cycled to vary cache hits on the 15s response cache.
+# Requests to different page numbers will each have independent cache entries,
+# increasing the chance of cache-miss stampedes under high concurrency.
+page
+1
+2
+3
+4
+5
