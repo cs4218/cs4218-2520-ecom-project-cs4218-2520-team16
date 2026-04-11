@@ -40,22 +40,6 @@ jest.mock("../components/Prices", () => ({
   ],
 }));
 
-jest.mock("braintree-web-drop-in-react", () => {
-  // jest.mock factories are hoisted before imports so React is out of scope;
-  // use require() with a mock-prefixed name which jest permits
-  const mockReact = require("react");
-  return function MockDropIn({ onInstance }) {
-    mockReact.useEffect(() => {
-      onInstance({
-        requestPaymentMethod: jest
-          .fn()
-          .mockResolvedValue({ nonce: "fake-nonce" }),
-      });
-    }, []); // empty deps: fire once on mount to avoid infinite loop from inline onInstance prop
-    return mockReact.createElement("div", { "data-testid": "dropin" }, "Payment Form");
-  };
-});
-
 jest.mock("antd", () => {
   const Checkbox = ({ children, onChange }) => (
     <label>
