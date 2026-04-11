@@ -24,7 +24,10 @@
     "test:ui:ci": "playwright test --reporter=line --max-failures=10",
     "test:ui:headed": "playwright test --headed",
     "test:ui:debug": "playwright test --debug",
-    "test:ui:report": "playwright show-report"
+    "test:ui:report": "playwright show-report",
+    "test:soak:extended": "node soak-tests/run-extended-soak.mjs",
+    "test:soak:analyze": "node soak-tests/analyze-soak.js",
+    "report:soak": "node soak-tests/generate-ms3-report.mjs"
   },
   "keywords": [],
   "author": "RP",
