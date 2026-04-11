@@ -34,26 +34,6 @@ jest.mock("../components/Layout", () => ({
   default: ({ children }) => <div data-testid="layout">{children}</div>,
 }));
 
-jest.mock(
-  "braintree-web-drop-in-react",
-  () => {
-    const React = require("react");
-
-    return function MockDropIn({ onInstance }) {
-      React.useEffect(() => {
-        onInstance({
-          requestPaymentMethod: jest
-            .fn()
-            .mockResolvedValue({ nonce: "fake-nonce" }),
-        });
-      }, []);
-
-      return <div data-testid="dropin">Mock DropIn</div>;
-    };
-  },
-  { virtual: true }
-);
-
 function LocationDisplay() {
   const location = useLocation();
   return <div data-testid="location">{location.pathname}</div>;

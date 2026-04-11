@@ -13,7 +13,8 @@ import { BrowserRouter as Router } from "react-router-dom";
 import axios from "axios";
 import { act } from "react-dom/test-utils";
 import toast from "react-hot-toast";
-import DropIn from 'braintree-web-drop-in-react'
+
+const { mockRequestPaymentMethod } = require("braintree-web-drop-in-react");
 
 jest.mock("../context/auth");
 jest.mock("../context/cart");
@@ -112,60 +113,56 @@ describe("CartPage", () => {
     expect(screen.getByText("Your Cart Is Empty")).toBeInTheDocument();
   });
 
-  it("should correctly handle payment", async () => {
-    // arrange
-    const mockInstance = {
-      requestPaymentMethod: jest.fn().mockResolvedValue({ nonce: "mockNonce" })
-    };
-
-    jest.spyOn(require('braintree-web-drop-in-react'), 'default').mockImplementation(({ onInstance }) => {
-      onInstance(mockInstance);
-      return null;
+  describe("payment", () => {
+    beforeEach(() => {
+      mockRequestPaymentMethod.mockReset();
+      mockRequestPaymentMethod.mockResolvedValue({ nonce: "mockNonce" });
     });
 
-    // act
-    await act(async () => {
-      render(
-        <Router>
-          <CartPage />
-        </Router>
+    it("should correctly handle payment", async () => {
+      await act(async () => {
+        render(
+          <Router>
+            <CartPage />
+          </Router>
+        );
+      });
+
+      await waitFor(() => expect(axios.get).toHaveBeenCalled());
+      const payButton = screen.getByText("Make Payment");
+      await waitFor(() => expect(payButton).not.toBeDisabled());
+
+      await act(async () => {
+        fireEvent.click(payButton);
+      });
+
+      await waitFor(() => {
+        expect(axios.post).toHaveBeenCalledWith("/api/v1/product/braintree/payment", {
+          nonce: "mockNonce",
+          cart: [{ _id: "1", name: "Item 1", price: 100, description: "Item description" }],
+        });
+      });
+
+      await waitFor(() => {
+        expect(toast.success).toHaveBeenCalledWith("Payment Completed Successfully ");
+      });
+    });
+
+    it("should disable the payment button when loading", async () => {
+      axios.post.mockResolvedValue({ data: {} });
+      await act(async () =>
+        render(
+          <Router>
+            <CartPage />
+          </Router>
+        )
       );
+      await waitFor(() => expect(axios.get).toHaveBeenCalledWith("/api/v1/product/braintree/token"));
+      const payButton = screen.getByText("Make Payment");
+      fireEvent.click(payButton);
+      await waitFor(() => expect(payButton).toBeDisabled());
+      expect(payButton).toBeDisabled();
     });
-
-    await waitFor(() => expect(axios.get).toHaveBeenCalled());
-    const payButton = screen.getByText("Make Payment");
-    await expect(payButton).not.toBeDisabled();
-    await fireEvent.click(payButton);
-    // assert
-    await expect(axios.post).toHaveBeenCalledWith("/api/v1/product/braintree/payment", {
-      nonce: "mockNonce",
-      cart: [{ _id: "1", name: "Item 1", price: 100, description: "Item description" }]
-    });
-    expect(toast.success).toHaveBeenCalledWith("Payment Completed Successfully ");
-  });
-
-  it("should disable the payment button when loading", async () => {
-    // arrange
-    axios.post.mockResolvedValue({ data: {} });
-    const mockInstance = {
-      requestPaymentMethod: jest.fn().mockResolvedValue({ nonce: "mockNonce" }),
-    };
-    jest.spyOn(require("braintree-web-drop-in-react"), "default").mockImplementation(({ onInstance }) => {
-      onInstance?.(mockInstance);
-      return null;
-    });
-    // act
-    await act(async () =>render(
-      <Router>
-        <CartPage />
-      </Router>
-    ));
-    await waitFor(() => expect(axios.get).toHaveBeenCalledWith("/api/v1/product/braintree/token"));
-    const payButton = screen.getByText("Make Payment");
-    fireEvent.click(payButton);
-    await waitFor(() => expect(payButton).toBeDisabled());
-    // assert
-    expect(payButton).toBeDisabled();
   });
 
 });
