@@ -201,9 +201,9 @@ This repository includes a lightweight Artillery scenario that exercises the pub
    Other useful profiles:
 
    ```bash
-   npm run test:load:smoke   # quick sanity check (about 20s)
-   npm run test:load:stress  # includes aggressive ramp/peak behavior (spike-like)
-   npm run test:load:soak    # sustained traffic to detect degradation/leaks
+   npm run test:load:smoke      # quick sanity check (about 20s)
+   npm run test:load:varied     # includes aggressive ramp/peak behavior (spike-like)
+   npm run test:load:sustained  # sustained traffic to detect degradation/leaks
    ```
 
 3. Optionally override the target host.
@@ -376,6 +376,41 @@ Frontend integration suite:
 - `spike-tests/requirements.txt` — Locust dependency specification
 - `spike-tests/Locust_spike_test.png` — Screenshot of Locust statistics (all endpoints, p50/p95/p99, 0% failure rate at 94 RPS)
 - `spike-tests/Locust_Chart.png` — Screenshot of Locust charts (RPS over time, response time trends, user count ramp)
+
+## Wen Han Tang (A0340008W)
+Load testing setup and profiles:
+
+- Added Artillery and scripts in package.json
+- Added lockfile updates for dependencies in package-lock.json
+- Added default load profile in public-catalog-load-test.yml
+- Added smoke profile in public-catalog-smoke-load-test.yml
+- Added varied profile in public-catalog-varied-load-test.yml
+- Added sustained profile in public-catalog-sustained-load-test.yml
+- Default load profile was later adjusted from spike-style to smoother ramp + sustained phases for consistency.
+
+CI workflow changes:
+
+- Updated workflow in main.yml
+- Added load-test smoke job integration
+- Reworked secret-gating logic to avoid invalid workflow expression errors and conditionally run smoke steps safely.
+- Security/secret hygiene
+Backend bug fixes and regression tests:
+
+- Category controller fix in categoryController.js
+- Product controller hardening in productController.js through throwing error codes
+New/updated controller tests:
+
+- categoryController.test.js
+- productController.test.js
+UI test stability improvements:
+
+- Auth flow stabilization in auth.spec.js
+- Product discovery flaky search-state fix in product-discovery.spec.js
+Documentation updates:
+
+- Load testing instructions and profile intent updated in Readme.md
+- Contribution attribution in readme
+
 ## Roger Yuzhe Yao (A0340029N)
 
 **Integration Tests Written (Top-Down Approach)** 
