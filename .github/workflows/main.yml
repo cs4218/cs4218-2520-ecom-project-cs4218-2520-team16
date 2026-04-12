@@ -29,11 +29,10 @@ jobs:
         run: | 
           cd client
           npm install
-      # Single process + larger heap: parallel Jest workers multiply memory on the runner
-      # and get SIGTERM on OOM, which skips suites and fails global coverage thresholds.
+      # runInBand + coverage + jsdom needs >4GB; ubuntu-latest has ~7GB RAM total.
       - name: Run Jest Tests
         env:
-          NODE_OPTIONS: --max-old-space-size=4096
+          NODE_OPTIONS: --max-old-space-size=6144
         run: npm run test:frontend -- --runInBand
 
       - name: Install Playwright Browsers
