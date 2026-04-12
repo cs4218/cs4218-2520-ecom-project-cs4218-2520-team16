@@ -365,52 +365,6 @@ Frontend integration suite:
    - auth/cart restoration from `localStorage` and logout behavior
    - search flow from Header input to API call, route navigation, and result rendering from search context
 
-# MS3 Work Allocation
-
-## Xiao Ao (A0233705L)
-
-**Non-Functional Testing — Spike Testing (Locust)**
-- `spike-tests/locustfile.py` — Locust spike test scenarios simulating a sudden surge of 200 concurrent users (0 → 200 in 10s, hold 60s, drop to 0)
-  - `ProductBrowsingUser` class: product listing, product count, product search, category browsing
-  - `AuthAndCheckoutUser` class: user login, Braintree payment token retrieval
-- `spike-tests/requirements.txt` — Locust dependency specification
-- `spike-tests/Locust_spike_test.png` — Screenshot of Locust statistics (all endpoints, p50/p95/p99, 0% failure rate at 94 RPS)
-- `spike-tests/Locust_Chart.png` — Screenshot of Locust charts (RPS over time, response time trends, user count ramp)
-
-## Wen Han Tang (A0340008W)
-Load testing setup and profiles:
-
-- Added Artillery and scripts in package.json
-- Added lockfile updates for dependencies in package-lock.json
-- Added default load profile in public-catalog-load-test.yml
-- Added smoke profile in public-catalog-smoke-load-test.yml
-- Added varied profile in public-catalog-varied-load-test.yml
-- Added sustained profile in public-catalog-sustained-load-test.yml
-- Default load profile was later adjusted from spike-style to smoother ramp + sustained phases for consistency.
-
-CI workflow changes:
-
-- Updated workflow in main.yml
-- Added load-test smoke job integration
-- Reworked secret-gating logic to avoid invalid workflow expression errors and conditionally run smoke steps safely.
-- Security/secret hygiene
-Backend bug fixes and regression tests:
-
-- Category controller fix in categoryController.js
-- Product controller hardening in productController.js through throwing error codes
-New/updated controller tests:
-
-- categoryController.test.js
-- productController.test.js
-UI test stability improvements:
-
-- Auth flow stabilization in auth.spec.js
-- Product discovery flaky search-state fix in product-discovery.spec.js
-Documentation updates:
-
-- Load testing instructions and profile intent updated in Readme.md
-- Contribution attribution in readme
-
 ## Roger Yuzhe Yao (A0340029N)
 
 **Integration Tests Written (Top-Down Approach)** 
@@ -491,3 +445,68 @@ Files (in `./tests/ui`):
  - `contact.spec.js` tests for `/contact` working well
  - `presist-search-result.spec.js` tests for adding to cart from search results persists after a refresh
 
+# MS3 Work Allocation
+
+## Xiao Ao (A0233705L)
+
+**Non-Functional Testing — Spike Testing (Locust)**
+- `spike-tests/locustfile.py` — Locust spike test scenarios simulating a sudden surge of 200 concurrent users (0 → 200 in 10s, hold 60s, drop to 0)
+  - `ProductBrowsingUser` class: product listing, product count, product search, category browsing
+  - `AuthAndCheckoutUser` class: user login, Braintree payment token retrieval
+- `spike-tests/requirements.txt` — Locust dependency specification
+- `spike-tests/Locust_spike_test.png` — Screenshot of Locust statistics (all endpoints, p50/p95/p99, 0% failure rate at 94 RPS)
+- `spike-tests/Locust_Chart.png` — Screenshot of Locust charts (RPS over time, response time trends, user count ramp)
+
+## Wen Han Tang (A0340008W)
+Load testing setup and profiles:
+
+- Added Artillery and scripts in package.json
+- Added lockfile updates for dependencies in package-lock.json
+- Added default load profile in public-catalog-load-test.yml
+- Added smoke profile in public-catalog-smoke-load-test.yml
+- Added varied profile in public-catalog-varied-load-test.yml
+- Added sustained profile in public-catalog-sustained-load-test.yml
+- Default load profile was later adjusted from spike-style to smoother ramp + sustained phases for consistency.
+
+CI workflow changes:
+
+- Updated workflow in main.yml
+- Added load-test smoke job integration
+- Reworked secret-gating logic to avoid invalid workflow expression errors and conditionally run smoke steps safely.
+- Security/secret hygiene
+Backend bug fixes and regression tests:
+
+- Category controller fix in categoryController.js
+- Product controller hardening in productController.js through throwing error codes
+New/updated controller tests:
+
+- categoryController.test.js
+- productController.test.js
+UI test stability improvements:
+
+- Auth flow stabilization in auth.spec.js
+- Product discovery flaky search-state fix in product-discovery.spec.js
+Documentation updates:
+
+- Load testing instructions and profile intent updated in Readme.md
+- Contribution attribution in readme
+
+## Roger Yuzhe Yao (A0340029N)
+
+**Non-Functional Testing — Stress Testing (Apache JMeter 5.6.3)**
+- `load-tests/jmeter/stress-test-RogerYao-A0340029N.jmx` — JMeter test plan with 4 parallel thread groups, each stress-testing a different endpoint by ramping concurrency to peak load (up to 500 virtual users) and holding it to find the breaking point:
+  - `TG1 — Login Stress`: `POST /api/v1/auth/login` — ramps to 500 concurrent users; tests bcrypt + JWT throughput under CPU saturation; assertions: HTTP 200, `"success":true` in body, response time < 2,000 ms
+  - `TG2 — Product List Stress`: `GET /api/v1/product/product-list/:page` — ramps to 400 concurrent users; varies page parameter via CSV to stress both cached and cache-miss paths; assertions: HTTP 200, response time < 3,000 ms
+  - `TG3 — Product Search Stress`: `GET /api/v1/product/search/:keyword` — ramps to 350 concurrent users; uses 30 diverse keywords via CSV to maximise cache misses and MongoDB `$regex` collection scans; assertions: not HTTP 500, response time < 3,000 ms
+  - `TG4 — Product Filters Stress`: `POST /api/v1/product/product-filters` — ramps to 300 concurrent users; no caching on this route; broad price filter `[0, 9999]` maximises DB query result size; assertions: HTTP 200, response time < 3,000 ms
+
+- `load-tests/jmeter/data/login-credentials.csv` — 20 rotating test user accounts for TG1 (seed in MongoDB before running)
+- `load-tests/jmeter/data/search-keywords.csv` — 30 diverse keywords for TG3 to distribute and diversify search queries
+- `load-tests/jmeter/data/page-numbers.csv` — page values 1–5 for TG2 to vary pagination cache keys
+
+- `load-tests/jmeter/STRESS_TEST_REPORT_RogerYao_A0340029N.md` — 3-page stress testing report covering:
+  - Test approach: rationale for stress testing, JMeter tool choice, endpoint selection, and load shape design
+  - Test statistics: per-phase tables (p50/p90/p95/p99, throughput, error rate, bytes/response) for all 4 thread groups; cross-endpoint summary
+  - Two significant bugs found:
+    1. `productFiltersController` returns full documents including binary `photo` Buffer data (no `.select("-photo")`, no `.lean()`, no `.limit()`), causing server heap exhaustion and 38.6% error rate at peak
+    2. `responseCacheMiddleware.js` in-memory `Map` cache has no size cap and no active eviction, causing unbounded memory growth under sustained load
