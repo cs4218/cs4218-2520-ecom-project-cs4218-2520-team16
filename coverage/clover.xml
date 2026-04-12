@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1775572543387" clover="3.2.0">
-  <project timestamp="1775572543388" name="All files">
+<coverage generated="1776005890799" clover="3.2.0">
+  <project timestamp="1776005890799" name="All files">
     <metrics statements="205" coveredstatements="204" conditionals="118" coveredconditionals="117" methods="61" coveredmethods="61" elements="384" coveredelements="382" complexity="0" loc="205" ncloc="205" packages="6" files="12" classes="12"/>
     <package name="components">
       <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
@@ -33,20 +33,20 @@
       <file name="CartPage.js" path="/Users/Edwin_1/Desktop/cs4218-2520-ecom-project-cs4218-2520-team16/client/src/pages/CartPage.js">
         <metrics statements="51" coveredstatements="50" conditionals="28" coveredconditionals="27" methods="14" coveredmethods="14"/>
         <line num="18" count="4" type="stmt"/>
-        <line num="19" count="130" type="stmt"/>
-        <line num="20" count="129" type="stmt"/>
-        <line num="21" count="129" type="stmt"/>
-        <line num="22" count="127" type="stmt"/>
-        <line num="23" count="127" type="stmt"/>
-        <line num="24" count="127" type="stmt"/>
-        <line num="27" count="127" type="stmt"/>
-        <line num="28" count="127" type="stmt"/>
-        <line num="29" count="127" type="stmt"/>
-        <line num="30" count="127" type="stmt"/>
-        <line num="31" count="176" type="stmt"/>
-        <line num="33" count="127" type="stmt"/>
+        <line num="19" count="125" type="stmt"/>
+        <line num="20" count="124" type="stmt"/>
+        <line num="21" count="124" type="stmt"/>
+        <line num="22" count="122" type="stmt"/>
+        <line num="23" count="122" type="stmt"/>
+        <line num="24" count="122" type="stmt"/>
+        <line num="27" count="122" type="stmt"/>
+        <line num="28" count="122" type="stmt"/>
+        <line num="29" count="122" type="stmt"/>
+        <line num="30" count="122" type="stmt"/>
+        <line num="31" count="172" type="stmt"/>
+        <line num="33" count="122" type="stmt"/>
         <line num="38" count="1" type="stmt"/>
-        <line num="42" count="127" type="stmt"/>
+        <line num="42" count="122" type="stmt"/>
         <line num="43" count="7" type="stmt"/>
         <line num="44" count="7" type="stmt"/>
         <line num="45" count="7" type="stmt"/>
@@ -55,34 +55,34 @@
         <line num="48" count="6" type="stmt"/>
         <line num="49" count="5" type="stmt"/>
         <line num="51" count="1" type="stmt"/>
-        <line num="56" count="127" type="stmt"/>
-        <line num="57" count="54" type="stmt"/>
-        <line num="58" count="54" type="stmt"/>
-        <line num="59" count="52" type="stmt"/>
+        <line num="56" count="122" type="stmt"/>
+        <line num="57" count="53" type="stmt"/>
+        <line num="58" count="53" type="stmt"/>
+        <line num="59" count="51" type="stmt"/>
         <line num="61" count="2" type="stmt"/>
-        <line num="64" count="127" type="stmt"/>
-        <line num="65" count="54" type="stmt"/>
-        <line num="69" count="127" type="stmt"/>
-        <line num="70" count="13" type="cond" truecount="3" falsecount="1"/>
+        <line num="64" count="122" type="stmt"/>
+        <line num="65" count="53" type="stmt"/>
+        <line num="69" count="122" type="stmt"/>
+        <line num="70" count="12" type="cond" truecount="3" falsecount="1"/>
         <line num="71" count="0" type="stmt"/>
-        <line num="74" count="13" type="stmt"/>
-        <line num="75" count="13" type="stmt"/>
-        <line num="76" count="13" type="stmt"/>
-        <line num="77" count="12" type="stmt"/>
-        <line num="81" count="9" type="stmt"/>
-        <line num="82" count="9" type="stmt"/>
-        <line num="83" count="9" type="stmt"/>
-        <line num="84" count="9" type="stmt"/>
-        <line num="85" count="9" type="stmt"/>
+        <line num="74" count="12" type="stmt"/>
+        <line num="75" count="12" type="stmt"/>
+        <line num="76" count="12" type="stmt"/>
+        <line num="77" count="11" type="stmt"/>
+        <line num="81" count="8" type="stmt"/>
+        <line num="82" count="8" type="stmt"/>
+        <line num="83" count="8" type="stmt"/>
+        <line num="84" count="8" type="stmt"/>
+        <line num="85" count="8" type="stmt"/>
         <line num="87" count="3" type="stmt"/>
         <line num="88" count="3" type="stmt"/>
-        <line num="91" count="127" type="stmt"/>
-        <line num="114" count="176" type="stmt"/>
+        <line num="91" count="122" type="stmt"/>
+        <line num="114" count="172" type="stmt"/>
         <line num="132" count="7" type="stmt"/>
         <line num="152" count="1" type="stmt"/>
         <line num="163" count="1" type="stmt"/>
         <line num="171" count="2" type="stmt"/>
-        <line num="193" count="19" type="stmt"/>
+        <line num="193" count="16" type="stmt"/>
       </file>
       <file name="Policy.js" path="/Users/Edwin_1/Desktop/cs4218-2520-ecom-project-cs4218-2520-team16/client/src/pages/Policy.js">
         <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>

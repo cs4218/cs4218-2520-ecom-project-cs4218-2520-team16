@@ -1,5 +1,6 @@
 // Wang Zihan A0266073A
 // With suggestions from ChatGPT 5.4
+// Bug fixed by Wen Han Tang with help from ChatGPT A0340008W
 
 import authRoutes from "../routes/authRoute.js";
 import categoryRoutes from "../routes/categoryRoutes.js";
@@ -8,6 +9,14 @@ import categoryModel from "../models/categoryModel.js";
 import orderModel from "../models/orderModel.js";
 import productModel from "../models/productModel.js";
 import slugify from "slugify";
+
+jest.mock("braintree", () => ({
+  Environment: { Sandbox: "Sandbox" },
+  BraintreeGateway: jest.fn(() => ({
+    transaction: { sale: jest.fn() },
+    clientToken: { generate: jest.fn() },
+  })),
+}));
 
 jest.mock("../models/categoryModel.js");
 jest.mock("../models/orderModel.js");
@@ -266,7 +275,8 @@ describe("Product route integrations", () => {
       { _id: "p-1", name: "Laptop", slug: "laptop" },
       { _id: "p-2", name: "Tablet", slug: "tablet" },
     ];
-    const sort = jest.fn().mockResolvedValue(products);
+    const lean = jest.fn().mockResolvedValue(products);
+    const sort = jest.fn().mockReturnValue({ lean });
     const limit = jest.fn().mockReturnValue({ sort });
     const select = jest.fn().mockReturnValue({ limit });
     const populate = jest.fn().mockReturnValue({ select });
@@ -285,6 +295,7 @@ describe("Product route integrations", () => {
     expect(select).toHaveBeenCalledWith("-photo");
     expect(limit).toHaveBeenCalledWith(12);
     expect(sort).toHaveBeenCalledWith({ createdAt: -1 });
+    expect(lean).toHaveBeenCalledTimes(1);
     expect(res.statusCode).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.counTotal).toBe(2);
@@ -292,12 +303,13 @@ describe("Product route integrations", () => {
 
   test("single-product routes the slug param into the controller", async () => {
     // Arrange
-    const populate = jest.fn().mockResolvedValue({
+    const lean = jest.fn().mockResolvedValue({
       _id: "p-1",
       name: "Laptop",
       slug: "laptop",
       category: { _id: "c-1", name: "Electronics" },
     });
+    const populate = jest.fn().mockReturnValue({ lean });
     const select = jest.fn().mockReturnValue({ populate });
     productModel.findOne.mockReturnValue({ select });
 
@@ -312,6 +324,7 @@ describe("Product route integrations", () => {
     expect(productModel.findOne).toHaveBeenCalledWith({ slug: "laptop" });
     expect(select).toHaveBeenCalledWith("-photo");
     expect(populate).toHaveBeenCalledWith("category");
+    expect(lean).toHaveBeenCalledTimes(1);
     expect(res.statusCode).toBe(200);
     expect(res.body.product.name).toBe("Laptop");
   });
@@ -405,8 +418,7 @@ describe("Product route integrations", () => {
 
   test("product-count returns the estimated document count through the router", async () => {
     // Arrange
-    const estimatedDocumentCount = jest.fn().mockResolvedValue(12);
-    productModel.find.mockReturnValue({ estimatedDocumentCount });
+    productModel.estimatedDocumentCount = jest.fn().mockResolvedValue(12);
 
     // Act
     const { res } = await dispatchRequest({
@@ -416,8 +428,7 @@ describe("Product route integrations", () => {
     });
 
     // Assert
-    expect(productModel.find).toHaveBeenCalledWith({});
-    expect(estimatedDocumentCount).toHaveBeenCalledTimes(1);
+    expect(productModel.estimatedDocumentCount).toHaveBeenCalledTimes(1);
     expect(res.statusCode).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.total).toBe(12);
@@ -425,7 +436,8 @@ describe("Product route integrations", () => {
 
   test("product-list routes the page param into the pagination controller", async () => {
     // Arrange
-    const sort = jest.fn().mockResolvedValue([{ _id: "p-1", name: "Laptop" }]);
+    const lean = jest.fn().mockResolvedValue([{ _id: "p-1", name: "Laptop" }]);
+    const sort = jest.fn().mockReturnValue({ lean });
     const limit = jest.fn().mockReturnValue({ sort });
     const skip = jest.fn().mockReturnValue({ limit });
     const select = jest.fn().mockReturnValue({ skip });
@@ -444,13 +456,16 @@ describe("Product route integrations", () => {
     expect(skip).toHaveBeenCalledWith(12);
     expect(limit).toHaveBeenCalledWith(6);
     expect(sort).toHaveBeenCalledWith({ createdAt: -1 });
+    expect(lean).toHaveBeenCalledTimes(1);
     expect(res.statusCode).toBe(200);
     expect(res.body.products).toHaveLength(1);
   });
 
   test("search routes the keyword param into the regex query", async () => {
     // Arrange
-    const select = jest.fn().mockResolvedValue([{ _id: "p-1", name: "Tablet" }]);
+    const lean = jest.fn().mockResolvedValue([{ _id: "p-1", name: "Tablet" }]);
+    const limit = jest.fn().mockReturnValue({ lean });
+    const select = jest.fn().mockReturnValue({ limit });
     productModel.find.mockReturnValue({ select });
 
     // Act
@@ -468,12 +483,15 @@ describe("Product route integrations", () => {
       ],
     });
     expect(select).toHaveBeenCalledWith("-photo");
+    expect(limit).toHaveBeenCalledWith(20);
+    expect(lean).toHaveBeenCalledTimes(1);
     expect(res.body).toEqual([{ _id: "p-1", name: "Tablet" }]);
   });
 
   test("related-product routes both product and category params into the controller", async () => {
     // Arrange
-    const populate = jest.fn().mockResolvedValue([{ _id: "p-2", name: "Mouse" }]);
+    const lean = jest.fn().mockResolvedValue([{ _id: "p-2", name: "Mouse" }]);
+    const populate = jest.fn().mockReturnValue({ lean });
     const limit = jest.fn().mockReturnValue({ populate });
     const select = jest.fn().mockReturnValue({ limit });
     productModel.find.mockReturnValue({ select });
@@ -493,6 +511,7 @@ describe("Product route integrations", () => {
     expect(select).toHaveBeenCalledWith("-photo");
     expect(limit).toHaveBeenCalledWith(3);
     expect(populate).toHaveBeenCalledWith("category");
+    expect(lean).toHaveBeenCalledTimes(1);
     expect(res.statusCode).toBe(200);
     expect(res.body.products).toHaveLength(1);
   });
@@ -500,8 +519,10 @@ describe("Product route integrations", () => {
   test("product-category looks up the slug and returns products for that category", async () => {
     // Arrange
     const category = { _id: "c-1", name: "Electronics", slug: "electronics" };
-    categoryModel.findOne.mockResolvedValue(category);
-    const populate = jest.fn().mockResolvedValue([{ _id: "p-1", name: "Laptop" }]);
+    const categoryLean = jest.fn().mockResolvedValue(category);
+    categoryModel.findOne.mockReturnValue({ lean: categoryLean });
+    const lean = jest.fn().mockResolvedValue([{ _id: "p-1", name: "Laptop" }]);
+    const populate = jest.fn().mockReturnValue({ lean });
     productModel.find.mockReturnValue({ populate });
 
     // Act
@@ -513,8 +534,10 @@ describe("Product route integrations", () => {
 
     // Assert
     expect(categoryModel.findOne).toHaveBeenCalledWith({ slug: "electronics" });
-    expect(productModel.find).toHaveBeenCalledWith({ category });
+    expect(categoryLean).toHaveBeenCalledTimes(1);
+    expect(productModel.find).toHaveBeenCalledWith({ category: "c-1" });
     expect(populate).toHaveBeenCalledWith("category");
+    expect(lean).toHaveBeenCalledTimes(1);
     expect(res.statusCode).toBe(200);
     expect(res.body.category.name).toBe("Electronics");
     expect(res.body.products).toHaveLength(1);

@@ -4,6 +4,7 @@
  * Student ID: A0338423E
  * Testing complete user journey from cart to payment completion
  */
+// Bug fixed by Wen Han Tang with help from ChatGPT A0340008W
 
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
@@ -398,6 +399,7 @@ describe('Checkout & Payment Integration Tests', () => {
       }, { timeout: 5000 });
 
       const paymentButton = screen.getByText('Make Payment');
+      await waitFor(() => expect(paymentButton).not.toBeDisabled(), { timeout: 5000 });
       fireEvent.click(paymentButton);
 
       await waitFor(() => {
