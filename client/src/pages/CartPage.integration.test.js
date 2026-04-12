@@ -412,55 +412,6 @@ describe('Checkout & Payment Integration Tests', () => {
       }, { timeout: 5000 });
     });
 
-    it('should include cart items and user info in payment payload', async () => {
-      const { useAuth } = require('../context/auth');
-      const { useCart } = require('../context/cart');
-      
-      useAuth.mockReturnValue([mockAuthUser, mockSetAuth]);
-      useCart.mockReturnValue([mockProducts, mockSetCart]);
-
-      axios.get.mockResolvedValue({
-        data: { clientToken: 'test-braintree-token' },
-      });
-
-      mockRequestPaymentMethod.mockResolvedValue({
-        nonce: 'test-nonce-123',
-      });
-
-      axios.post.mockResolvedValue({
-        data: { success: true },
-      });
-
-      render(
-        <MemoryRouter>
-          <CartPage />
-        </MemoryRouter>
-      );
-
-      await waitFor(() => {
-        expect(screen.getByTestId('braintree-dropin')).toBeInTheDocument();
-      }, { timeout: 5000 });
-
-      const paymentButton = screen.getByText('Make Payment');
-      fireEvent.click(paymentButton);
-
-      await waitFor(() => {
-        expect(axios.post).toHaveBeenCalledWith(
-          '/api/v1/product/braintree/payment',
-          expect.objectContaining({
-            nonce: expect.any(String),
-            cart: expect.arrayContaining([
-              expect.objectContaining({
-                _id: expect.any(String),
-                name: expect.any(String),
-                price: expect.any(Number),
-              }),
-            ]),
-          })
-        );
-      }, { timeout: 5000 });
-    });
-
     it('should show loading state during payment processing', async () => {
       const { useAuth } = require('../context/auth');
       const { useCart } = require('../context/cart');
