@@ -516,3 +516,23 @@ Documentation updates:
   - Two significant bugs found:
     1. `productFiltersController` returns full documents including binary `photo` Buffer data (no `.select("-photo")`, no `.lean()`, no `.limit()`), causing server heap exhaustion and 38.6% error rate at peak
     2. `responseCacheMiddleware.js` in-memory `Map` cache has no size cap and no active eviction, causing unbounded memory growth under sustained load
+
+## Wang Zihan (A0266073A)
+### Security Tests
+In milestone 3, I did security tests with jest. The test cases can be run directly with `npm run test:security` and observe the failed test cases due to real security vulnerabilities in the backend.
+### Files changed:
+ - Added `./security-tests` folder and all files in this folder
+  - `./security-tests/backend/authentication-authorization.security.test.js`
+  - `./security-tests/backend/confidentiality-integrity.security.test.js`
+  - `./security-tests/backend/route-security-audit.security.test.js`
+  - `./security-tests/frontend/xss-client.security.test.js`
+ - Modified `./package.json` for adding `npm run test:security`
+ - Modified `./jest.backend.config.js` for the thing mentioned in the below note
+### Note
+- These security test cases can be run with `npm run test:security`, and they are excluded from `npm run test:backend` for milestone 3 when running GitHub actions
+- This is because this project has real security vulnerabilities that would fail some security test cases
+- Since milestone 3 does not require fix any bugs in the project itself, I leave the test cases failed
+- To make GitHub actions pass and make the overall GitHub action result of repository not affected by the security test cases that are intended to fail due to real security vulnerabilities, I exclude security tests from `npm run test:backend`
+- Run `npm run test:security` to run security tests and see the failed test cases
+
+
