@@ -20,6 +20,7 @@
     "test:stress:jmeter": "jmeter -n -t load-tests/jmeter/stress-test-RogerYao-A0340029N.jmx -JcsvDir=load-tests/jmeter/data -l load-tests/jmeter/results/all-stress-summary.jtl -e -o load-tests/jmeter/results/html-report/",
     "test": "npm run test:backend && npm run test:frontend && npm run test:ui",
     "test:frontend": "jest --config jest.frontend.config.js --watchAll=false",
+    "test:frontend:ci": "jest --config jest.frontend.config.js --watchAll=false --runInBand",
     "test:backend": "jest --config jest.backend.config.js",
     "test:ui": "playwright test",
     "test:ui:ci": "playwright test --reporter=line --max-failures=10",

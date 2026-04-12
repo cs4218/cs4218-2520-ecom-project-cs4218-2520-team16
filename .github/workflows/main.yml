@@ -29,11 +29,11 @@ jobs:
         run: | 
           cd client
           npm install
-      # runInBand + coverage + jsdom needs >4GB; ubuntu-latest has ~7GB RAM total.
+      # runInBand + coverage + jsdom peaked at ~4GB heap; use 6GB Node heap on ~7GB runners.
       - name: Run Jest Tests
         env:
           NODE_OPTIONS: --max-old-space-size=6144
-        run: npm run test:frontend -- --runInBand
+        run: npm run test:frontend:ci
 
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
