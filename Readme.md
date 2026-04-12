@@ -474,18 +474,24 @@ CI workflow changes:
 - Added load-test smoke job integration
 - Reworked secret-gating logic to avoid invalid workflow expression errors and conditionally run smoke steps safely.
 - Security/secret hygiene
+
 Backend bug fixes and regression tests:
 
 - Category controller fix in categoryController.js
+- Test mock fix in integration-test-route.test.js
+- Async bug fix in CartPage.integration.tests.js
 - Product controller hardening in productController.js through throwing error codes
+
 New/updated controller tests:
 
 - categoryController.test.js
 - productController.test.js
+
 UI test stability improvements:
 
 - Auth flow stabilization in auth.spec.js
 - Product discovery flaky search-state fix in product-discovery.spec.js
+
 Documentation updates:
 
 - Load testing instructions and profile intent updated in Readme.md
