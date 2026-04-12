@@ -29,8 +29,12 @@ jobs:
         run: | 
           cd client
           npm install
+      # Single process + larger heap: parallel Jest workers multiply memory on the runner
+      # and get SIGTERM on OOM, which skips suites and fails global coverage thresholds.
       - name: Run Jest Tests
-        run: npm run test:frontend
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
+        run: npm run test:frontend -- --runInBand
 
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
