@@ -21,6 +21,7 @@
     "test": "npm run test:backend && npm run test:frontend && npm run test:ui",
     "test:frontend": "jest --config jest.frontend.config.js --watchAll=false",
     "test:backend": "jest --config jest.backend.config.js",
+    "test:security": "jest --config security-tests/jest.security.config.js --runInBand",
     "test:ui": "playwright test",
     "test:ui:ci": "playwright test --reporter=line --max-failures=10",
     "test:ui:headed": "playwright test --headed",
