@@ -1,7 +1,7 @@
 // Written by Roger Yao (A0340029N) with help from copilot.
 
 import React from "react";
-import { render, screen, waitFor, act } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import axios from "axios";
 import moment from "moment";
@@ -59,7 +59,7 @@ describe("AdminOrders Component", () => {
   });
 
   describe("Initial Rendering", () => {
-    test("should render layout with correct title", () => {
+    test("should render layout with correct title", async () => {
       // Arrange
       useAuth.mockReturnValue([{ token: "admin-token" }, jest.fn()]);
       axios.get.mockResolvedValue({ data: [] });
@@ -68,11 +68,13 @@ describe("AdminOrders Component", () => {
       render(<AdminOrders />);
 
       // Assert
-      expect(screen.getByTestId("layout")).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByTestId("layout")).toBeInTheDocument();
+      });
       expect(screen.getByText("All Orders Data")).toBeInTheDocument();
     });
 
-    test("should render AdminMenu component", () => {
+    test("should render AdminMenu component", async () => {
       // Arrange
       useAuth.mockReturnValue([{ token: "admin-token" }, jest.fn()]);
       axios.get.mockResolvedValue({ data: [] });
@@ -81,10 +83,12 @@ describe("AdminOrders Component", () => {
       render(<AdminOrders />);
 
       // Assert
-      expect(screen.getByTestId("admin-menu")).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByTestId("admin-menu")).toBeInTheDocument();
+      });
     });
 
-    test("should render All Orders heading", () => {
+    test("should render All Orders heading", async () => {
       // Arrange
       useAuth.mockReturnValue([{ token: "admin-token" }, jest.fn()]);
       axios.get.mockResolvedValue({ data: [] });
@@ -93,10 +97,12 @@ describe("AdminOrders Component", () => {
       render(<AdminOrders />);
 
       // Assert
-      expect(screen.getByText("All Orders")).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText("All Orders")).toBeInTheDocument();
+      });
     });
 
-    test("should render dashboard structure with correct columns", () => {
+    test("should render dashboard structure with correct columns", async () => {
       // Arrange
       useAuth.mockReturnValue([{ token: "admin-token" }, jest.fn()]);
       axios.get.mockResolvedValue({ data: [] });
@@ -105,14 +111,16 @@ describe("AdminOrders Component", () => {
       const { container } = render(<AdminOrders />);
 
       // Assert
-      const dashboard = container.querySelector(".dashboard");
-      expect(dashboard).toBeInTheDocument();
-      
-      const col3 = container.querySelector(".col-md-3");
-      expect(col3).toBeInTheDocument();
-      
-      const col9 = container.querySelector(".col-md-9");
-      expect(col9).toBeInTheDocument();
+      await waitFor(() => {
+        const dashboard = container.querySelector(".dashboard");
+        expect(dashboard).toBeInTheDocument();
+
+        const col3 = container.querySelector(".col-md-3");
+        expect(col3).toBeInTheDocument();
+
+        const col9 = container.querySelector(".col-md-9");
+        expect(col9).toBeInTheDocument();
+      });
     });
   });
 
@@ -124,13 +132,12 @@ describe("AdminOrders Component", () => {
       axios.get.mockResolvedValue({ data: mockOrders });
 
       // Act
-      await act(async () => {
-        render(<AdminOrders />);
-        await new Promise(resolve => setTimeout(resolve, 0));
-      });
+      render(<AdminOrders />);
 
       // Assert
-      expect(axios.get).toHaveBeenCalledWith("/api/v1/auth/all-orders");
+      await waitFor(() => {
+        expect(axios.get).toHaveBeenCalledWith("/api/v1/auth/all-orders");
+      });
     });
 
     test("should NOT fetch orders when auth token is missing", async () => {
@@ -139,13 +146,12 @@ describe("AdminOrders Component", () => {
       axios.get.mockResolvedValue({ data: [] });
 
       // Act
-      await act(async () => {
-        render(<AdminOrders />);
-        await new Promise(resolve => setTimeout(resolve, 0));
-      });
+      render(<AdminOrders />);
 
       // Assert
-      expect(axios.get).not.toHaveBeenCalled();
+      await waitFor(() => {
+        expect(axios.get).not.toHaveBeenCalled();
+      });
     });
 
     test("should handle errors gracefully during fetch", async () => {
@@ -156,13 +162,12 @@ describe("AdminOrders Component", () => {
       axios.get.mockRejectedValue(error);
 
       // Act
-      await act(async () => {
-        render(<AdminOrders />);
-        await new Promise(resolve => setTimeout(resolve, 0));
-      });
+      render(<AdminOrders />);
 
       // Assert
-      expect(consoleLogSpy).toHaveBeenCalledWith(error);
+      await waitFor(() => {
+        expect(consoleLogSpy).toHaveBeenCalledWith(error);
+      });
       consoleLogSpy.mockRestore();
     });
   });
@@ -567,10 +572,7 @@ describe("AdminOrders Component", () => {
       axios.get.mockResolvedValue({ data: mockOrders });
 
       // Act
-      await act(async () => {
-        render(<AdminOrders />);
-        await new Promise(resolve => setTimeout(resolve, 0));
-      });
+      render(<AdminOrders />);
 
       // Assert
       await waitFor(() => {
@@ -603,10 +605,7 @@ describe("AdminOrders Component", () => {
       axios.get.mockResolvedValue({ data: mockOrders });
 
       // Act
-      await act(async () => {
-        render(<AdminOrders />);
-        await new Promise(resolve => setTimeout(resolve, 0));
-      });
+      render(<AdminOrders />);
 
       // Assert
       await waitFor(() => {
@@ -643,10 +642,7 @@ describe("AdminOrders Component", () => {
       axios.get.mockResolvedValue({ data: mockOrders });
 
       // Act
-      await act(async () => {
-        render(<AdminOrders />);
-        await new Promise(resolve => setTimeout(resolve, 0));
-      });
+      render(<AdminOrders />);
 
       // Assert
       await waitFor(() => {
@@ -685,10 +681,7 @@ describe("AdminOrders Component", () => {
       axios.get.mockResolvedValue({ data: mockOrders });
 
       // Act
-      await act(async () => {
-        render(<AdminOrders />);
-        await new Promise(resolve => setTimeout(resolve, 0));
-      });
+      render(<AdminOrders />);
 
       // Assert
       await waitFor(() => {
@@ -746,17 +739,16 @@ describe("AdminOrders Component", () => {
       axios.get.mockResolvedValue({ data: mockOrders });
 
       // Act
-      await act(async () => {
-        const { rerender } = render(<AdminOrders />);
+      const { rerender } = render(<AdminOrders />);
 
-        // Update auth token
-        useAuth.mockReturnValue([{ token: "new-admin-token" }, jest.fn()]);
-        rerender(<AdminOrders />);
-        await new Promise(resolve => setTimeout(resolve, 0));
-      });
+      // Update auth token
+      useAuth.mockReturnValue([{ token: "new-admin-token" }, jest.fn()]);
+      rerender(<AdminOrders />);
 
       // Assert
-      expect(axios.get).toHaveBeenCalledWith("/api/v1/auth/all-orders");
+      await waitFor(() => {
+        expect(axios.get).toHaveBeenCalledWith("/api/v1/auth/all-orders");
+      });
     });
   });
 
@@ -777,10 +769,7 @@ describe("AdminOrders Component", () => {
       axios.get.mockResolvedValue({ data: mockOrders });
 
       // Act
-      await act(async () => {
-        render(<AdminOrders />);
-        await new Promise(resolve => setTimeout(resolve, 0));
-      });
+      render(<AdminOrders />);
 
       // Assert
       await waitFor(() => {
@@ -796,13 +785,12 @@ describe("AdminOrders Component", () => {
       axios.get.mockResolvedValue({ data: [] });
 
       // Act
-      await act(async () => {
-        render(<AdminOrders />);
-        await new Promise(resolve => setTimeout(resolve, 0));
-      });
+      render(<AdminOrders />);
 
       // Assert
-      expect(screen.getByText("All Orders")).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText("All Orders")).toBeInTheDocument();
+      });
     });
 
     test("should handle orders with no products", async () => {
@@ -821,10 +809,7 @@ describe("AdminOrders Component", () => {
       axios.get.mockResolvedValue({ data: mockOrders });
 
       // Act
-      await act(async () => {
-        render(<AdminOrders />);
-        await new Promise(resolve => setTimeout(resolve, 0));
-      });
+      render(<AdminOrders />);
 
       // Assert
       await waitFor(() => {
@@ -848,10 +833,7 @@ describe("AdminOrders Component", () => {
       axios.get.mockResolvedValue({ data: mockOrders });
 
       // Act
-      await act(async () => {
-        render(<AdminOrders />);
-        await new Promise(resolve => setTimeout(resolve, 0));
-      });
+      render(<AdminOrders />);
 
       // Assert
       await waitFor(() => {
@@ -881,10 +863,7 @@ describe("AdminOrders Component", () => {
       axios.get.mockResolvedValue({ data: mockOrders });
 
       // Act
-      await act(async () => {
-        render(<AdminOrders />);
-        await new Promise(resolve => setTimeout(resolve, 0));
-      });
+      render(<AdminOrders />);
 
       // Assert - Should render without crashing
       await waitFor(() => {
@@ -908,10 +887,7 @@ describe("AdminOrders Component", () => {
       axios.get.mockResolvedValue({ data: mockOrders });
 
       // Act
-      await act(async () => {
-        render(<AdminOrders />);
-        await new Promise(resolve => setTimeout(resolve, 0));
-      });
+      render(<AdminOrders />);
 
       // Assert - Should render without crashing
       await waitFor(() => {
