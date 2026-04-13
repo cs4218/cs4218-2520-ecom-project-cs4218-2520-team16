@@ -201,9 +201,9 @@ This repository includes a lightweight Artillery scenario that exercises the pub
    Other useful profiles:
 
    ```bash
-   npm run test:load:smoke   # quick sanity check (about 20s)
-   npm run test:load:stress  # includes aggressive ramp/peak behavior (spike-like)
-   npm run test:load:soak    # sustained traffic to detect degradation/leaks
+   npm run test:load:smoke      # quick sanity check (about 20s)
+   npm run test:load:varied     # includes aggressive ramp/peak behavior (spike-like)
+   npm run test:load:sustained  # sustained traffic to detect degradation/leaks
    ```
 
 3. Optionally override the target host.
@@ -457,6 +457,46 @@ Files (in `./tests/ui`):
 - `spike-tests/Locust_spike_test.png` — Screenshot of Locust statistics (all endpoints, p50/p95/p99, 0% failure rate at 94 RPS)
 - `spike-tests/Locust_Chart.png` — Screenshot of Locust charts (RPS over time, response time trends, user count ramp)
 
+## Wen Han Tang (A0340008W)
+Load testing setup and profiles:
+
+- Added Artillery and scripts in package.json
+- Added lockfile updates for dependencies in package-lock.json
+- Added default load profile in public-catalog-load-test.yml
+- Added smoke profile in public-catalog-smoke-load-test.yml
+- Added varied profile in public-catalog-varied-load-test.yml
+- Added sustained profile in public-catalog-sustained-load-test.yml
+- Default load profile was later adjusted from spike-style to smoother ramp + sustained phases for consistency.
+
+CI workflow changes:
+
+- Updated workflow in main.yml
+- Added load-test smoke job integration
+- Reworked secret-gating logic to avoid invalid workflow expression errors and conditionally run smoke steps safely.
+- Security/secret hygiene
+
+Backend bug fixes and regression tests:
+
+- Category controller fix in categoryController.js
+- Test mock fix in integration-test-route.test.js
+- Async bug fix in CartPage.integration.tests.js
+- Product controller hardening in productController.js through throwing error codes
+
+New/updated controller tests:
+
+- categoryController.test.js
+- productController.test.js
+
+UI test stability improvements:
+
+- Auth flow stabilization in auth.spec.js
+- Product discovery flaky search-state fix in product-discovery.spec.js
+
+Documentation updates:
+
+- Load testing instructions and profile intent updated in Readme.md
+- Contribution attribution in readme
+
 ## Roger Yuzhe Yao (A0340029N)
 
 **Non-Functional Testing — Stress Testing (Apache JMeter 5.6.3)**
@@ -476,3 +516,30 @@ Files (in `./tests/ui`):
   - Two significant bugs found:
     1. `productFiltersController` returns full documents including binary `photo` Buffer data (no `.select("-photo")`, no `.lean()`, no `.limit()`), causing server heap exhaustion and 38.6% error rate at peak
     2. `responseCacheMiddleware.js` in-memory `Map` cache has no size cap and no active eviction, causing unbounded memory growth under sustained load
+
+## Wang Zihan (A0266073A)
+### Security Tests
+In milestone 3, I did security tests with jest. The test cases can be run directly with `npm run test:security` and observe the failed test cases due to real security vulnerabilities in the backend.
+### Files changed:
+ - Added `./security-tests` folder and all files in this folder
+  - `./security-tests/backend/authentication-authorization.security.test.js`
+  - `./security-tests/backend/confidentiality-integrity.security.test.js`
+  - `./security-tests/backend/route-security-audit.security.test.js`
+  - `./security-tests/frontend/xss-client.security.test.js`
+ - Modified `./package.json` for adding `npm run test:security`
+ - Modified `./jest.backend.config.js` for the thing mentioned in the below note
+### Note
+- These security test cases can be run with `npm run test:security`, and they are excluded from `npm run test:backend` for milestone 3 when running GitHub actions
+- This is because this project has real security vulnerabilities that would fail some security test cases
+- Since milestone 3 does not require fix any bugs in the project itself, I leave the test cases failed
+- To make GitHub actions pass and make the overall GitHub action result of repository not affected by the security test cases that are intended to fail due to real security vulnerabilities, I exclude security tests from `npm run test:backend`
+- Run `npm run test:security` to run security tests and see the failed test cases
+
+## Aum Yogeshbhai Chotaliya (A0285229M)
+- Extended soak scenario (60s warm-up + 30min sustained) in soak-tests/
+- processor.cjs for Artillery hooks; run-extended-soak.mjs and npm scripts
+- analyze-soak.js and generate-ms3-report.mjs for MS3_SOAK_REPORT.md
+- Full ~31min Artillery JSON output and generated markdown report
+
+Generated soak test analysis under soak-tests/results/
+
