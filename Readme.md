@@ -535,4 +535,11 @@ In milestone 3, I did security tests with jest. The test cases can be run direct
 - To make GitHub actions pass and make the overall GitHub action result of repository not affected by the security test cases that are intended to fail due to real security vulnerabilities, I exclude security tests from `npm run test:backend`
 - Run `npm run test:security` to run security tests and see the failed test cases
 
+## Aum Yogeshbhai Chotaliya (A0285229M)
+- Extended soak scenario (60s warm-up + 30min sustained) in soak-tests/
+- processor.cjs for Artillery hooks; run-extended-soak.mjs and npm scripts
+- analyze-soak.js and generate-ms3-report.mjs for MS3_SOAK_REPORT.md
+- Full ~31min Artillery JSON output and generated markdown report
+
+Generated soak test analysis under soak-tests/results/
 
