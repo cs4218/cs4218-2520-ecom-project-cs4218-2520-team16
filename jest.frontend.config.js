@@ -13,6 +13,8 @@ export default {
 
   // tells jest how to handle css/scss imports in your tests
   moduleNameMapper: {
+    "^braintree-web-drop-in-react$":
+      "<rootDir>/client/src/test-mocks/braintree-web-drop-in-react.js",
     "\\.(css|scss)$": "identity-obj-proxy",
   },
 

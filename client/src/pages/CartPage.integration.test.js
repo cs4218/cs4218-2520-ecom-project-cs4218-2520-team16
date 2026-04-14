@@ -31,25 +31,10 @@ jest.mock('../components/Layout', () => {
   };
 });
 
-// Mock Braintree DropIn
-const mockRequestPaymentMethod = jest.fn();
-jest.mock('braintree-web-drop-in-react', () => {
-  return function MockDropIn({ onInstance, options }) {
-    const mockReact = require('react');
-    const instanceRef = mockReact.useRef(null);
-    
-    mockReact.useEffect(() => {
-      if (!instanceRef.current && onInstance) {
-        instanceRef.current = {
-          requestPaymentMethod: mockRequestPaymentMethod,
-        };
-        onInstance(instanceRef.current);
-      }
-    }, []);
-    
-    return <div data-testid="braintree-dropin">Braintree DropIn Mock</div>;
-  };
-});
+const {
+  mockRequestPaymentMethod,
+  setSkipInstanceCallback,
+} = require("braintree-web-drop-in-react");
 
 // Mock icons
 jest.mock('react-icons/ai', () => ({
@@ -964,34 +949,31 @@ describe('Checkout & Payment Integration Tests', () => {
     it('should handle payment button disabled state when no instance', async () => {
       const { useAuth } = require('../context/auth');
       const { useCart } = require('../context/cart');
-      
-      // Mock the DropIn to NOT call onInstance
-      jest.resetModules();
-      jest.mock('braintree-web-drop-in-react', () => {
-        return function MockDropInNoInstance() {
-          return <div data-testid="braintree-dropin-no-instance">Braintree DropIn Mock</div>;
-        };
-      });
 
-      useAuth.mockReturnValue([mockAuthUser, mockSetAuth]);
-      useCart.mockReturnValue([mockProducts, mockSetCart]);
+      setSkipInstanceCallback(true);
+      try {
+        useAuth.mockReturnValue([mockAuthUser, mockSetAuth]);
+        useCart.mockReturnValue([mockProducts, mockSetCart]);
 
-      axios.get.mockResolvedValue({
-        data: { clientToken: 'test-token' },
-      });
+        axios.get.mockResolvedValue({
+          data: { clientToken: 'test-token' },
+        });
 
-      render(
-        <MemoryRouter>
-          <CartPage />
-        </MemoryRouter>
-      );
+        render(
+          <MemoryRouter>
+            <CartPage />
+          </MemoryRouter>
+        );
 
-      await waitFor(() => {
-        const paymentButton = screen.queryByText('Make Payment');
-        if (paymentButton) {
-          expect(paymentButton).toBeDisabled();
-        }
-      }, { timeout: 5000 });
+        await waitFor(() => {
+          const paymentButton = screen.queryByText('Make Payment');
+          if (paymentButton) {
+            expect(paymentButton).toBeDisabled();
+          }
+        }, { timeout: 5000 });
+      } finally {
+        setSkipInstanceCallback(false);
+      }
     });
   });
 });

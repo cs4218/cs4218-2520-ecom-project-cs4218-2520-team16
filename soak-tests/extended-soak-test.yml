@@ -1,0 +1,82 @@
+# Extended Soak Test Configuration
+# Author: Aum Yogeshbhai Chotaliya (A0285229M)
+# Purpose: Test system stability over 30 minutes under sustained moderate load
+
+config:
+  target: "http://localhost:6060"
+  phases:
+    # Phase 1: Warm-up (1 minute)
+    - duration: 60
+      arrivalRate: 2
+      rampTo: 8
+      name: "warm-up"
+    
+    # Phase 2: Sustained load (30 minutes)
+    - duration: 1800
+      arrivalRate: 8
+      name: "sustained-soak"
+  
+  # Performance thresholds
+  ensure:
+    maxErrorRate: 1                    # Less than 1% errors
+    p95: 2000                          # 95th percentile under 2 seconds
+    p99: 5000                          # 99th percentile under 5 seconds
+  
+  defaults:
+    headers:
+      Accept: application/json
+
+  # Processor for dynamic search terms and response-time hooks (no extra npm plugins required)
+  # CommonJS — Artillery loads processors with require()
+  processor: "./processor.cjs"
+
+scenarios:
+  # Scenario 1: Browse catalog (80% of traffic)
+  - name: browse-catalog-workflow
+    weight: 80
+    flow:
+      # Step 1: Get all products
+      - get:
+          url: /api/v1/product/get-product
+          expect:
+            - statusCode: 200
+          afterResponse: "captureResponseTime"
+      
+      # Step 2: Get categories
+      - get:
+          url: /api/v1/category/get-category
+          expect:
+            - statusCode: 200
+          afterResponse: "captureResponseTime"
+      
+      # Step 3: Get paginated products
+      - get:
+          url: /api/v1/product/product-list/1
+          expect:
+            - statusCode: 200
+          afterResponse: "captureResponseTime"
+      
+      # Simulate user think time (realistic browsing)
+      - think: 2
+
+  # Scenario 2: Search products (20% of traffic)
+  - name: search-workflow
+    weight: 20
+    flow:
+      # Step 1: Search for product
+      - get:
+          url: /api/v1/product/search/{{ searchTerm }}
+          beforeRequest: "setSearchTerm"
+          expect:
+            - statusCode: 200
+          afterResponse: "captureResponseTime"
+      
+      # Step 2: View product details (get all products to simulate detail view)
+      - get:
+          url: /api/v1/product/get-product
+          expect:
+            - statusCode: 200
+          afterResponse: "captureResponseTime"
+      
+      # Simulate user think time
+      - think: 3
